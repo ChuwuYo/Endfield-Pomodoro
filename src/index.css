@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Font Configuration */
+  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Rajdhani", sans-serif;
+
+  /* Color Configuration - Mapping to CSS variables */
+  /* This automatically creates classes like bg-theme-primary, text-theme-base */
+  --color-theme-base: var(--color-base);
+  --color-theme-surface: var(--color-surface);
+  --color-theme-highlight: var(--color-highlight);
+  --color-theme-primary: var(--color-primary);
+  --color-theme-secondary: var(--color-secondary);
+  --color-theme-accent: var(--color-accent);
+  --color-theme-text: var(--color-text);
+  --color-theme-dim: var(--color-dim);
+
+  /* Animation Configuration */
+  --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-spin-slow: spin 12s linear infinite;
+  --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-glitch: glitch 0.2s linear infinite;
+
+  @keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+  }
+}
+
+/* Base Variables for Theming (Dynamic switching via React) */
+:root {
+  --color-base: #0f0f11;
+  --color-surface: #18181b;
+  --color-highlight: #27272a;
+  --color-primary: #ea580c;
+  --color-secondary: #fbbf24;
+  --color-accent: #06b6d4;
+  --color-text: #e4e4e7;
+  --color-dim: #71717a;
+}
+
+/* Base Styles */
+body {
+  @apply bg-theme-base text-theme-text overflow-hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-highlight); 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary); 
+}
+
+/* Utility for the slanted button effect */
+.clip-path-slant {
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
