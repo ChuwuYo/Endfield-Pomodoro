@@ -7,6 +7,7 @@ import type { Settings } from './types';
 import { Language, ThemePreset } from './types';
 import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './components/TerminalUI';
 import { CustomSelect } from './components/CustomSelect';
+import { Checkbox } from './components/Checkbox';
 import { useTranslation } from './utils/i18n';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -287,33 +288,21 @@ const App: React.FC = () => {
                                         <span className="text-[10px] opacity-50">CONFIG_SECTOR_03</span>
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <label className="flex items-center gap-3 cursor-pointer group bg-black/20 p-3 border border-transparent hover:border-theme-primary/50 transition-colors">
-                                            <input
-                                                type="checkbox"
-                                                checked={settings.autoStartBreaks}
-                                                onChange={(e) => setSettings({ ...settings, autoStartBreaks: e.target.checked })}
-                                                className="accent-theme-primary w-4 h-4"
-                                            />
-                                            <span className="text-xs font-mono group-hover:text-theme-primary transition-colors">{t('AUTO_START_BREAK')}</span>
-                                        </label>
-                                        <label className="flex items-center gap-3 cursor-pointer group bg-black/20 p-3 border border-transparent hover:border-theme-primary/50 transition-colors">
-                                            <input
-                                                type="checkbox"
-                                                checked={settings.autoStartWork}
-                                                onChange={(e) => setSettings({ ...settings, autoStartWork: e.target.checked })}
-                                                className="accent-theme-primary w-4 h-4"
-                                            />
-                                            <span className="text-xs font-mono group-hover:text-theme-primary transition-colors">{t('AUTO_START_WORK')}</span>
-                                        </label>
-                                        <label className="flex items-center gap-3 cursor-pointer group bg-black/20 p-3 border border-transparent hover:border-theme-primary/50 transition-colors">
-                                            <input
-                                                type="checkbox"
-                                                checked={settings.soundEnabled}
-                                                onChange={(e) => setSettings({ ...settings, soundEnabled: e.target.checked })}
-                                                className="accent-theme-primary w-4 h-4"
-                                            />
-                                            <span className="text-xs font-mono group-hover:text-theme-primary transition-colors">{t('AUDIO_FEEDBACK')}</span>
-                                        </label>
+                                        <Checkbox
+                                            checked={settings.autoStartBreaks}
+                                            onChange={(checked) => setSettings({ ...settings, autoStartBreaks: checked })}
+                                            label={t('AUTO_START_BREAK')}
+                                        />
+                                        <Checkbox
+                                            checked={settings.autoStartWork}
+                                            onChange={(checked) => setSettings({ ...settings, autoStartWork: checked })}
+                                            label={t('AUTO_START_WORK')}
+                                        />
+                                        <Checkbox
+                                            checked={settings.soundEnabled}
+                                            onChange={(checked) => setSettings({ ...settings, soundEnabled: checked })}
+                                            label={t('AUDIO_FEEDBACK')}
+                                        />
                                     </div>
                                 </div>
                             </div>
