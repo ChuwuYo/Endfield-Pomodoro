@@ -23,6 +23,11 @@ const DEFAULT_SETTINGS: Settings = {
     theme: ThemePreset.ORIGIN
 };
 
+const STORAGE_KEYS = {
+    SETTINGS: 'origin_terminal_settings',
+    SESSIONS: 'origin_terminal_sessions'
+};
+
 const View = {
     DASHBOARD: 'DASHBOARD',
     SETTINGS: 'SETTINGS'
@@ -114,9 +119,25 @@ const THEMES = {
 };
 
 const App: React.FC = () => {
-    const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-    // Removed unused sessionCount variable to fix linter warning
-    const [, setSessionCount] = useState(0);
+    // Load settings from localStorage
+    const [settings, setSettings] = useState<Settings>(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+        if (saved) {
+            try {
+                return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+            } catch (e) {
+                console.error('Failed to load settings', e);
+            }
+        }
+        return DEFAULT_SETTINGS;
+    });
+
+    // Load session count from localStorage
+    const [sessionCount, setSessionCount] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+        return saved ? parseInt(saved, 10) : 0;
+    });
+
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -127,6 +148,16 @@ const App: React.FC = () => {
     useEffect(() => {
         document.title = t('APP_TITLE');
     }, [t]);
+
+    // Persist settings
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    }, [settings]);
+
+    // Persist session count
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.SESSIONS, sessionCount.toString());
+    }, [sessionCount]);
 
     // Apply Theme
     useEffect(() => {
@@ -330,7 +361,11 @@ const App: React.FC = () => {
                 <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
                     {/* Left: Pomodoro (Larger) */}
                     <div className="lg:col-span-7 flex flex-col h-auto min-h-[450px] md:h-[500px]">
-                        <Pomodoro settings={settings} onSessionsUpdate={setSessionCount} />
+                        <Pomodoro
+                            settings={settings}
+                            sessionCount={sessionCount}
+                            onSessionsUpdate={setSessionCount}
+                        />
                     </div>
 
                     {/* Right Column */}

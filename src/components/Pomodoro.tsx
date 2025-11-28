@@ -8,15 +8,16 @@ import { useTranslation } from '../utils/i18n';
 
 interface PomodoroProps {
   settings: Settings;
+  sessionCount: number;
   onSessionsUpdate: (count: number) => void;
 }
 
-const Pomodoro: React.FC<PomodoroProps> = ({ settings, onSessionsUpdate }) => {
+const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsUpdate }) => {
   const t = useTranslation(settings.language);
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
   const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
   const [isActive, setIsActive] = useState(false);
-  const [completedSessions, setCompletedSessions] = useState(0);
+  // Removed local state for completedSessions to rely on props
   const playSound = useSound(settings.soundEnabled, settings.soundVolume);
 
   const settingsRef = useRef(settings);
@@ -62,8 +63,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, onSessionsUpdate }) => {
     setIsActive(false);
 
     if (mode === TimerMode.WORK) {
-      const newCount = completedSessions + 1;
-      setCompletedSessions(newCount);
+      const newCount = sessionCount + 1;
       onSessionsUpdate(newCount);
 
       if (newCount % 4 === 0) {
@@ -129,7 +129,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, onSessionsUpdate }) => {
           </div>
           <div className="text-right">
             <span className="text-[10px] text-theme-dim tracking-widest uppercase mb-1">{t('SESSIONS_COMPLETED')}</span>
-            <div className="text-2xl font-mono text-theme-text">{completedSessions.toString().padStart(2, '0')}</div>
+            <div className="text-2xl font-mono text-theme-text">{sessionCount.toString().padStart(2, '0')}</div>
           </div>
         </div>
 
