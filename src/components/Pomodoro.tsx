@@ -205,14 +205,14 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, onSessionsUpdate }) => {
 
             {/* Controls */}
             <div className="w-full grid grid-cols-4 gap-4 mt-4 shrink-0">
-                <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="col-span-2 h-14 text-lg">
+                <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="col-span-2 h-14 text-lg" title={isActive ? t('PAUSE') : t('INITIALIZE')}>
                     {isActive ? t('PAUSE') : t('INITIALIZE')}
                 </Button>
-                <Button onClick={resetTimer} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary">
+                <Button onClick={resetTimer} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('RESET_TIMER')}>
                    {/* Material Symbols Light: restart_alt */}
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20c-3.31 0-6-2.69-6-6c0-1.01.25-1.97.7-2.8L5.24 9.76A7.9 7.9 0 0 0 4 14c0 4.42 3.58 8 8 8c2.42 0 4.59-1.07 6.05-2.77l-1.51-1.51A5.95 5.95 0 0 1 12 20m0-16c3.31 0 6 2.69 6 6c0 1.01-.25 1.97-.7 2.8l1.46 1.44A7.9 7.9 0 0 0 20 10c0-4.42-3.58-8-8-8c-2.42 0-4.59 1.07-6.05 2.77l1.51 1.51A5.95 5.95 0 0 1 12 4"/></svg>
                 </Button>
-                <Button onClick={handleComplete} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary">
+                <Button onClick={handleComplete} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('SKIP_TIMER')}>
                    {/* Material Symbols Light: skip_next */}
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg>
                 </Button>

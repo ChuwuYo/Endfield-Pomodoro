@@ -67,6 +67,14 @@ export const translations = {
     TOGGLE_MODE: 'TOGGLE PLAYBACK MODE',
     FILES_LOADED: 'FILES LOADED',
     CLEAR: 'CLEAR',
+    
+    // Button Tooltips
+    PLAY_PAUSE: 'PLAY/PAUSE',
+    RESET_TIMER: 'RESET TIMER',
+    SKIP_TIMER: 'SKIP TO NEXT',
+    TOGGLE_TASK: 'TOGGLE TASK',
+    DELETE_TASK: 'DELETE TASK',
+    CLEAR_ALL_TASKS: 'CLEAR ALL TASKS',
   },
   [Language.CN]: {
     // App
@@ -133,6 +141,14 @@ export const translations = {
     TOGGLE_MODE: '切换播放模式',
     FILES_LOADED: '已加载文件',
     CLEAR: '清空',
+    
+    // Button Tooltips
+    PLAY_PAUSE: '播放/暂停',
+    RESET_TIMER: '重置计时器',
+    SKIP_TIMER: '跳过到下一阶段',
+    TOGGLE_TASK: '切换任务状态',
+    DELETE_TASK: '删除任务',
+    CLEAR_ALL_TASKS: '清除所有任务',
   }
 };
 

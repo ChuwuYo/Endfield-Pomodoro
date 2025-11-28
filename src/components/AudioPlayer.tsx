@@ -208,6 +208,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                 onClick={togglePlay}
                 disabled={playlist.length === 0}
                 className={`w-14 h-9 flex items-center justify-center border transition-colors rounded-sm ${isPlaying ? 'bg-theme-primary text-black border-theme-primary' : 'border-theme-highlight text-theme-text hover:border-theme-primary'}`}
+                title={t('PLAY_PAUSE')}
             >
                 {isPlaying ? (
                     /* Material Symbols Light: pause */

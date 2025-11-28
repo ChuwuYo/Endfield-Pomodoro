@@ -110,6 +110,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                     <button 
                       onClick={() => toggleTask(task.id)}
                       className={`w-4 h-4 flex-shrink-0 border flex items-center justify-center transition-colors ${task.completed ? 'bg-theme-primary border-theme-primary text-black' : 'border-theme-dim hover:border-theme-primary'}`}
+                      title={t('TOGGLE_TASK')}
                     >
                       {task.completed && (
                           /* Material Symbols Light: check */
@@ -123,6 +124,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                   <button 
                     onClick={() => deleteTask(task.id)}
                     className="opacity-0 group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
+                    title={t('DELETE_TASK')}
                   >
                     {/* Material Symbols Light: close */}
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"/></svg>
@@ -134,7 +136,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
 
           {tasks.some(t => t.completed) && (
               <div className="mt-4 pt-2 border-t border-theme-highlight flex justify-end shrink-0">
-                  <button onClick={clearCompleted} className="text-[10px] font-mono uppercase tracking-widest text-theme-dim hover:text-theme-primary transition-colors flex items-center gap-1">
+                  <button onClick={clearCompleted} className="text-[10px] font-mono uppercase tracking-widest text-theme-dim hover:text-theme-primary transition-colors flex items-center gap-1" title={t('CLEAR_ALL_TASKS')}>
                       [{t('CLEAR_COMPLETED')}]
                   </button>
               </div>
