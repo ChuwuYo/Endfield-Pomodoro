@@ -16,11 +16,17 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const [volume, setVolume] = useState(0.5);
     const [mode, setMode] = useState<AudioMode>(AudioMode.SEQUENTIAL);
     const [showPlaylist, setShowPlaylist] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
 
-    // Generate random heights once for visualizer
-    const [visualizerHeights] = useState(() =>
-        Array.from({ length: 12 }, () => Math.random() * 100)
-    );
+    // Format time as MM:SS
+    const formatTime = (seconds: number) => {
+        if (isNaN(seconds) || !isFinite(seconds)) return '00:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    };
+
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -89,6 +95,23 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         }
     }, [volume]);
 
+    // Track audio playback time
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const handleLoadedMetadata = () => setDuration(audio.duration);
+
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+        audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+        return () => {
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+            audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        };
+    }, []);
+
     useEffect(() => {
         if (currentIndex >= 0 && playlist[currentIndex] && audioRef.current) {
             const file = playlist[currentIndex];
@@ -150,17 +173,34 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         </div>
                     </div>
 
-                    {/* Visualizer & Controls Row */}
+                    {/* Progress Bar & Controls Row */}
                     <div className="flex items-center gap-3">
-                        {/* Visualizer Placeholder */}
-                        <div className="flex-1 flex items-end justify-between h-8 gap-[2px] opacity-50">
-                            {visualizerHeights.map((height, i) => (
-                                <div
-                                    key={i}
-                                    className="w-full bg-theme-primary/50 transition-all duration-100"
-                                    style={{ height: isPlaying ? `${height}%` : '10%' }}
-                                ></div>
-                            ))}
+                        {/* Time Display & Progress Bar */}
+                        <div className="flex-1 flex flex-col gap-1">
+                            {/* Progress Blocks */}
+                            <div className="flex items-end justify-between h-6 gap-[2px]">
+                                {Array.from({ length: 12 }).map((_, i) => {
+                                    const progress = duration > 0 ? currentTime / duration : 0;
+                                    const blockThreshold = (i + 1) / 12;
+                                    const isFilled = progress >= blockThreshold;
+                                    const isPartial = progress >= (i / 12) && progress < blockThreshold;
+
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="w-full bg-theme-primary/30 transition-all duration-300"
+                                            style={{
+                                                height: isFilled ? '100%' : isPartial ? `${((progress - (i / 12)) * 12) * 100}%` : '20%',
+                                                opacity: isFilled ? 1 : isPartial ? 0.7 : 0.3
+                                            }}
+                                        ></div>
+                                    );
+                                })}
+                            </div>
+                            {/* Time Text */}
+                            <div className="text-[9px] font-mono text-theme-dim text-center tracking-wider">
+                                {formatTime(currentTime)} / {formatTime(duration)}
+                            </div>
                         </div>
 
                         {/* Show Playlist Button */}
