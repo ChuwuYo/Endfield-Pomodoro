@@ -8,6 +8,7 @@
 - **语言**: TypeScript
 - **样式**: Tailwind CSS 4.1
 - **图标**: Remix Icon
+- **响应式**: 移动端优化（自适应高度、隐藏滚动条、底部留白）
 - **状态管理**: React Hooks (`useState`, `useEffect`) + `react-use`
 - **路由**: 无 (单页面，通过条件渲染切换视图)
 
