@@ -172,8 +172,7 @@ const App: React.FC = () => {
                             >
                                 {/* Mobile Icon */}
                                 <span className="md:hidden">
-                                    {/* Material Symbols Light: grid_view */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M4.25 10.75V4.25h6.5v6.5H4.25Zm0 9v-6.5h6.5v6.5H4.25Zm9-9V4.25h6.5v6.5h-6.5Zm0 9v-6.5h6.5v6.5h-6.5Z" /></svg>
+                                    <i className="ri-dashboard-line text-lg"></i>
                                 </span>
                                 {/* Desktop Text */}
                                 <span className="hidden md:inline">{t('DASHBOARD')}</span>
@@ -187,8 +186,7 @@ const App: React.FC = () => {
                             >
                                 {/* Mobile Icon */}
                                 <span className="md:hidden">
-                                    {/* Material Symbols Light: settings */}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M11 21v-2.12q-1.12-.2-2.1-.66t-1.84-1.2l-1.6 1.1l-2-3.46l1.58-1.54q-.1-.56-.15-1.11T4.84 11q0-.58.06-1.13t.16-1.11L3.46 7.24l2-3.46l1.6 1.1q.86-.72 1.84-1.19t2.1-.67V.96h4v2.12q1.12.2 2.1.66t1.84 1.2l1.6-1.1l2 3.46l-1.58 1.54q.1.56.15 1.11t.05 1.13q0 .58-.06 1.13t-.16 1.11l1.58 1.54l-2 3.46l-1.6-1.1q-.86.72-1.84 1.19t-2.1.67V21zm1-5q2.08 0 3.54-1.46T17 11t-1.46-3.54T12 6t-3.54 1.46T7 11t1.46 3.54T12 16" /></svg>
+                                    <i className="ri-settings-3-line text-lg"></i>
                                 </span>
                                 {/* Desktop Text */}
                                 <span className="hidden md:inline">{t('SYSTEM_CONFIG')}</span>
@@ -309,7 +307,7 @@ const App: React.FC = () => {
                         </Panel>
                     </div>
                 ) : null}
-                
+
                 {/* Dashboard - Always rendered but hidden when in settings */}
                 <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-full max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
                     {/* Left: Pomodoro (Larger) */}

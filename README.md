@@ -6,7 +6,8 @@
 - **框架**: React 19 (SPA)
 - **构建工具**: Vite 7.2
 - **语言**: TypeScript
-- **样式**: Tailwind CSS 4
+- **样式**: Tailwind CSS 4.1
+- **图标**: Remix Icon
 - **状态管理**: React Hooks (`useState`, `useEffect`) + `react-use`
 - **路由**: 无 (单页面，通过条件渲染切换视图)
 
@@ -31,6 +32,7 @@
 npm uninstall vite @vitejs/plugin-react @tailwindcss/vite
 
 # 安装 Next.js 和用于 Tailwind v4 的 PostCSS
+# 注意：remixicon 已安装，无需重新安装
 npm install next postcss @tailwindcss/postcss
 ```
 
@@ -72,10 +74,12 @@ export default config;
 
 #### 1. 创建 `src/app/layout.tsx`
 这替代了 `index.html` 和 `main.tsx`。
+**重要**：必须在此处引入 `remixicon` 样式。
 
 ```tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import "remixicon/fonts/remixicon.css"; // 引入图标样式
 
 export const metadata: Metadata = {
   title: "Endfield Pomodoro",
@@ -113,7 +117,7 @@ export default function Home() {
 
 1.  **更新 `src/App.tsx`**:
     - 确保 `App.tsx` 被视为标准组件。
-    - 如果 `App.tsx` 在渲染时立即依赖 `window` 或 `document`，请确保这些检查在 `useEffect` 内部（看起来已经是这样了）。
+    - 如果 `App.tsx` 在渲染时立即依赖 `window` or `document`，请确保这些检查在 `useEffect` 内部（看起来已经是这样了）。
 
 2.  **更新 `tailwind.config.ts` (如果适用)**:
     - 如果你使用的是 Tailwind v4（它会自动检测文件），你可能不需要配置文件。如果你有一个，确保它包含 `app` 目录：

@@ -16,15 +16,12 @@ export const Checkbox: React.FC<CheckboxProps> = ({ checked, onChange, label, cl
         onChange={(e) => onChange(e.target.checked)}
         className="sr-only"
       />
-      <div className={`w-4 h-4 flex items-center justify-center border transition-all ${
-        checked 
-          ? 'bg-theme-primary border-theme-primary' 
+      <div className={`w-4 h-4 flex items-center justify-center border transition-all ${checked
+          ? 'bg-theme-primary border-theme-primary'
           : 'border-theme-dim group-hover:border-theme-primary'
-      }`}>
+        }`}>
         {checked && (
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z"/>
-          </svg>
+          <i className="ri-check-line text-xs font-bold text-black"></i>
         )}
       </div>
       <span className="text-xs font-mono group-hover:text-theme-primary transition-colors">{label}</span>

@@ -40,15 +40,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
         className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 py-3 focus:outline-none focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group"
       >
         <span className="truncate">{selectedOption?.label || value}</span>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          width="16" 
-          height="16" 
-          viewBox="0 0 24 24"
-          className={`text-theme-primary transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}
-        >
-          <path fill="currentColor" d="M7 10l5 5l5-5z"/>
-        </svg>
+        <i className={`ri-arrow-down-s-line text-lg transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
       {/* Dropdown List */}
@@ -62,18 +54,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 last:border-b-0 ${
-                option.value === value
+              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 last:border-b-0 ${option.value === value
                   ? 'bg-theme-primary/20 text-theme-primary border-l-2 border-l-theme-primary'
                   : 'text-theme-text hover:bg-theme-highlight/20 hover:text-theme-primary hover:border-l-2 hover:border-l-theme-primary'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="truncate">{option.label}</span>
                 {option.value === value && (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z"/>
-                  </svg>
+                  <i className="ri-check-line text-base"></i>
                 )}
               </div>
             </button>
