@@ -13,8 +13,8 @@ export const Language = {
 export type Language = typeof Language[keyof typeof Language];
 
 export const ThemePreset = {
-  ENDFIELD: 'ENDFIELD',
-  RHODES: 'RHODES',
+  ORIGIN: 'ORIGIN',
+  AZURE: 'AZURE',
   NEON: 'NEON',
   MATRIX: 'MATRIX',
   TACTICAL: 'TACTICAL',

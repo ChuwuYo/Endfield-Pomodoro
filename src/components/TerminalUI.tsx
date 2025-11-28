@@ -80,7 +80,7 @@ export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (
    (These do not re-render on mouse move)
    ========================================================================= */
 
-const EndfieldGrid = React.memo(() => (
+const OriginGrid = React.memo(() => (
     <>
         <div className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -93,7 +93,7 @@ const EndfieldGrid = React.memo(() => (
     </>
 ));
 
-const RhodesGrid = React.memo(() => (
+const AzureGrid = React.memo(() => (
     <>
         <div className="absolute inset-0 opacity-[0.05]"
             style={{
@@ -230,21 +230,21 @@ const LaboratoryGrid = React.memo(() => (
    MOUSE TRACKER & BACKGROUND CONTAINER (Z-0)
    ========================================================================= */
 
-export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ENDFIELD }) => {
+export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ORIGIN }) => {
     // We do NOT track mouse here to prevent re-rendering the heavy background grids.
-    // Mouse tracking is handled in ForegroundLayer or implicitly via CSS vars set on body if needed, 
+    // Mouse tracking is handled in ForegroundLayer or implicitly via CSS vars set on body if needed,
     // but here we keep it static for performance stability.
 
     const renderContent = () => {
         switch (theme) {
-            case ThemePreset.RHODES: return <RhodesGrid />;
+            case ThemePreset.AZURE: return <AzureGrid />;
             case ThemePreset.NEON: return <NeonGrid />;
             case ThemePreset.MATRIX: return <MatrixRain />;
             case ThemePreset.TACTICAL: return <TacticalGrid />;
             case ThemePreset.ROYAL: return <RoyalParticles />;
             case ThemePreset.INDUSTRIAL: return <IndustrialGrid />;
             case ThemePreset.LABORATORY: return <LaboratoryGrid />;
-            default: return <EndfieldGrid />;
+            default: return <OriginGrid />;
         }
     };
 
@@ -259,7 +259,7 @@ export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
    FOREGROUND OVERLAY (Z-50) - Handles Interactive Effects
    ========================================================================= */
 
-export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ENDFIELD }) => {
+export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ORIGIN }) => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
@@ -274,7 +274,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    if (theme === ThemePreset.ENDFIELD) {
+    if (theme === ThemePreset.ORIGIN) {
         return (
             <div className="fixed inset-0 pointer-events-none z-50 mix-blend-screen">
                 <div className="absolute inset-0 transition-opacity duration-300"
@@ -305,7 +305,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
         );
     }
 
-    if (theme === ThemePreset.RHODES) {
+    if (theme === ThemePreset.AZURE) {
         return (
             <div className="fixed inset-0 pointer-events-none z-50">
                 <div className="absolute top-0 left-0 w-full h-[5px] bg-theme-primary/20 blur-sm animate-[scan_3s_ease-in-out_infinite]"></div>
@@ -343,7 +343,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
             <div className="fixed inset-0 pointer-events-none z-50">
                 {/* Clean scan line */}
                 <div className="absolute top-0 left-0 w-full h-[3px] bg-theme-primary/30 blur-[2px] animate-[scan_3s_ease-in-out_infinite]"></div>
-                {/* Analytical spotlight following cursor - direct background position like ENDFIELD */}
+                {/* Analytical spotlight following cursor - direct background position like ORIGIN */}
                 <div className="absolute inset-0"
                     style={{
                         background: `radial-gradient(circle 300px at ${mousePos.x}px ${mousePos.y}px, var(--color-primary), transparent 70%)`,

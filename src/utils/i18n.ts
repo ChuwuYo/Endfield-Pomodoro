@@ -4,6 +4,7 @@ import { Language } from '../types';
 export const translations = {
   [Language.EN]: {
     // App
+    APP_TITLE: 'Endfield Protocol',
     DASHBOARD: 'DASHBOARD',
     SYSTEM_CONFIG: 'SYSTEM CONFIG',
     SYSTEM_TIME: 'SYS.TIME',
@@ -22,14 +23,14 @@ export const translations = {
     AUTOMATION_FEEDBACK: 'AUTOMATION & FEEDBACK',
 
     // Themes
-    THEME_ENDFIELD: 'PRESET_01: ENDFIELD_ORIGIN',
-    THEME_RHODES: 'PRESET_02: RHODES_BLUE',
+    THEME_ORIGIN: 'PRESET_01: ENDFIELD_PROTOCOL',
+    THEME_AZURE: 'PRESET_02: AZURE_ARCHIVE',
     THEME_NEON: 'PRESET_03: NEON_CITY',
     THEME_MATRIX: 'PRESET_04: MATRIX_CODE',
-    THEME_TACTICAL: 'PRESET_05: DESERT_TACTICAL',
-    THEME_ROYAL: 'PRESET_06: ROYAL_PURPLE',
+    THEME_TACTICAL: 'PRESET_05: DESERT_OPS',
+    THEME_ROYAL: 'PRESET_06: ROYAL_VIOLET',
     THEME_INDUSTRIAL: 'PRESET_07: HEAVY_INDUSTRY (LIGHT)',
-    THEME_LABORATORY: 'PRESET_08: RHINE_LAB (LIGHT)',
+    THEME_LABORATORY: 'PRESET_08: SCIENCE_LAB (LIGHT)',
 
     // Pomodoro
     CHRONO_MODULE: 'CHRONO MODULE',
@@ -78,6 +79,7 @@ export const translations = {
   },
   [Language.CN]: {
     // App
+    APP_TITLE: '末端协议-番茄钟',
     DASHBOARD: '总控台',
     SYSTEM_CONFIG: '系统设置',
     SYSTEM_TIME: '系统时间',
@@ -96,14 +98,14 @@ export const translations = {
     AUTOMATION_FEEDBACK: '自动化与反馈',
 
     // Themes
-    THEME_ENDFIELD: '预设_01: 终末地_源点',
-    THEME_RHODES: '预设_02: 罗德岛_天蓝',
-    THEME_NEON: '预设_03: 霓虹_不夜城',
-    THEME_MATRIX: '预设_04: 矩阵_代码',
-    THEME_TACTICAL: '预设_05: 战术_荒漠',
-    THEME_ROYAL: '预设_06: 皇家_紫罗兰',
-    THEME_INDUSTRIAL: '预设_07: 重工_灰烬 (亮色)',
-    THEME_LABORATORY: '预设_08: 莱茵_实验 (亮色)',
+    THEME_ORIGIN: '预设_01: 末端协议',
+    THEME_AZURE: '预设_02: 蔚蓝档案',
+    THEME_NEON: '预设_03: 霓虹都市',
+    THEME_MATRIX: '预设_04: 矩阵代码',
+    THEME_TACTICAL: '预设_05: 荒漠行动',
+    THEME_ROYAL: '预设_06: 皇家紫罗兰',
+    THEME_INDUSTRIAL: '预设_07: 重工灰烬 (亮色)',
+    THEME_LABORATORY: '预设_08: 科学实验 (亮色)',
 
     // Pomodoro
     CHRONO_MODULE: '计时模块',

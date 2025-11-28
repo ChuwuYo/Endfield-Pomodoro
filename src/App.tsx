@@ -9,6 +9,7 @@ import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './compon
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { useTranslation } from './utils/i18n';
+import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
     workDuration: 25,
@@ -19,7 +20,7 @@ const DEFAULT_SETTINGS: Settings = {
     soundEnabled: true,
     soundVolume: 0.5,
     language: Language.CN,
-    theme: ThemePreset.ENDFIELD
+    theme: ThemePreset.ORIGIN
 };
 
 const View = {
@@ -30,7 +31,7 @@ type View = typeof View[keyof typeof View];
 
 // Extended Theme Definitions
 const THEMES = {
-    [ThemePreset.ENDFIELD]: {
+    [ThemePreset.ORIGIN]: {
         '--color-base': '#111113',
         '--color-surface': '#1c1c1f',
         '--color-highlight': '#2e2e33',
@@ -40,7 +41,7 @@ const THEMES = {
         '--color-text': '#e4e4e7',
         '--color-dim': '#71717a'
     },
-    [ThemePreset.RHODES]: {
+    [ThemePreset.AZURE]: {
         '--color-base': '#0f172a',
         '--color-surface': '#1e293b',
         '--color-highlight': '#334155',
@@ -118,8 +119,14 @@ const App: React.FC = () => {
     const [, setSessionCount] = useState(0);
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     const t = useTranslation(settings.language);
+
+    // Update Document Title
+    useEffect(() => {
+        document.title = t('APP_TITLE');
+    }, [t]);
 
     // Apply Theme
     useEffect(() => {
@@ -132,7 +139,18 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
-        return () => clearInterval(timer);
+        
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        
+        return () => {
+            clearInterval(timer);
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
     }, []);
 
     return (
@@ -155,7 +173,7 @@ const App: React.FC = () => {
                                     Endfield Protocol
                                 </h1>
                                 <div className="text-[10px] font-mono text-theme-primary tracking-[0.3em] opacity-80 mt-1 hidden md:block">
-                                    TERMINAL_V3.0.4 // SYSTEM_ONLINE
+                                    TERMINAL_V{pkg.version} // {isOnline ? 'SYSTEM_ONLINE' : 'SYSTEM_OFFLINE'}
                                 </div>
                             </div>
                         </div>
@@ -264,8 +282,8 @@ const App: React.FC = () => {
                                             <CustomSelect
                                                 value={settings.theme}
                                                 options={[
-                                                    { value: ThemePreset.ENDFIELD, label: t('THEME_ENDFIELD') },
-                                                    { value: ThemePreset.RHODES, label: t('THEME_RHODES') },
+                                                    { value: ThemePreset.ORIGIN, label: t('THEME_ORIGIN') },
+                                                    { value: ThemePreset.AZURE, label: t('THEME_AZURE') },
                                                     { value: ThemePreset.NEON, label: t('THEME_NEON') },
                                                     { value: ThemePreset.MATRIX, label: t('THEME_MATRIX') },
                                                     { value: ThemePreset.TACTICAL, label: t('THEME_TACTICAL') },
