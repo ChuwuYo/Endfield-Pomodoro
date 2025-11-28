@@ -9,6 +9,8 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const t = useTranslation(language);
     const audioRef = useRef<HTMLAudioElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isDraggingRef = useRef(false);
+    const progressBarRef = useRef<HTMLDivElement>(null);
 
     const [playlist, setPlaylist] = useState<File[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
@@ -88,6 +90,14 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         setMode(mode === AudioMode.SEQUENTIAL ? AudioMode.SHUFFLE : AudioMode.SEQUENTIAL);
     };
 
+    const handleSeek = (newTime: number) => {
+        if (audioRef.current && duration > 0) {
+            const clampedTime = Math.max(0, Math.min(newTime, duration));
+            audioRef.current.currentTime = clampedTime;
+            setCurrentTime(clampedTime);
+        }
+    };
+
     // Sync Audio Element with State
     useEffect(() => {
         if (audioRef.current) {
@@ -100,7 +110,11 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const handleTimeUpdate = () => {
+            if (!isDraggingRef.current) {
+                setCurrentTime(audio.currentTime);
+            }
+        };
         const handleLoadedMetadata = () => setDuration(audio.duration);
 
         audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -112,20 +126,48 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         };
     }, []);
 
+    // Global mouse events for dragging
+    useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (isDraggingRef.current && progressBarRef.current && duration > 0) {
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                const newTime = (clickX / rect.width) * duration;
+                setCurrentTime(newTime);
+            }
+        };
+
+        const handleGlobalMouseUp = (e: MouseEvent) => {
+            if (isDraggingRef.current && progressBarRef.current && duration > 0) {
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                const newTime = (clickX / rect.width) * duration;
+                handleSeek(newTime);
+            }
+            isDraggingRef.current = false;
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('mouseup', handleGlobalMouseUp);
+        };
+    }, [duration]);
+
+    // Load audio source when track changes (NOT on play/pause toggle)
     useEffect(() => {
         if (currentIndex >= 0 && playlist[currentIndex] && audioRef.current) {
             const file = playlist[currentIndex];
             const url = URL.createObjectURL(file);
             audioRef.current.src = url;
-            if (isPlaying) {
-                audioRef.current.play().catch(e => console.error("Playback failed", e));
-            }
+            audioRef.current.load();
 
             return () => {
-                // Cleanup URL logic if needed
+                URL.revokeObjectURL(url);
             };
         }
-    }, [currentIndex, playlist, isPlaying]);
+    }, [currentIndex, playlist]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -173,33 +215,52 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         </div>
                     </div>
 
-                    {/* Progress Bar & Controls Row */}
+                    {/* Circular Progress & Controls Row */}
                     <div className="flex items-center gap-3">
-                        {/* Time Display & Progress Bar */}
-                        <div className="flex-1 flex flex-col gap-1">
-                            {/* Progress Blocks */}
-                            <div className="flex items-end justify-between h-6 gap-[2px]">
-                                {Array.from({ length: 12 }).map((_, i) => {
-                                    const progress = duration > 0 ? currentTime / duration : 0;
-                                    const blockThreshold = (i + 1) / 12;
-                                    const isFilled = progress >= blockThreshold;
-                                    const isPartial = progress >= (i / 12) && progress < blockThreshold;
-
-                                    return (
-                                        <div
-                                            key={i}
-                                            className="w-full bg-theme-primary/30 transition-all duration-300"
+                        {/* Block Progress Bar */}
+                        <div className="flex-1 flex items-center justify-center px-2">
+                            <div className="relative w-full max-w-[200px] h-12">
+                                {/* Progress track */}
+                                <div 
+                                    ref={progressBarRef}
+                                    className="absolute inset-0 bg-theme-highlight/20 border border-theme-highlight/50 clip-path-slant cursor-pointer overflow-hidden"
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        isDraggingRef.current = true;
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        const clickX = e.clientX - rect.left;
+                                        const newTime = (clickX / rect.width) * duration;
+                                        setCurrentTime(newTime);
+                                    }}
+                                >
+                                    {/* Progress fill */}
+                                    {duration > 0 && (currentTime / duration) > 0.01 && (
+                                        <div 
+                                            className="h-full bg-theme-primary/80 relative pointer-events-none"
                                             style={{
-                                                height: isFilled ? '100%' : isPartial ? `${((progress - (i / 12)) * 12) * 100}%` : '20%',
-                                                opacity: isFilled ? 1 : isPartial ? 0.7 : 0.3
+                                                width: `${(currentTime / duration) * 100}%`,
+                                                filter: 'drop-shadow(0 0 4px rgba(var(--color-primary), 0.6))'
                                             }}
-                                        ></div>
-                                    );
-                                })}
-                            </div>
-                            {/* Time Text */}
-                            <div className="text-[9px] font-mono text-theme-dim text-center tracking-wider">
-                                {formatTime(currentTime)} / {formatTime(duration)}
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-r from-theme-primary/20 to-transparent animate-pulse-fast"></div>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Time display overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <div className="flex items-center gap-2 px-2 bg-black/60 backdrop-blur-sm rounded">
+                                        <span className="text-[10px] md:text-xs font-mono text-white font-bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+                                            {formatTime(currentTime)}
+                                        </span>
+                                        <span className="text-[8px] md:text-[9px] font-mono text-white/70">
+                                            /
+                                        </span>
+                                        <span className="text-[8px] md:text-[9px] font-mono text-white/70">
+                                            {formatTime(duration)}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
