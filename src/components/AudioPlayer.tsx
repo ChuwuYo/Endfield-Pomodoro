@@ -16,6 +16,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(0.5);
+    const [previousVolume, setPreviousVolume] = useState(0.5);
     const [mode, setMode] = useState<AudioMode>(AudioMode.SEQUENTIAL);
     const [showPlaylist, setShowPlaylist] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -52,9 +53,16 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const playNext = () => {
         if (playlist.length === 0) return;
 
+        if (mode === AudioMode.REPEAT_ONE) {
+            if (audioRef.current) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.play();
+            }
+            return;
+        }
+
         let nextIndex = 0;
         if (mode === AudioMode.SHUFFLE) {
-            // Pick a random index distinct from current if possible
             if (playlist.length > 1) {
                 do {
                     nextIndex = Math.floor(Math.random() * playlist.length);
@@ -63,7 +71,6 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                 nextIndex = 0;
             }
         } else {
-            // Sequential
             nextIndex = (currentIndex + 1) % playlist.length;
         }
         playTrack(nextIndex);
@@ -87,7 +94,13 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     };
 
     const toggleMode = () => {
-        setMode(mode === AudioMode.SEQUENTIAL ? AudioMode.SHUFFLE : AudioMode.SEQUENTIAL);
+        if (mode === AudioMode.SEQUENTIAL) {
+            setMode(AudioMode.REPEAT_ONE);
+        } else if (mode === AudioMode.REPEAT_ONE) {
+            setMode(AudioMode.SHUFFLE);
+        } else {
+            setMode(AudioMode.SEQUENTIAL);
+        }
     };
 
     const handleSeek = (newTime: number) => {
@@ -95,6 +108,15 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
             const clampedTime = Math.max(0, Math.min(newTime, duration));
             audioRef.current.currentTime = clampedTime;
             setCurrentTime(clampedTime);
+        }
+    };
+
+    const toggleMute = () => {
+        if (volume > 0) {
+            setPreviousVolume(volume);
+            setVolume(0);
+        } else {
+            setVolume(previousVolume || 0.5);
         }
     };
 
@@ -278,16 +300,18 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         <button
                             onClick={toggleMode}
                             className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-secondary hover:border-theme-secondary transition-colors rounded-sm flex items-center gap-1"
-                            title={mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : t('MODE_SHUFFLE')}
+                            title={mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? 'REPEAT ONE' : t('MODE_SHUFFLE')}
                         >
                             {mode === AudioMode.SEQUENTIAL ? (
-                                /* Material Symbols Light: repeat */
                                 <i className="ri-repeat-line text-base"></i>
+                            ) : mode === AudioMode.REPEAT_ONE ? (
+                                <i className="ri-repeat-one-line text-base"></i>
                             ) : (
-                                /* Material Symbols Light: shuffle */
                                 <i className="ri-shuffle-line text-base"></i>
                             )}
-                            <span className="text-[10px] font-mono">{mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : t('MODE_SHUFFLE')}</span>
+                            <span className="text-[10px] font-mono">
+                                {mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? 'ONE' : t('MODE_SHUFFLE')}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -332,7 +356,11 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                     </button>
 
                     {/* Volume Bar - Expanded to take remaining space */}
-                    <div className="flex-1 h-9 flex items-center px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
+                    <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
+                        <i 
+                            className={`${volume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
+                            onClick={toggleMute}
+                        ></i>
                         <div className="w-full h-1 bg-theme-highlight/30 relative cursor-pointer group rounded-full overflow-hidden">
                             <input
                                 type="range"

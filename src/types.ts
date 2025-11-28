@@ -26,7 +26,8 @@ export type ThemePreset = typeof ThemePreset[keyof typeof ThemePreset];
 
 export const AudioMode = {
   SEQUENTIAL: 'SEQUENTIAL',
-  SHUFFLE: 'SHUFFLE'
+  SHUFFLE: 'SHUFFLE',
+  REPEAT_ONE: 'REPEAT_ONE'
 } as const;
 export type AudioMode = typeof AudioMode[keyof typeof AudioMode];
 
