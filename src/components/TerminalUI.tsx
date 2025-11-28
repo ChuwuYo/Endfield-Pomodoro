@@ -263,15 +263,21 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
+        let animationFrameId: number;
         const handleMouseMove = (e: MouseEvent) => {
-            // requestAnimationFrame to throttle updates if needed, but simple state usually fine for simple overlays
-            setMousePos({
-                x: e.clientX,
-                y: e.clientY
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(() => {
+                setMousePos({
+                    x: e.clientX,
+                    y: e.clientY
+                });
             });
         };
         window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            cancelAnimationFrame(animationFrameId);
+        };
     }, []);
 
     if (theme === ThemePreset.ORIGIN) {

@@ -64,7 +64,7 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/your-username/endfield-pomodoro.git
+   git clone https://github.com/ChuwuYo/endfield-pomodor.git
    cd endfield-pomodoro
    ```
 
@@ -87,19 +87,21 @@
 ## 📂 项目结构 (Project Structure)
 
 ```text
-src/
-├── app/                 # 应用入口逻辑
+src/                     # 源代码目录
 ├── components/          # UI 组件库
-│   ├── TerminalUI.tsx   # 基础终端风格组件 (Panel, Button, Input)
-│   ├── Pomodoro.tsx     # 番茄钟核心组件
-│   ├── TaskManager.tsx  # 任务管理组件
 │   ├── AudioPlayer.tsx  # 音频播放器组件
-│   └── ...
+│   ├── Checkbox.tsx     # 复选框组件
+│   ├── CustomSelect.tsx # 自定义下拉选择组件
+│   ├── Pomodoro.tsx     # 番茄钟核心组件
+│   ├── SoundManager.tsx # 音效管理器 (Web Audio API)
+│   ├── TaskManager.tsx  # 任务管理组件
+│   └── TerminalUI.tsx   # 基础终端风格组件 (Panel, Button, Input)
 ├── utils/               # 工具函数
 │   └── i18n.ts          # 国际化配置
 ├── types.ts             # TypeScript 类型定义
 ├── App.tsx              # 主应用组件与布局
-└── main.tsx             # 渲染入口
+├── main.tsx             # 渲染入口
+└── index.css            # 全局样式与 Tailwind 引入
 ```
 
 ## 🤝 贡献 (Contributing)

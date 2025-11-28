@@ -154,7 +154,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div className="h-screen md:min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* Background Visuals (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 

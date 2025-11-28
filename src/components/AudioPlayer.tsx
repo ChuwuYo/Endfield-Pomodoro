@@ -300,7 +300,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         <button
                             onClick={toggleMode}
                             className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-secondary hover:border-theme-secondary transition-colors rounded-sm flex items-center gap-1"
-                            title={mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? 'REPEAT ONE' : t('MODE_SHUFFLE')}
+                            title={mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? t('MODE_REPEAT_ONE') : t('MODE_SHUFFLE')}
                         >
                             {mode === AudioMode.SEQUENTIAL ? (
                                 <i className="ri-repeat-line text-base"></i>
@@ -310,7 +310,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                                 <i className="ri-shuffle-line text-base"></i>
                             )}
                             <span className="text-[10px] font-mono">
-                                {mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? 'ONE' : t('MODE_SHUFFLE')}
+                                {mode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : mode === AudioMode.REPEAT_ONE ? t('MODE_REPEAT_ONE_SHORT') : t('MODE_SHUFFLE')}
                             </span>
                         </button>
                     </div>
