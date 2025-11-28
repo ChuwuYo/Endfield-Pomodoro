@@ -13,8 +13,8 @@ export const Language = {
 export type Language = typeof Language[keyof typeof Language];
 
 export const ThemePreset = {
-  ENDFIELD: 'ENDFIELD',
-  RHODES: 'RHODES',
+  ORIGIN: 'ORIGIN',
+  AZURE: 'AZURE',
   NEON: 'NEON',
   MATRIX: 'MATRIX',
   TACTICAL: 'TACTICAL',
@@ -26,7 +26,8 @@ export type ThemePreset = typeof ThemePreset[keyof typeof ThemePreset];
 
 export const AudioMode = {
   SEQUENTIAL: 'SEQUENTIAL',
-  SHUFFLE: 'SHUFFLE'
+  SHUFFLE: 'SHUFFLE',
+  REPEAT_ONE: 'REPEAT_ONE'
 } as const;
 export type AudioMode = typeof AudioMode[keyof typeof AudioMode];
 

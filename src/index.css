@@ -52,13 +52,21 @@ body {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Hidden on mobile, visible on desktop */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0px;
+  height: 0px;
 }
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
 ::-webkit-scrollbar-track {
-  background: var(--color-surface); 
+  background: transparent; 
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-highlight); 

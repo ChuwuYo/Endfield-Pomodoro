@@ -10,7 +10,7 @@ interface TaskManagerProps {
 }
 
 const MAX_TASKS = 6;
-const STORAGE_KEY = 'endfield_terminal_tasks';
+const STORAGE_KEY = 'origin_terminal_tasks';
 
 const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
   const t = useTranslation(language);
