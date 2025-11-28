@@ -136,7 +136,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-screen md:min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* Background Visuals (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
@@ -309,23 +309,26 @@ const App: React.FC = () => {
                 ) : null}
 
                 {/* Dashboard - Always rendered but hidden when in settings */}
-                <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto lg:h-full max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
+                <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
                     {/* Left: Pomodoro (Larger) */}
-                    <div className="lg:col-span-7 flex flex-col h-[500px] lg:h-full">
+                    <div className="lg:col-span-7 flex flex-col h-auto min-h-[450px] md:h-[500px]">
                         <Pomodoro settings={settings} onSessionsUpdate={setSessionCount} />
                     </div>
 
                     {/* Right Column */}
-                    <div className="lg:col-span-5 flex flex-col gap-6 h-auto lg:h-full">
+                    <div className="lg:col-span-5 flex flex-col gap-6 h-auto">
                         {/* Tasks */}
-                        <div className="h-[400px] lg:flex-1">
+                        <div className="h-auto min-h-[200px]">
                             <TaskManager language={settings.language} />
                         </div>
                         {/* Audio */}
-                        <div className="h-48 shrink-0">
+                        <div className="h-auto min-h-[160px] md:h-48 shrink-0">
                             <AudioPlayer language={settings.language} />
                         </div>
                     </div>
+
+                    {/* Mobile Bottom Spacer */}
+                    <div className="h-24 w-full md:hidden shrink-0"></div>
                 </div>
             </main>
         </div>
