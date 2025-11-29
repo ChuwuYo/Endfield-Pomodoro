@@ -112,3 +112,11 @@ src/                     # 源代码目录
 ## 📄 许可证 (License)
 
 [MIT](LICENSE) © 2025 ChuwuYo
+
+## 📝 鸣谢 (Acknowledgments)
+
+- [Gemini](https://gemini.google.com/) - 用于部分代码生成和优化、文档撰写
+- [TailwindCSS](https://tailwindcss.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [pnpm](https://pnpm.io/)
+- [Vite](https://vite.dev/)
