@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-// 简单的振荡器蜂鸣声，这样我们就不依赖外部资源
+// 简单的振荡器蜂鸣声
 const playBeep = (vol: number = 0.5, type: 'start' | 'end' | 'tick' = 'tick') => {
   const AudioContext = window.AudioContext || (window as Window & { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext;
   if (!AudioContext) return;

@@ -7,6 +7,9 @@ export interface MetingAudio {
     cover: string;
     lrc: string;
     theme?: string;
+    pic?: string;
+    title?: string;
+    author?: string;
 }
 
 interface UseMetingDataProps {
@@ -36,7 +39,7 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
 
                 const data = await response.json();
 
-                const formattedAudioList = data.map((item: any) => ({
+                const formattedAudioList = data.map((item: Record<string, string>) => ({
                     name: item.name || item.title || 'Unknown Track',
                     artist: item.artist || item.author || 'Unknown Artist',
                     url: item.url || '',

@@ -1,3 +1,15 @@
+export interface AudioItem {
+  name: string;
+  artist: string;
+  url: string;
+  cover?: string;
+  lrc?: string;
+  theme?: string;
+  album?: string;
+  duration?: number;
+  bitrate?: number;
+}
+
 export interface MetingConfig {
   server: 'netease' | 'tencent' | 'kugou' | 'xiami' | 'baidu';
   type: 'song' | 'playlist' | 'album' | 'search' | 'artist';
@@ -14,7 +26,7 @@ export interface MetingConfig {
   listFolded?: boolean;
   listMaxHeight?: number;
   lrcType?: 0 | 1 | 2 | 3;
-  audio?: any[];
+  audio?: AudioItem[];
   storageName?: string;
 }
 

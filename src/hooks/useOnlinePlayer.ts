@@ -27,24 +27,53 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     const [playMode, setPlayMode] = useState<PlayMode>(PlayMode.SEQUENCE);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
 
-    // 初始化 Audio 对象
+    // 切歌逻辑
+    const handleNext = useCallback((isAuto: boolean = false) => {
+        if (playlist.length === 0) return;
+
+        let nextIndex = currentIndex;
+
+        if (playMode === PlayMode.RANDOM) {
+            if (playlist.length > 1) {
+                do {
+                    nextIndex = Math.floor(Math.random() * playlist.length);
+                } while (nextIndex === currentIndex);
+            }
+        } else if (playMode === PlayMode.LOOP && isAuto) {
+            if (audioRef.current) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.play();
+            }
+            return;
+        } else {
+            nextIndex = (currentIndex + 1) % playlist.length;
+        }
+
+        setCurrentIndex(nextIndex);
+        setIsPlaying(true);
+    }, [currentIndex, playlist.length, playMode]);
+
     useEffect(() => {
-        audioRef.current = new Audio();
-        audioRef.current.volume = volume;
+        handleNextRef.current = handleNext;
+    }, [handleNext]);
 
-        const audio = audioRef.current;
+    // 初始化 Audio 对象（只执行一次）
+    useEffect(() => {
+        const audio = new Audio();
+        audio.volume = volume;
+        audioRef.current = audio;
 
         const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
         const handleLoadedMetadata = () => setDuration(audio.duration);
-        const handleEnded = () => handleNext(true); // 自动播放下一首
+        const handleEnded = () => handleNextRef.current?.(true);
         const handleCanPlay = () => setIsLoading(false);
         const handleWaiting = () => setIsLoading(true);
         const handleError = () => {
             setIsLoading(false);
             setError('加载失败');
-            // 自动跳过错误歌曲
-            setTimeout(() => handleNext(true), 1000);
+            setTimeout(() => handleNextRef.current?.(true), 1000);
         };
 
         audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -64,40 +93,62 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('error', handleError);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // 监听播放列表和索引变化
-    useEffect(() => {
-        if (!audioRef.current || playlist.length === 0) return;
-
-        const currentSong = playlist[currentIndex];
-        if (!currentSong?.url) return;
-
-        // 避免重复加载同一首歌
-        if (audioRef.current.src !== currentSong.url) {
-            setIsLoading(true);
-            setError(null);
-            audioRef.current.src = currentSong.url;
-            audioRef.current.load();
-
-            if (isPlaying || autoPlay) {
-                const playPromise = audioRef.current.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(err => {
-                        console.error("播放失败:", err);
-                        setIsPlaying(false);
-                    });
-                }
-            }
-        }
-    }, [currentIndex, playlist]);
-
-    // 监听音量变化
+    // 监听音量变化（独立effect）
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;
         }
     }, [volume]);
+
+    // 监听播放列表和索引变化
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || playlist.length === 0) return;
+
+        const currentSong = playlist[currentIndex];
+        if (!currentSong?.url) return;
+
+        if (audio.src !== currentSong.url) {
+            const wasPlaying = isPlaying;
+            
+            audio.src = currentSong.url;
+            
+            const loadAndPlay = async () => {
+                try {
+                    setIsLoading(true);
+                    setError(null);
+                    audio.load();
+
+                    if (wasPlaying || autoPlay) {
+                        await audio.play();
+                    }
+                } catch (err) {
+                    console.error("播放失败:", err);
+                    setIsPlaying(false);
+                }
+            };
+
+            loadAndPlay();
+        }
+    }, [currentIndex, playlist, autoPlay, isPlaying]);
+
+    // 监听播放状态变化
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio || playlist.length === 0) return;
+
+        if (isPlaying) {
+            audio.play().catch(err => {
+                console.error("播放失败:", err);
+                setIsPlaying(false);
+            });
+        } else {
+            audio.pause();
+        }
+    }, [isPlaying, playlist.length]);
 
     // 播放控制
     const togglePlay = useCallback(() => {
@@ -115,35 +166,6 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             }
         }
     }, [isPlaying]);
-
-    // 切歌逻辑
-    const handleNext = useCallback((isAuto: boolean = false) => {
-        if (playlist.length === 0) return;
-
-        let nextIndex = currentIndex;
-
-        if (playMode === PlayMode.RANDOM) {
-            // 随机模式：随机选择一个非当前的索引
-            if (playlist.length > 1) {
-                do {
-                    nextIndex = Math.floor(Math.random() * playlist.length);
-                } while (nextIndex === currentIndex);
-            }
-        } else if (playMode === PlayMode.LOOP && isAuto) {
-            // 单曲循环且是自动播放结束时：不改变索引，重新播放
-            if (audioRef.current) {
-                audioRef.current.currentTime = 0;
-                audioRef.current.play();
-            }
-            return;
-        } else {
-            // 顺序模式 或 手动切歌：下一首
-            nextIndex = (currentIndex + 1) % playlist.length;
-        }
-
-        setCurrentIndex(nextIndex);
-        setIsPlaying(true);
-    }, [currentIndex, playlist.length, playMode]);
 
     const handlePrev = useCallback(() => {
         if (playlist.length === 0) return;

@@ -67,6 +67,8 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     // 处理进度条和音量条拖拽
     useEffect(() => {
         const handleGlobalMouseMove = (e: MouseEvent) => {
+            e.preventDefault();
+            
             // 进度条拖拽
             if (isDraggingRef.current && progressBarRef.current && duration > 0) {
                 const rect = progressBarRef.current.getBoundingClientRect();
@@ -75,32 +77,29 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 setDragTime(newTime);
             }
             
-            // 音量条拖拽
+            // 音量条拖拽 - 实时更新
             if (isVolumeDraggingRef.current && volumeBarRef.current) {
                 const rect = volumeBarRef.current.getBoundingClientRect();
                 const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
                 const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
                 setDragVolume(newVolume);
-                onVolumeChange(newVolume);
             }
         };
 
-        const handleGlobalMouseUp = (e: MouseEvent) => {
+        const handleGlobalMouseUp = () => {
             // 进度条释放
-            if (isDraggingRef.current && progressBarRef.current && duration > 0) {
-                const rect = progressBarRef.current.getBoundingClientRect();
-                const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                const newTime = (clickX / rect.width) * duration;
-                onSeek(newTime);
+            if (isDraggingRef.current && dragTime !== null) {
+                onSeek(dragTime);
                 setDragTime(null);
             }
             isDraggingRef.current = false;
 
             // 音量条释放
-            if (isVolumeDraggingRef.current) {
-                isVolumeDraggingRef.current = false;
+            if (isVolumeDraggingRef.current && dragVolume !== null) {
+                onVolumeChange(dragVolume);
                 setDragVolume(null);
             }
+            isVolumeDraggingRef.current = false;
         };
 
         window.addEventListener('mousemove', handleGlobalMouseMove);
@@ -109,7 +108,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
             window.removeEventListener('mousemove', handleGlobalMouseMove);
             window.removeEventListener('mouseup', handleGlobalMouseUp);
         };
-    }, [duration, onSeek, onVolumeChange]);
+    }, [duration, dragTime, dragVolume, onSeek, onVolumeChange]);
 
     const displayTime = dragTime !== null ? dragTime : currentTime;
     const displayVolume = dragVolume !== null ? dragVolume : volume;
@@ -260,28 +259,42 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 {/* 音量条 */}
                 <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
                     <i
-                        className={`${volume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
-                        onClick={() => onVolumeChange(volume === 0 ? 0.5 : 0)}
+                        className={`${displayVolume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
+                        onClick={() => onVolumeChange(displayVolume === 0 ? 0.5 : 0)}
                     ></i>
-                    <div
-                        ref={volumeBarRef}
-                        className="w-full h-4 flex items-center cursor-pointer group"
-                        onMouseDown={(e) => {
-                            e.preventDefault();
-                            isVolumeDraggingRef.current = true;
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                            const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
-                            setDragVolume(newVolume);
-                            onVolumeChange(newVolume);
-                        }}
-                    >
-                        <div className="w-full h-1 bg-theme-highlight/30 relative rounded-full overflow-hidden">
+                    <div className="w-full h-4 flex items-center relative group">
+                        <div
+                            ref={volumeBarRef}
+                            className="w-full h-1 bg-theme-highlight/30 relative rounded-full"
+                            onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                                const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
+                                onVolumeChange(newVolume);
+                            }}
+                        >
                             <div
-                                className="h-full bg-theme-dim group-hover:bg-theme-primary transition-all relative"
+                                className="h-full bg-theme-dim group-hover:bg-theme-primary transition-colors relative"
                                 style={{ width: `${displayVolume * 100}%` }}
                             ></div>
                         </div>
+                        {/* 可拖拽的圆球滑块 */}
+                        <div
+                            className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform hover:scale-125"
+                            style={{ 
+                                left: `${displayVolume * 100}%`,
+                                transform: 'translateX(-50%)'
+                            }}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                isVolumeDraggingRef.current = true;
+                                const rect = volumeBarRef.current!.getBoundingClientRect();
+                                const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                                const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
+                                setDragVolume(newVolume);
+                            }}
+                        ></div>
                     </div>
                 </div>
             </div>
