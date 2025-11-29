@@ -156,12 +156,12 @@ const App: React.FC = () => {
     // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     useEffect(() => {
         const restoreTitle = () => { document.title = t('APP_TITLE'); };
-
+    
         const handleVisibility = () => {
             if (!document.hidden) restoreTitle();
         };
         document.addEventListener('visibilitychange', handleVisibility);
-
+    
         if (document.hidden && isTimerRunning) {
             const remaining = Math.max(0, settings.workDuration * 60 - elapsedSeconds);
             const h = Math.floor(remaining / 3600);
@@ -172,9 +172,12 @@ const App: React.FC = () => {
                 : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             document.title = `${fmt} • ${t('APP_TITLE')}`;
         } else {
-            restoreTitle();
+            // 仅在当前标题与默认标题不同时才恢复，避免在可见时每秒重复写入 document.title
+            if (document.title !== t('APP_TITLE')) {
+                restoreTitle();
+            }
         }
-
+    
         return () => {
             document.removeEventListener('visibilitychange', handleVisibility);
             restoreTitle();
