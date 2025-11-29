@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import Pomodoro from './components/Pomodoro';
 import TaskManager from './components/TaskManager';
 import AudioPlayer from './components/AudioPlayer';
@@ -144,6 +144,8 @@ const App: React.FC = () => {
     const [currentSessionCount, setCurrentSessionCount] = useState(0);
     // 当前活动会话中经过的秒数
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    // 计时器运行状态（用于在标签页不可见时显示实时倒计时）
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
@@ -151,10 +153,33 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
-    // 更新文档标题
+    // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     useEffect(() => {
-        document.title = t('APP_TITLE');
-    }, [t]);
+        const restoreTitle = () => { document.title = t('APP_TITLE'); };
+
+        const handleVisibility = () => {
+            if (!document.hidden) restoreTitle();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        if (document.hidden && isTimerRunning) {
+            const remaining = Math.max(0, settings.workDuration * 60 - elapsedSeconds);
+            const h = Math.floor(remaining / 3600);
+            const m = Math.floor((remaining % 3600) / 60);
+            const s = remaining % 60;
+            const fmt = h > 0
+                ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            document.title = `${fmt} • ${t('APP_TITLE')}`;
+        } else {
+            restoreTitle();
+        }
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
+            restoreTitle();
+        };
+    }, [isTimerRunning, elapsedSeconds, settings.workDuration, t]);
 
     // 持久化设置
     useEffect(() => {
@@ -175,7 +200,7 @@ const App: React.FC = () => {
     }, [sessionCount]);
 
     // 应用主题
-    useEffect(() => {
+    useLayoutEffect(() => {
         const root = document.documentElement;
         const themeColors = THEMES[settings.theme];
         Object.entries(themeColors).forEach(([key, value]) => {
@@ -393,6 +418,9 @@ const App: React.FC = () => {
                                 setElapsedSeconds(0); // 重置经过时间，因为会话已完成
                             }}
                             onTick={(timeLeft, mode) => {
+                                const running = mode === TimerMode.WORK && timeLeft > 0;
+                                setIsTimerRunning(running);
+
                                 if (mode === TimerMode.WORK) {
                                     const totalWorkSeconds = settings.workDuration * 60;
                                     setElapsedSeconds(totalWorkSeconds - timeLeft);

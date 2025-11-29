@@ -36,14 +36,14 @@
 
 /* 主题的基础变量（通过React动态切换） */
 :root {
-  --color-base: #0f0f11;
-  --color-surface: #18181b;
-  --color-highlight: #27272a;
-  --color-primary: #ea580c;
-  --color-secondary: #fbbf24;
-  --color-accent: #06b6d4;
-  --color-text: #e4e4e7;
-  --color-dim: #71717a;
+  --color-base: #e5e5e5;
+  --color-surface: #d4d4d4;
+  --color-highlight: #a3a3a3;
+  --color-primary: #f97316;
+  --color-secondary: #eab308;
+  --color-accent: #262626;
+  --color-text: #171717;
+  --color-dim: #737373;
 }
 
 /* 基础样式 */
@@ -75,7 +75,7 @@ body {
   background: var(--color-primary);
 }
 
-/* 倾斜按钮效果的工具类 */
+/* 斜切效果的工具类 */
 .clip-path-slant {
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
