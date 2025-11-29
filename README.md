@@ -8,51 +8,74 @@
 
 > **TERMINAL_Version // SYSTEM_ONLINE**
 >
-> 一个 Cyber UI 和 终末地 风格启发的沉浸式 Web 番茄钟应用。
+> 一个融合 Cyber UI 和《终末地》风格的沉浸式 Web 番茄钟应用。
 
 ## ✨ 核心特性 (Core Features)
 
 ### 🍅 番茄钟 (Tactical Chrono Module)
-- **沉浸式计时**: 带有呼吸灯效的环形进度条，提供精确的视觉反馈。
-- **多模式循环**: 支持标准工作模式、短程维护（短休）和系统重启（长休）模式。
-- **自动化序列**: 可配置自动开始休息或自动开始下一轮工作。
+- **沉浸式计时**: 带有呼吸灯效的环形进度条，提供精确的视觉反馈
+- **多模式循环**: 支持标准工作模式、短程维护（短休）和系统重启（长休）模式
+- **自动化序列**: 可配置自动开始休息或自动开始下一轮工作
+- **统计追踪**: 自动记录每日完成的番茄钟数量，持久化保存
 
 ### 🎨 多重视觉协议 (Visual Protocols)
-内置 8 种精心设计的科幻/工业风格主题，满足不同场景需求：
-- **ENDFIELD_PROTOCOL**: 经典的黑/橙/黄工业配色
-- **AZURE_ARCHIVE**: 冷静理性的深蓝调
-- **NEON_CITY**: 赛博朋克风格的霓虹紫/青
-- **MATRIX_CODE**: 经典的绿色代码雨动态背景
+内置 8 种精心设计的科幻/工业风格主题，每个主题都有独特的交互式背景效果：
+- **ENDFIELD_PROTOCOL**: 经典的黑/橙/黄工业配色，鼠标跟随粒子效果
+- **AZURE_ARCHIVE**: 冷静理性的深蓝调，蓝色调动态粒子
+- **NEON_CITY**: 赛博朋克风格的霓虹紫/青，炫彩渐变粒子
+- **MATRIX_CODE**: 经典的绿色代码雨动态背景，实时字符流动画
 - **DESERT_OPS**: 废土战术风格的暖灰/琥珀色
 - **ROYAL_VIOLET**: 高贵的深紫与金色搭配
 - **HEAVY_INDUSTRY**: 工业风格的高对比度警示色
 - **SCIENCE_LAB**: 纯净白/科技蓝的实验风格
 
 ### 📋 任务协议 (Mission Protocols)
-- **极简管理**: 快速添加、勾选和清除任务。
-- **容量限制**: 模拟真实终端的存储限制（最大 6 个任务），强迫聚焦当前目标。
-- **持久化存储**: 任务数据、系统设置及番茄钟统计数据均自动保存至本地终端（LocalStorage），重启后无缝衔接。
+- **极简管理**: 快速添加、勾选和清除任务
+- **容量限制**: 模拟真实终端的存储限制（最大 6 个任务），强迫聚焦当前目标
+- **持久化存储**: 任务数据、系统设置及番茄钟统计数据均自动保存至本地终端（LocalStorage），重启后无缝衔接
 
 ### 🎵 音频讯号 (Audio Feed)
-- **本地播放**: 支持导入本地音频文件作为背景白噪音或音乐。
-- **播放控制**: 包含顺序播放、单曲循环、随机播放模式。
-- **可视化**: 动态的播放进度条。
+
+#### 本地播放模式
+- **本地文件导入**: 支持拖拽或选择本地音频文件（MP3、WAV、OGG 等格式）
+- **播放列表管理**: 自动创建播放列表，支持多首曲目切换
+- **播放控制**: 顺序播放、单曲循环、随机播放三种模式
+- **可视化进度**: 终端风格的圆形进度条，实时显示播放进度和时间
+
+#### 在线播放模式 🆕
+- **多平台支持**: 集成网易云音乐、QQ音乐、酷狗等主流音乐平台
+- **播放类型**: 支持单曲、歌单、专辑、艺术家等多种类型
+- **智能加载**: 基于 MetingJS API 的在线音乐加载
+- **歌词显示**: 支持动态歌词展示（LRC 格式）
+- **封面展示**: 显示歌曲封面，提供更丰富的视觉体验
+- **实时状态**: 加载中、连接失败等状态的友好提示
+
+#### 播放器界面
+- **终端风格设计**: 完全融合终端美学的播放器界面
+- **可拖拽进度条**: 点击或拖拽控制播放进度
+- **音量控制**: 实时音量调节，音量变化动画反馈
+- **播放列表**: 下拉式播放列表，显示所有曲目信息
+- **快捷操作**: 上一曲、下一曲、播放/暂停、模式切换
 
 ### ⚙️ 系统配置 (System Config)
-- **完全自定义**: 调整工作/休息时长、音效开关、音量大小。
-- **多语言支持**: 原生支持简体中文 (CN) 与英语 (EN-US) 界面一键切换。
-- **实时状态监测**: 自动检测网络连接状态，并在终端头部显示 `SYSTEM_ONLINE` / `SYSTEM_OFFLINE`。
+- **完全自定义**: 调整工作/休息时长、音效开关、音量大小
+- **音乐配置**: 选择音乐平台（网易云/QQ音乐/酷狗等）、播放类型（歌单/专辑/单曲）、输入 ID
+- **多语言支持**: 原生支持简体中文 (CN) 与英语 (EN-US) 界面一键切换，所有 UI 元素国际化
+- **实时状态监测**: 自动检测网络连接状态，并在终端头部显示 `SYSTEM_ONLINE` / `SYSTEM_OFFLINE`
+- **主题切换**: 8 种主题预设，实时切换无延迟，所有配置自动保存
 
 ## 🛠️ 技术栈 (Tech Stack)
 
 本项目采用最新的前端技术栈构建，确保高性能与开发体验：
 
-- **核心框架**: [React 19](https://react.dev/) - 利用最新的 Hooks 和并发特性。
-- **构建工具**: [Vite](https://vitejs.dev/) - 极速的冷启动与热更新体验。
-- **开发语言**: [TypeScript](https://www.typescriptlang.org/) - 强类型保障代码健壮性。
-- **样式方案**: [TailwindCSS v4](https://tailwindcss.com/) - 原子化 CSS 引擎，配合 CSS Variables 实现动态主题切换。
-- **图标库**: [Remixicon](https://remixicon.com/) - 风格统一的开源图标集。
-- **音频处理**: Web Audio API - 原生实现振荡器音效，无额外音频资源依赖。
+- **核心框架**: [React 19](https://react.dev/) - 利用最新的 Hooks 和并发特性
+- **构建工具**: [Vite](https://vitejs.dev/) - 极速的冷启动与热更新体验
+- **开发语言**: [TypeScript](https://www.typescriptlang.org/) - 强类型保障代码健壮性
+- **样式方案**: [TailwindCSS v4](https://tailwindcss.com/) - 原子化 CSS 引擎，配合 CSS Variables 实现动态主题切换
+- **图标库**: [Remixicon](https://remixicon.com/) + [Lucide React](https://lucide.dev/) - 风格统一的开源图标集
+- **音频处理**: Web Audio API - 原生实现振荡器音效，无额外音频资源依赖
+- **状态管理**: React Hooks (useState, useEffect, useRef, useMemo, useCallback)
+- **工具函数**: [react-use](https://github.com/streamich/react-use) - 实用的 React Hooks 集合
 
 ## 🚀 快速开始 (Getting Started)
 
@@ -64,7 +87,7 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/ChuwuYo/endfield-pomodor.git
+   git clone https://github.com/ChuwuYo/endfield-pomodoro.git
    cd endfield-pomodoro
    ```
 
@@ -77,33 +100,127 @@
    ```bash
    pnpm dev
    ```
-   访问终端显示的本地地址（通常为 `http://localhost:5173`）。
+   访问终端显示的本地地址（通常为 http://localhost:5173）。
 
 4. **构建生产版本**
    ```bash
    pnpm build
    ```
 
+5. **预览生产版本**
+   ```bash
+   pnpm preview
+   ```
+
 ## 📂 项目结构 (Project Structure)
 
 ```text
-src/                     # 源代码目录
-├── assets/              # 静态资源文件
-├── components/          # UI 组件库
-│   ├── AudioPlayer.tsx  # 音频播放器组件
-│   ├── Checkbox.tsx     # 复选框组件
-│   ├── CustomSelect.tsx # 自定义下拉选择组件
-│   ├── Pomodoro.tsx     # 番茄钟核心组件
-│   ├── SoundManager.tsx # 音效管理器 (Web Audio API)
-│   ├── TaskManager.tsx  # 任务管理组件
-│   └── TerminalUI.tsx   # 基础终端风格组件 (Panel, Button, Input)
-├── utils/               # 工具函数
-│   └── i18n.ts          # 国际化配置
-├── types.ts             # TypeScript 类型定义
-├── App.tsx              # 主应用组件与布局
-├── main.tsx             # 渲染入口
-└── index.css            # 全局样式与 Tailwind 引入
+endfield-pomodoro/
+├── src/                        # 源代码目录
+│   ├── assets/                 # 静态资源文件
+│   ├── components/             # UI 组件库
+│   │   ├── AudioPlayer.tsx     # 本地音频播放器组件
+│   │   ├── MusicPlayer.tsx     # 在线音乐播放器组件
+│   │   ├── PlayerInterface.tsx # 播放器UI界面组件
+│   │   ├── Checkbox.tsx        # 复选框组件
+│   │   ├── CustomSelect.tsx    # 自定义下拉选择组件
+│   │   ├── Pomodoro.tsx        # 番茄钟核心组件
+│   │   ├── SoundManager.tsx    # 音效管理器 (Web Audio API)
+│   │   ├── TaskManager.tsx     # 任务管理组件
+│   │   ├── TerminalUI.tsx      # 基础终端风格组件 (Panel, Button, Input)
+│   │   └── MusicPlayer.css     # 音乐播放器样式
+│   ├── config/                 # 配置文件 🆕
+│   │   └── musicConfig.ts      # 音乐播放器默认配置
+│   ├── hooks/                  # 自定义 Hooks 🆕
+│   │   ├── useMetingData.ts    # MetingJS API 数据获取 Hook
+│   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
+│   ├── utils/                  # 工具函数
+│   │   └── i18n.ts             # 国际化配置（中英双语）
+│   ├── types/                  # TypeScript 类型定义目录
+│   ├── types.ts                # TypeScript 核心类型定义
+│   ├── App.tsx                 # 主应用组件与布局
+│   ├── main.tsx                # 渲染入口
+│   └── index.css               # 全局样式与 Tailwind 引入
+├── index.html                  # HTML 入口文件
+├── package.json                # 项目依赖配置
+├── tsconfig.json               # TypeScript 配置
+├── tsconfig.app.json           # TypeScript 应用配置
+├── tsconfig.node.json          # TypeScript Node 配置
+├── vite.config.ts              # Vite 构建配置
+├── eslint.config.js            # ESLint 配置
+└── README.md                   # 项目文档
 ```
+
+## 🎯 核心组件说明 (Component Overview)
+
+### 播放器系统
+- **AudioPlayer**: 处理本地音频文件的播放、控制和可视化
+- **MusicPlayer**: 在线音乐播放器，整合 MetingJS API
+- **PlayerInterface**: 统一的播放器UI界面，支持本地和在线两种模式
+- **useOnlinePlayer**: 封装在线播放器的核心逻辑（播放、暂停、切换、进度控制）
+- **useMetingData**: 从 MetingJS API 获取歌单数据
+
+### 番茄钟系统
+- **Pomodoro**: 番茄钟主组件，包含计时器逻辑和环形进度条
+- **SoundManager**: 使用 Web Audio API 生成提示音效
+
+### 任务系统
+- **TaskManager**: 任务列表管理，支持添加、完成、删除操作
+- **Checkbox**: 自定义复选框组件，终端风格
+
+### UI 系统
+- **TerminalUI**: 提供 Panel、Button、Input、Badge 等终端风格基础组件
+- **CustomSelect**: 自定义下拉选择框，支持复杂选项渲染
+
+## 🌐 国际化支持 (i18n)
+
+项目完全支持中英双语，所有UI文本均通过 `i18n.ts` 管理，包括：
+
+- 界面标签和按钮文本
+- 状态提示信息
+- 音乐平台和类型选项
+- 错误和加载提示
+
+切换语言后无需刷新页面，所有文本即时更新。
+
+## 🎨 主题系统 (Theme System)
+
+使用 CSS Variables 实现动态主题切换，每个主题定义包括：
+
+- 主色调 (--theme-primary)
+- 高亮色 (--theme-highlight)
+- 背景色 (--theme-bg, --theme-surface)
+- 文本色 (--theme-text, --theme-dim)
+- 特效色 (--glow-color, --particle-color)
+
+所有主题配置存储在 `App.tsx` 中，可轻松扩展新主题。
+
+## 🔧 开发建议 (Development Tips)
+
+### 添加新主题
+在 `App.tsx` 的 themePresets 中添加新的主题配置：
+
+```typescript
+{
+  name: '你的主题名',
+  primary: '#颜色值',
+  highlight: '#颜色值',
+  // ... 其他配置
+}
+```
+
+### 添加新语言
+在 src/utils/i18n.ts 中添加新的语言配置：
+
+```typescript
+export const translations = {
+  // ... 现有语言
+  'NEW_LANG': { /* 翻译内容 */ }
+}
+```
+
+### 修改默认音乐配置
+编辑 `src/config/musicConfig.ts` 中的 defaultMetingConfig。
 
 ## 🤝 贡献 (Contributing)
 
@@ -120,3 +237,5 @@ src/                     # 源代码目录
 - [TypeScript](https://www.typescriptlang.org/)
 - [pnpm](https://pnpm.io/)
 - [Vite](https://vite.dev/)
+- [React](https://react.dev/)
+- [MetingJS](https://github.com/metowolf/MetingJS)

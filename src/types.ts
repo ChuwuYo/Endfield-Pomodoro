@@ -41,6 +41,11 @@ export interface Settings {
   soundVolume: number;
   language: Language;
   theme: ThemePreset;
+  musicConfig: {
+    server: string;
+    type: string;
+    id: string;
+  };
 }
 
 export interface Task {
