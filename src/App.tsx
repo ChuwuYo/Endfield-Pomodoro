@@ -8,6 +8,7 @@ import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './compon
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { useTranslation } from './utils/i18n';
+import { STORAGE_KEYS } from './constants';
 import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -19,16 +20,13 @@ const DEFAULT_SETTINGS: Settings = {
     soundEnabled: true,
     soundVolume: 0.5,
     language: Language.CN,
-    theme: ThemePreset.INDUSTRIAL
+    theme: ThemePreset.INDUSTRIAL,
+    musicConfig: {
+        server: 'netease',
+        type: 'playlist',
+        id: '9094583817'
+    }
 };
-
-const STORAGE_KEYS = {
-    SETTINGS: 'origin_terminal_settings',
-    SESSIONS: 'origin_terminal_sessions',
-    TOTAL_SECONDS: 'origin_terminal_total_seconds',
-    CURRENT_SESSION_START: 'origin_terminal_current_session_start'
-};
-// TIMER_STORAGE 已由 Pomodoro 组件负责维护，App 不再直接读取该键以避免重复恢复逻辑
 
 const View = {
     DASHBOARD: 'DASHBOARD',
@@ -120,6 +118,23 @@ const THEMES = {
     }
 };
 
+// 音乐平台选项配置
+const getMusicPlatformOptions = (t: ReturnType<typeof useTranslation>) => [
+    { value: 'netease', label: t('PLATFORM_NETEASE') },
+    { value: 'tencent', label: t('PLATFORM_TENCENT') },
+    { value: 'kugou', label: t('PLATFORM_KUGOU') },
+    { value: 'xiami', label: t('PLATFORM_XIAMI') },
+    { value: 'baidu', label: t('PLATFORM_BAIDU') }
+];
+
+// 音乐类型选项配置
+const getMusicTypeOptions = (t: ReturnType<typeof useTranslation>) => [
+    { value: 'playlist', label: t('TYPE_PLAYLIST') },
+    { value: 'album', label: t('TYPE_ALBUM') },
+    { value: 'song', label: t('TYPE_SONG') },
+    { value: 'artist', label: t('TYPE_ARTIST') }
+];
+
 const App: React.FC = () => {
     // 从localStorage加载设置
     const [settings, setSettings] = useState<Settings>(() => {
@@ -167,15 +182,26 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
+    // 辅助函数：更新音乐配置
+    const handleMusicConfigChange = (key: keyof Settings['musicConfig'], value: string) => {
+        setSettings(prev => ({
+            ...prev,
+            musicConfig: {
+                ...prev.musicConfig,
+                [key]: value
+            }
+        }));
+    };
+
     // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     useEffect(() => {
         const restoreTitle = () => { document.title = t('APP_TITLE'); };
-    
+
         const handleVisibility = () => {
             if (!document.hidden) restoreTitle();
         };
         document.addEventListener('visibilitychange', handleVisibility);
-    
+
         if (document.hidden && isTimerRunning && remainingSeconds != null) {
             const remaining = Math.max(0, remainingSeconds);
             const h = Math.floor(remaining / 3600);
@@ -195,7 +221,7 @@ const App: React.FC = () => {
                 restoreTitle();
             }
         }
-    
+
         return () => {
             document.removeEventListener('visibilitychange', handleVisibility);
             restoreTitle();
@@ -231,13 +257,13 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
-    
+
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
-    
+
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
-    
+
         return () => {
             clearInterval(timer);
             window.removeEventListener('online', handleOnline);
@@ -411,7 +437,7 @@ const App: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* 切换选项 */}
+                                {/* 自动化与反馈 */}
                                 <div className="space-y-4">
                                     <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
                                         <span>{t('AUTOMATION_FEEDBACK')}</span>
@@ -433,6 +459,41 @@ const App: React.FC = () => {
                                             onChange={(checked) => setSettings({ ...settings, soundEnabled: checked })}
                                             label={t('AUDIO_FEEDBACK')}
                                         />
+                                    </div>
+                                </div>
+
+                                {/* 在线音乐配置 */}
+                                <div className="space-y-4">
+                                    <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
+                                        <span>{t('ONLINE_MUSIC_CONFIG')}</span>
+                                        <span className="text-[10px] opacity-50">CONFIG_SECTOR_04</span>
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        <div>
+                                            <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('PLATFORM')}</label>
+                                            <CustomSelect
+                                                value={settings.musicConfig.server}
+                                                options={getMusicPlatformOptions(t)}
+                                                onChange={(value) => handleMusicConfigChange('server', value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('TYPE')}</label>
+                                            <CustomSelect
+                                                value={settings.musicConfig.type}
+                                                options={getMusicTypeOptions(t)}
+                                                onChange={(value) => handleMusicConfigChange('type', value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('ID')}</label>
+                                            <Input
+                                                type="text"
+                                                value={settings.musicConfig.id}
+                                                onChange={(e) => handleMusicConfigChange('id', e.target.value)}
+                                                placeholder={t('ENTER_ID_PLACEHOLDER')}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -473,12 +534,12 @@ const App: React.FC = () => {
                                 setIsTimerRunning(running);
                                 setRemainingSeconds(timeLeft);
                                 setRemainingMode(mode);
-    
+
                                 if (mode === TimerMode.WORK) {
                                     const totalWorkSeconds = settings.workDuration * 60;
                                     const newElapsed = totalWorkSeconds - timeLeft;
                                     setElapsedSeconds(newElapsed);
-    
+
                                     if (isActive) {
                                         // 如果当前会话还没有记录开始时间，则以当前时间减去已经经过秒数来计算开始时间，
                                         // 这样页面刷新后仍能基于时间戳继续计算当前会话的经过时间。
@@ -516,7 +577,7 @@ const App: React.FC = () => {
                         </div>
                         {/* 音频 */}
                         <div className="h-auto min-h-[160px] md:h-48 shrink-0">
-                            <AudioPlayer language={settings.language} />
+                            <AudioPlayer language={settings.language} musicConfig={settings.musicConfig} />
                         </div>
                     </div>
 
