@@ -93,6 +93,7 @@ export const translations = {
     TOGGLE_MODE: 'TOGGLE PLAYBACK MODE',
     FILES_LOADED: 'FILES LOADED',
     CLEAR: 'CLEAR',
+    ADD_TRACKS: 'ADD TRACKS',
 
     // Button Tooltips
     PLAY_PAUSE: 'PLAY/PAUSE',
@@ -201,6 +202,7 @@ export const translations = {
     TOGGLE_MODE: '切换播放模式',
     FILES_LOADED: '已加载文件',
     CLEAR: '清空',
+    ADD_TRACKS: '添加曲目',
 
     // Button Tooltips
     PLAY_PAUSE: '播放/暂停',

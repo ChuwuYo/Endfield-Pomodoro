@@ -135,7 +135,6 @@ endfield-pomodoro/
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
 │   │   └── i18n.ts             # 国际化配置（中英双语）
-│   ├── types/                  # TypeScript 类型定义目录
 │   ├── types.ts                # TypeScript 核心类型定义
 │   ├── App.tsx                 # 主应用组件与布局
 │   ├── main.tsx                # 渲染入口

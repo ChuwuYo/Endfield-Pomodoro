@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 
+// Meting API 配置
+const METING_API_BASE_URL = 'https://api.injahow.cn/meting/';
+
 export interface MetingAudio {
     name: string;
     artist: string;
@@ -30,7 +33,7 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
 
             try {
                 // 使用 Meting API
-                const apiUrl = `https://api.injahow.cn/meting/?server=${server}&type=${type}&id=${id}`;
+                const apiUrl = `${METING_API_BASE_URL}?server=${server}&type=${type}&id=${id}`;
 
                 const response = await fetch(apiUrl);
                 if (!response.ok) {

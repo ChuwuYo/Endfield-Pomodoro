@@ -319,7 +319,7 @@ const AudioPlayer: React.FC<{
                                         >
                                             {/* Material Symbols Light: add */}
                                             <i className="ri-add-line text-base"></i>
-                                            {t('ADD_TASK')}
+                                            {t('ADD_TRACKS')}
                                         </button>
                                     </div>
                                 </div>

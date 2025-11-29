@@ -171,6 +171,17 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
+    // 辅助函数：更新音乐配置
+    const handleMusicConfigChange = (key: keyof Settings['musicConfig'], value: string) => {
+        setSettings(prev => ({
+            ...prev,
+            musicConfig: {
+                ...prev.musicConfig,
+                [key]: value
+            }
+        }));
+    };
+
     // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     useEffect(() => {
         const restoreTitle = () => { document.title = t('APP_TITLE'); };
@@ -458,10 +469,7 @@ const App: React.FC = () => {
                                                     { value: 'xiami', label: t('PLATFORM_XIAMI') },
                                                     { value: 'baidu', label: t('PLATFORM_BAIDU') }
                                                 ]}
-                                                onChange={(value) => setSettings({
-                                                    ...settings,
-                                                    musicConfig: { ...settings.musicConfig, server: value }
-                                                })}
+                                                onChange={(value) => handleMusicConfigChange('server', value)}
                                             />
                                         </div>
                                         <div>
@@ -474,10 +482,7 @@ const App: React.FC = () => {
                                                     { value: 'song', label: t('TYPE_SONG') },
                                                     { value: 'artist', label: t('TYPE_ARTIST') }
                                                 ]}
-                                                onChange={(value) => setSettings({
-                                                    ...settings,
-                                                    musicConfig: { ...settings.musicConfig, type: value }
-                                                })}
+                                                onChange={(value) => handleMusicConfigChange('type', value)}
                                             />
                                         </div>
                                         <div>
@@ -485,10 +490,7 @@ const App: React.FC = () => {
                                             <Input
                                                 type="text"
                                                 value={settings.musicConfig.id}
-                                                onChange={(e) => setSettings({
-                                                    ...settings,
-                                                    musicConfig: { ...settings.musicConfig, id: e.target.value }
-                                                })}
+                                                onChange={(e) => handleMusicConfigChange('id', e.target.value)}
                                                 placeholder={t('ENTER_ID_PLACEHOLDER')}
                                             />
                                         </div>
