@@ -87,7 +87,7 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/ChuwuYo/endfield-pomodoro.git
+   git clone https://github.com/ChuwuYo/Endfield-Pomodoro.git
    cd endfield-pomodoro
    ```
 
@@ -127,11 +127,10 @@ endfield-pomodoro/
 │   │   ├── Pomodoro.tsx        # 番茄钟核心组件
 │   │   ├── SoundManager.tsx    # 音效管理器 (Web Audio API)
 │   │   ├── TaskManager.tsx     # 任务管理组件
-│   │   ├── TerminalUI.tsx      # 基础终端风格组件 (Panel, Button, Input)
-│   │   └── MusicPlayer.css     # 音乐播放器样式
-│   ├── config/                 # 配置文件 🆕
+│   │   └── TerminalUI.tsx      # 基础终端风格组件 (Panel, Button, Input)
+│   ├── config/                 # 配置文件
 │   │   └── musicConfig.ts      # 音乐播放器默认配置
-│   ├── hooks/                  # 自定义 Hooks 🆕
+│   ├── hooks/                  # 自定义 Hooks
 │   │   ├── useMetingData.ts    # MetingJS API 数据获取 Hook
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
