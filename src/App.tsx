@@ -124,7 +124,10 @@ const App: React.FC = () => {
         const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (saved) {
             try {
-                return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    return { ...DEFAULT_SETTINGS, ...parsed };
+                }
             } catch (e) {
                 console.error('Failed to load settings', e);
             }
@@ -135,7 +138,7 @@ const App: React.FC = () => {
     // Load session count from localStorage
     const [sessionCount, setSessionCount] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-        return saved ? parseInt(saved, 10) : 0;
+        return Number(saved) | 0;
     });
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -151,12 +154,20 @@ const App: React.FC = () => {
 
     // Persist settings
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+        try {
+            localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+        } catch (e) {
+            console.error('Failed to persist settings', e);
+        }
     }, [settings]);
 
     // Persist session count
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEYS.SESSIONS, sessionCount.toString());
+        try {
+            localStorage.setItem(STORAGE_KEYS.SESSIONS, sessionCount.toString());
+        } catch (e) {
+            console.error('Failed to persist session count', e);
+        }
     }, [sessionCount]);
 
     // Apply Theme
@@ -185,7 +196,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* Background Visuals (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
