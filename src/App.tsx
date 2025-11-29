@@ -427,12 +427,13 @@ const App: React.FC = () => {
                             {hours > 0 ? (
                                 <>
                                     <span className="mr-1">{hours}<span className="text-theme-dim ml-0.5">{t('HOURS')}</span></span>
-                                    <span>{minutes}<span className="text-theme-dim ml-0.5">{t('MINUTES')}</span></span>
+                                    <span className="mr-1">{minutes}<span className="text-theme-dim ml-0.5">{t('MINUTES')}</span></span>
+                                    <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>
                                 </>
                             ) : minutes > 0 ? (
                                 <>
                                     <span className="mr-1">{minutes}<span className="text-theme-dim ml-0.5">{t('MINUTES')}</span></span>
-                                    {seconds > 0 && <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>}
+                                    <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>
                                 </>
                             ) : (
                                 <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>
