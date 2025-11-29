@@ -78,6 +78,13 @@ export const translations = {
     TOGGLE_TASK: 'TOGGLE TASK',
     DELETE_TASK: 'DELETE TASK',
     CLEAR_ALL_TASKS: 'CLEAR ALL TASKS',
+
+    // Footer
+    TOTAL_STUDY_TIME: 'SESSION OPERATION TIME',
+    COPYRIGHT: '© 2025 ENDFIELD PROTOCOL. ALL RIGHTS RESERVED.',
+    HOURS: 'H',
+    MINUTES: 'M',
+    SECONDS: 'S',
   },
   [Language.CN]: {
     // App
@@ -155,6 +162,13 @@ export const translations = {
     TOGGLE_TASK: '切换任务状态',
     DELETE_TASK: '删除任务',
     CLEAR_ALL_TASKS: '清除所有任务',
+
+    // Footer
+    TOTAL_STUDY_TIME: '本次累计作业时长',
+    COPYRIGHT: '© 2025 末端协议. 版权所有.',
+    HOURS: '小时',
+    MINUTES: '分钟',
+    SECONDS: '秒',
   }
 };
 

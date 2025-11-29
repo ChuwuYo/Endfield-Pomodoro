@@ -4,7 +4,7 @@ import Pomodoro from './components/Pomodoro';
 import TaskManager from './components/TaskManager';
 import AudioPlayer from './components/AudioPlayer';
 import type { Settings } from './types';
-import { Language, ThemePreset } from './types';
+import { Language, ThemePreset, TimerMode } from './types';
 import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './components/TerminalUI';
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
@@ -20,7 +20,7 @@ const DEFAULT_SETTINGS: Settings = {
     soundEnabled: true,
     soundVolume: 0.5,
     language: Language.CN,
-    theme: ThemePreset.ORIGIN
+    theme: ThemePreset.INDUSTRIAL
 };
 
 const STORAGE_KEYS = {
@@ -141,6 +141,11 @@ const App: React.FC = () => {
         return Number(saved) | 0;
     });
 
+    // Session count for current session (not persisted)
+    const [currentSessionCount, setCurrentSessionCount] = useState(0);
+    // Elapsed seconds in the current active session
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -194,6 +199,12 @@ const App: React.FC = () => {
             window.removeEventListener('offline', handleOffline);
         };
     }, []);
+
+    // Calculate total study time (based on current session + elapsed time in current session)
+    const totalSeconds = (currentSessionCount * settings.workDuration * 60) + elapsedSeconds;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
 
     return (
         <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
@@ -375,7 +386,19 @@ const App: React.FC = () => {
                         <Pomodoro
                             settings={settings}
                             sessionCount={sessionCount}
-                            onSessionsUpdate={setSessionCount}
+                            onSessionsUpdate={(newCount) => {
+                                setSessionCount(newCount);
+                                setCurrentSessionCount(prev => prev + 1);
+                                setElapsedSeconds(0); // Reset elapsed time as session is complete
+                            }}
+                            onTick={(timeLeft, mode) => {
+                                if (mode === TimerMode.WORK) {
+                                    const totalWorkSeconds = settings.workDuration * 60;
+                                    setElapsedSeconds(totalWorkSeconds - timeLeft);
+                                } else {
+                                    setElapsedSeconds(0);
+                                }
+                            }}
                         />
                     </div>
 
@@ -395,6 +418,35 @@ const App: React.FC = () => {
                     <div className="h-24 w-full md:hidden shrink-0"></div>
                 </div>
             </main>
+
+            {/* Footer (Z-40) */}
+            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 select-none">
+                <div className="max-w-[1920px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                        <span className="text-theme-primary/80 uppercase tracking-wider">{t('TOTAL_STUDY_TIME')}:</span>
+                        <span className="text-theme-text">
+                            {hours > 0 ? (
+                                <>
+                                    <span className="mr-1">{hours}<span className="text-theme-dim ml-0.5">{t('HOURS')}</span></span>
+                                    <span>{minutes}<span className="text-theme-dim ml-0.5">{t('MINUTES')}</span></span>
+                                </>
+                            ) : minutes > 0 ? (
+                                <>
+                                    <span className="mr-1">{minutes}<span className="text-theme-dim ml-0.5">{t('MINUTES')}</span></span>
+                                    {seconds > 0 && <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>}
+                                </>
+                            ) : (
+                                <span>{seconds}<span className="text-theme-dim ml-0.5">{t('SECONDS')}</span></span>
+                            )}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
+                        <span>{t('COPYRIGHT')}</span>
+                        <span className="hidden md:inline text-theme-highlight">|</span>
+                        <span className="hidden md:inline">@ChuwuYo</span>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };

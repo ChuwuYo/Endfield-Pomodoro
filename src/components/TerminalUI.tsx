@@ -324,10 +324,9 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
         return (
             <div className="fixed inset-0 pointer-events-none z-50">
                 {/* Warning circle following cursor - no transition, direct position */}
-                <div className="absolute"
+                <div className="absolute top-0 left-0 will-change-transform"
                     style={{
-                        left: mousePos.x - 100,
-                        top: mousePos.y - 100,
+                        transform: `translate(${mousePos.x - 100}px, ${mousePos.y - 100}px)`,
                         width: '200px',
                         height: '200px'
                     }}>
@@ -357,8 +356,8 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
                         mixBlendMode: 'overlay'
                     }}></div>
                 {/* Measurement crosshair - direct position, no transition */}
-                <div className="absolute"
-                    style={{ left: mousePos.x, top: mousePos.y }}>
+                <div className="absolute top-0 left-0 will-change-transform"
+                    style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }}>
                     <div className="w-[1px] h-4 bg-theme-primary/30 absolute -top-4 left-0"></div>
                     <div className="w-[1px] h-4 bg-theme-primary/30 absolute top-0 left-0"></div>
                     <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 -left-4"></div>

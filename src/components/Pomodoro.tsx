@@ -10,9 +10,10 @@ interface PomodoroProps {
   settings: Settings;
   sessionCount: number;
   onSessionsUpdate: (count: number) => void;
+  onTick?: (timeLeft: number, mode: TimerMode) => void;
 }
 
-const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsUpdate }) => {
+const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsUpdate, onTick }) => {
   const t = useTranslation(settings.language);
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
   const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
@@ -30,17 +31,20 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   const resetTimer = () => {
     setIsActive(false);
+    let newTime = 0;
     switch (mode) {
       case TimerMode.WORK:
-        setTimeLeft(settingsRef.current.workDuration * 60);
+        newTime = settingsRef.current.workDuration * 60;
         break;
       case TimerMode.SHORT_BREAK:
-        setTimeLeft(settingsRef.current.shortBreakDuration * 60);
+        newTime = settingsRef.current.shortBreakDuration * 60;
         break;
       case TimerMode.LONG_BREAK:
-        setTimeLeft(settingsRef.current.longBreakDuration * 60);
+        newTime = settingsRef.current.longBreakDuration * 60;
         break;
     }
+    setTimeLeft(newTime);
+    if (onTick) onTick(newTime, mode);
   };
 
   useEffect(() => {
@@ -48,7 +52,11 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
     if (isActive && timeLeft > 0) {
       interval = window.setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => {
+          const newTime = prev - 1;
+          if (onTick) onTick(newTime, mode);
+          return newTime;
+        });
       }, 1000);
     } else if (timeLeft === 0) {
       handleComplete();
@@ -176,8 +184,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
               <circle
                 fill="var(--color-text)"
                 r="4"
-                cx="128"
-                cy="8"
+                cx="248"
+                cy="128"
                 className="transition-all duration-1000 ease-linear"
                 style={{
                   transformOrigin: '128px 128px',
@@ -195,7 +203,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
             {/* Time Text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <span className={`text-6xl md:text-8xl font-sans font-bold tracking-tighter text-theme-text drop-shadow-2xl tabular-nums transition-transform ${isActive ? 'scale-105' : 'scale-100'}`}>
+              <span className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform ${isActive ? 'scale-105' : 'scale-100'}`}>
                 {formatTime(timeLeft)}
               </span>
               <span className="text-xs text-theme-dim font-mono mt-2 tracking-[0.3em] uppercase animate-pulse">{t('TIME_REMAINING')}</span>
