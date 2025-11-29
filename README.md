@@ -19,14 +19,14 @@
 
 ### 🎨 多重视觉协议 (Visual Protocols)
 内置 8 种精心设计的科幻/工业风格主题，满足不同场景需求：
-- **ENDFIELD_PROTOCOL**: 经典的黑/橙/黄工业配色，还原硬核终端质感。
-- **AZURE_ARCHIVE**: 冷静理性的深蓝调，适合深度思考。
-- **NEON_CITY**: 赛博朋克风格的霓虹紫/青，高对比度视觉冲击。
-- **MATRIX_CODE**: 经典的绿色代码雨动态背景，黑客风格首选。
-- **DESERT_OPS**: 废土战术风格的暖灰/琥珀色，低调实用。
-- **ROYAL_VIOLET**: 高贵的深紫与金色搭配，优雅神秘。
-- **HEAVY_INDUSTRY**: 工业风格的高对比度警示色，强调功能性。
-- **SCIENCE_LAB**: 纯净白/科技蓝的实验风格，明亮整洁。
+- **ENDFIELD_PROTOCOL**: 经典的黑/橙/黄工业配色
+- **AZURE_ARCHIVE**: 冷静理性的深蓝调
+- **NEON_CITY**: 赛博朋克风格的霓虹紫/青
+- **MATRIX_CODE**: 经典的绿色代码雨动态背景
+- **DESERT_OPS**: 废土战术风格的暖灰/琥珀色
+- **ROYAL_VIOLET**: 高贵的深紫与金色搭配
+- **HEAVY_INDUSTRY**: 工业风格的高对比度警示色
+- **SCIENCE_LAB**: 纯净白/科技蓝的实验风格
 
 ### 📋 任务协议 (Mission Protocols)
 - **极简管理**: 快速添加、勾选和清除任务。

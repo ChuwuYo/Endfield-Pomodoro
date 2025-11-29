@@ -121,7 +121,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                 </div>
                 <button
                   onClick={() => deleteTask(task.id)}
-                  className="opacity-0 group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
+                  className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
                   title={t('DELETE_TASK')}
                 >
                   <i className="ri-close-line text-lg"></i>

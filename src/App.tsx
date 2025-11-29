@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import Pomodoro from './components/Pomodoro';
 import TaskManager from './components/TaskManager';
 import AudioPlayer from './components/AudioPlayer';
@@ -144,6 +144,8 @@ const App: React.FC = () => {
     const [currentSessionCount, setCurrentSessionCount] = useState(0);
     // 当前活动会话中经过的秒数
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    // 计时器运行状态（用于在标签页不可见时显示实时倒计时）
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
@@ -151,10 +153,36 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
-    // 更新文档标题
+    // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     useEffect(() => {
-        document.title = t('APP_TITLE');
-    }, [t]);
+        const restoreTitle = () => { document.title = t('APP_TITLE'); };
+    
+        const handleVisibility = () => {
+            if (!document.hidden) restoreTitle();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+    
+        if (document.hidden && isTimerRunning) {
+            const remaining = Math.max(0, settings.workDuration * 60 - elapsedSeconds);
+            const h = Math.floor(remaining / 3600);
+            const m = Math.floor((remaining % 3600) / 60);
+            const s = remaining % 60;
+            const fmt = h > 0
+                ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            document.title = `${fmt} • ${t('APP_TITLE')}`;
+        } else {
+            // 仅在当前标题与默认标题不同时才恢复，避免在可见时每秒重复写入 document.title
+            if (document.title !== t('APP_TITLE')) {
+                restoreTitle();
+            }
+        }
+    
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
+            restoreTitle();
+        };
+    }, [isTimerRunning, elapsedSeconds, settings.workDuration, t]);
 
     // 持久化设置
     useEffect(() => {
@@ -175,7 +203,7 @@ const App: React.FC = () => {
     }, [sessionCount]);
 
     // 应用主题
-    useEffect(() => {
+    useLayoutEffect(() => {
         const root = document.documentElement;
         const themeColors = THEMES[settings.theme];
         Object.entries(themeColors).forEach(([key, value]) => {
@@ -206,7 +234,7 @@ const App: React.FC = () => {
     const seconds = totalSeconds % 60;
 
     return (
-        <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-screen h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* 背景视觉效果 (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
@@ -375,6 +403,8 @@ const App: React.FC = () => {
                                 </div>
                             </div>
                         </Panel>
+                        {/* 移动端底部额外间距，防止被 Footer 遮挡 */}
+                        <div className="h-24 w-full md:hidden shrink-0"></div>
                     </div>
                 ) : null}
 
@@ -391,6 +421,9 @@ const App: React.FC = () => {
                                 setElapsedSeconds(0); // 重置经过时间，因为会话已完成
                             }}
                             onTick={(timeLeft, mode) => {
+                                const running = mode === TimerMode.WORK && timeLeft > 0;
+                                setIsTimerRunning(running);
+
                                 if (mode === TimerMode.WORK) {
                                     const totalWorkSeconds = settings.workDuration * 60;
                                     setElapsedSeconds(totalWorkSeconds - timeLeft);
@@ -419,7 +452,7 @@ const App: React.FC = () => {
             </main>
 
             {/* 页脚 (Z-40) */}
-            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 select-none">
+            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none">
                 <div className="max-w-[1920px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <span className="text-theme-primary/80 uppercase tracking-wider">{t('TOTAL_STUDY_TIME')}:</span>
