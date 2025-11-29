@@ -84,8 +84,9 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
           if (restoredTime !== null && onTick) onTick(restoredTime, restoredMode ?? TimerMode.WORK, restoredActive);
         }
       }
-    } catch {
-      // 忽略解析错误，继续使用默认状态
+    } catch (err) {
+      // 解析失败时记录错误，便于调试
+      console.error('Failed to parse timer payload from localStorage', err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -101,8 +102,9 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         payload.startTs = Date.now() - elapsed * 1000;
       }
       localStorage.setItem(TIMER_STORAGE, JSON.stringify(payload));
-    } catch {
+    } catch (err) {
       // 持久化失败时记录错误但不影响运行
+      console.error('Failed to persist timer payload to localStorage', err);
     }
     // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
     // eslint-disable-next-line react-hooks/exhaustive-deps

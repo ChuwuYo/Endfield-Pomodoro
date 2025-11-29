@@ -28,8 +28,7 @@ const STORAGE_KEYS = {
     TOTAL_SECONDS: 'origin_terminal_total_seconds',
     CURRENT_SESSION_START: 'origin_terminal_current_session_start'
 };
-// 与 Pomodoro 共享的计时器持久化键（用于恢复计时器运行/暂停/剩余时间）
-const TIMER_STORAGE = 'origin_terminal_timer';
+// TIMER_STORAGE 已由 Pomodoro 组件负责维护，App 不再直接读取该键以避免重复恢复逻辑
 
 const View = {
     DASHBOARD: 'DASHBOARD',
@@ -246,62 +245,16 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // 页面挂载时从 Pomodoro 的持久化状态恢复计时器信息，保证刷新后 App 的 footer / title 与计时器同步
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(TIMER_STORAGE);
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
-    
-            const candidateMode = parsed.mode as TimerMode | undefined;
-            const candidateTime = typeof parsed.timeLeft === 'number' ? parsed.timeLeft : null;
-            const candidateActive = Boolean(parsed.isActive);
-            const candidateStart = typeof parsed.startTs === 'number' ? parsed.startTs : null;
-    
-            const updates: {
-                mode?: TimerMode;
-                remaining?: number | null;
-                running?: boolean;
-                elapsed?: number | null;
-                start?: number | null;
-            } = {};
-    
-            if (candidateMode) updates.mode = candidateMode;
-    
-            if (candidateTime != null) {
-                let restored = candidateTime;
-                if (candidateActive && candidateStart) {
-                    const elapsed = Math.floor((Date.now() - candidateStart) / 1000);
-                    restored = Math.max(0, candidateTime - elapsed);
-                    // 如果是工作模式，计算 elapsedSeconds 与 startTs
-                    if (candidateMode === TimerMode.WORK) {
-                        const totalWorkSeconds = settings.workDuration * 60;
-                        const newElapsed = totalWorkSeconds - restored;
-                        updates.elapsed = newElapsed;
-                        updates.start = candidateStart;
-                    }
-                }
-                updates.remaining = restored;
-                updates.running = Boolean(candidateActive && restored > 0);
-            }
-    
-            // 将多个 setState 操作延迟到下一 tick，避免在 effect 中同步触发级联渲染
-            if (Object.keys(updates).length > 0) {
-                setTimeout(() => {
-                    if (updates.mode) setRemainingMode(updates.mode);
-                    if (typeof updates.remaining !== 'undefined') setRemainingSeconds(updates.remaining as number | null);
-                    if (typeof updates.running !== 'undefined') setIsTimerRunning(Boolean(updates.running));
-                    if (typeof updates.elapsed !== 'undefined') setElapsedSeconds(updates.elapsed as number);
-                    if (typeof updates.start !== 'undefined') setCurrentSessionStart(updates.start as number | null);
-                }, 0);
-            }
-        } catch (err) {
-            console.error('Failed to restore timer state', err);
-        }
-        // 依赖 settings.workDuration 以便计算 elapsedSeconds 使用最新设置
-    }, [settings.workDuration]);
+    // Timer state is restored by the Pomodoro component via onTick; do not duplicate by reading TIMER_STORAGE here.
 
+    const clearCurrentSessionStart = () => {
+        setCurrentSessionStart(null);
+        try {
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
+        } catch (e) {
+            console.error('Failed to remove current session start', e);
+        }
+    };
     // 计算总学习时间：
     // - persistedTotalSeconds: 已完成会话累积的秒数（持久化）
     // - 当前会话：优先使用 currentSessionStart（如果存在并且浏览器刷新后仍可计算），否则使用内存中的 elapsedSeconds
@@ -513,12 +466,7 @@ const App: React.FC = () => {
                                 });
                                 // 清理当前会话相关状态
                                 setElapsedSeconds(0); // 重置经过时间
-                                setCurrentSessionStart(null);
-                                try {
-                                    localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
-                                } catch (e) {
-                                    console.error('Failed to remove current session start', e);
-                                }
+                                clearCurrentSessionStart();
                             }}
                             onTick={(timeLeft, mode, isActive) => {
                                 const running = Boolean(isActive && timeLeft > 0);
@@ -544,26 +492,16 @@ const App: React.FC = () => {
                                             }
                                         }
                                     } else {
-                                        // 已暂停：清除 currentSessionStart，避免 footer 继续基于时间戳累加
+                                        // 已暂停：清理 currentSessionStart，避免 footer 继续基于时间戳累加
                                         if (currentSessionStart) {
-                                            setCurrentSessionStart(null);
-                                            try {
-                                                localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
-                                            } catch (e) {
-                                                console.error('Failed to remove current session start', e);
-                                            }
+                                            clearCurrentSessionStart();
                                         }
                                     }
                                 } else {
                                     // 休息时间不计入学习时长，确保 currentSessionStart 被清理
                                     setElapsedSeconds(0);
                                     if (currentSessionStart) {
-                                        setCurrentSessionStart(null);
-                                        try {
-                                            localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
-                                        } catch (e) {
-                                            console.error('Failed to remove current session start', e);
-                                        }
+                                        clearCurrentSessionStart();
                                     }
                                 }
                             }}
