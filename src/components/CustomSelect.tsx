@@ -33,7 +33,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      {/* Selected Display */}
+      {/* 选中显示 */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -43,7 +43,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
         <i className={`ri-arrow-down-s-line text-lg transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
-      {/* Dropdown List */}
+      {/* 下拉列表 */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-theme-surface border border-theme-primary shadow-[0_4px_20px_rgba(0,0,0,0.5)] z-50 max-h-64 overflow-y-auto custom-scrollbar">
           {options.map((option) => (

@@ -1,5 +1,4 @@
-
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
@@ -22,7 +21,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
 
-    // Format time as MM:SS
+    // 将时间格式化为MM:SS
     const formatTime = (seconds: number) => {
         if (isNaN(seconds) || !isFinite(seconds)) return '00:00';
         const mins = Math.floor(seconds / 60);
@@ -36,7 +35,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
             const newFiles = Array.from(e.target.files);
             setPlaylist((prev) => [...prev, ...newFiles]);
 
-            // If playlist was empty, auto-select the first new track but don't auto-play immediately
+            // 如果播放列表为空，自动选择第一个新曲目但不立即自动播放
             if (currentIndex === -1) {
                 setCurrentIndex(0);
             }
@@ -79,7 +78,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
     const togglePlay = () => {
         if (playlist.length === 0) return;
 
-        // If no track selected but playlist exists, start first
+        // 如果没有选择曲目但播放列表存在，从第一个开始
         if (currentIndex === -1) {
             playTrack(0);
             return;
@@ -103,13 +102,13 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         }
     };
 
-    const handleSeek = (newTime: number) => {
+    const handleSeek = useCallback((newTime: number) => {
         if (audioRef.current && duration > 0) {
             const clampedTime = Math.max(0, Math.min(newTime, duration));
             audioRef.current.currentTime = clampedTime;
             setCurrentTime(clampedTime);
         }
-    };
+    }, [duration]);
 
     const toggleMute = () => {
         if (volume > 0) {
@@ -120,14 +119,14 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         }
     };
 
-    // Sync Audio Element with State
+    // 同步音频元素与状态
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;
         }
     }, [volume]);
 
-    // Track audio playback time
+    // 跟踪音频播放时间
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -148,7 +147,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
         };
     }, []);
 
-    // Global mouse events for dragging
+    // 全局鼠标事件用于拖拽
     useEffect(() => {
         const handleGlobalMouseMove = (e: MouseEvent) => {
             if (isDraggingRef.current && progressBarRef.current && duration > 0) {
@@ -175,9 +174,9 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
             window.removeEventListener('mousemove', handleGlobalMouseMove);
             window.removeEventListener('mouseup', handleGlobalMouseUp);
         };
-    }, [duration]);
+    }, [duration, handleSeek]);
 
-    // Load audio source when track changes (NOT on play/pause toggle)
+    // 当曲目改变时加载音频源（不在播放/暂停切换时）
     useEffect(() => {
         if (currentIndex >= 0 && playlist[currentIndex] && audioRef.current) {
             const file = playlist[currentIndex];
@@ -219,7 +218,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                     className="hidden"
                 />
 
-                {/* Main Display Area */}
+                {/* 主要显示区域 */}
                 <div className="flex-1 min-h-0 flex flex-col justify-center mb-2">
                     <div className="flex justify-between items-end border-b border-theme-highlight/30 pb-2 mb-2">
                         <div className="flex flex-col overflow-hidden mr-4">
@@ -237,13 +236,13 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         </div>
                     </div>
 
-                    {/* Circular Progress & Controls Row */}
+                    {/* 圆形进度和控制行 */}
                     <div className="flex items-center gap-3">
-                        {/* Block Progress Bar */}
+                        {/* 块进度条 */}
                         <div className="flex-1 flex items-center justify-center px-2">
                             <div className="relative w-full max-w-[200px] h-12">
-                                {/* Progress track */}
-                                <div 
+                                {/* 进度轨道 */}
+                                <div
                                     ref={progressBarRef}
                                     className="absolute inset-0 bg-theme-highlight/20 border border-theme-highlight/50 clip-path-slant cursor-pointer overflow-hidden"
                                     onMouseDown={(e) => {
@@ -255,9 +254,9 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                                         setCurrentTime(newTime);
                                     }}
                                 >
-                                    {/* Progress fill */}
+                                    {/* 进度填充 */}
                                     {duration > 0 && (currentTime / duration) > 0.01 && (
-                                        <div 
+                                        <div
                                             className="h-full bg-theme-primary/80 relative pointer-events-none"
                                             style={{
                                                 width: `${(currentTime / duration) * 100}%`,
@@ -268,8 +267,8 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                                         </div>
                                     )}
                                 </div>
-                                
-                                {/* Time display overlay */}
+
+                                {/* 时间显示覆盖层 */}
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="flex items-center gap-2 px-2 bg-black/60 backdrop-blur-sm rounded">
                                         <span className="text-[10px] md:text-xs font-mono text-white font-bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
@@ -286,7 +285,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                             </div>
                         </div>
 
-                        {/* Show Playlist Button */}
+                        {/* 显示播放列表按钮 */}
                         <button
                             onClick={() => setShowPlaylist(true)}
                             className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm"
@@ -296,7 +295,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                             <i className="ri-play-list-line text-base"></i>
                         </button>
 
-                        {/* Mode Switch */}
+                        {/* 模式切换 */}
                         <button
                             onClick={toggleMode}
                             className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-secondary hover:border-theme-secondary transition-colors rounded-sm flex items-center gap-1"
@@ -316,9 +315,9 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                     </div>
                 </div>
 
-                {/* Bottom Controls */}
+                {/* 底部控制 */}
                 <div className="flex items-center justify-between gap-3 shrink-0">
-                    {/* Add Button */}
+                    {/* 添加按钮 */}
                     <button
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0"
@@ -328,7 +327,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         <i className="ri-add-line text-xl"></i>
                     </button>
 
-                    {/* Play/Pause - Shortened fixed width */}
+                    {/* 播放/暂停 - 缩短固定宽度 */}
                     <button
                         onClick={togglePlay}
                         disabled={playlist.length === 0}
@@ -344,7 +343,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         )}
                     </button>
 
-                    {/* Next Track */}
+                    {/* 下一曲目 */}
                     <button
                         onClick={playNext}
                         disabled={playlist.length === 0}
@@ -355,9 +354,9 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                         <i className="ri-skip-forward-line text-xl"></i>
                     </button>
 
-                    {/* Volume Bar - Expanded to take remaining space */}
+                    {/* 音量条 - 扩展以占用剩余空间 */}
                     <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
-                        <i 
+                        <i
                             className={`${volume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
                             onClick={toggleMute}
                         ></i>
@@ -379,14 +378,14 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                     </div>
                 </div>
 
-                {/* PLAYLIST POPUP MODAL (Portal to Body) */}
+                {/* 播放列表弹出模态框（门户到Body） */}
                 {showPlaylist && createPortal(
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
-                        {/* Backdrop Click to Close */}
+                        {/* 背景点击关闭 */}
                         <div className="absolute inset-0" onClick={() => setShowPlaylist(false)}></div>
 
                         <div className="w-full max-w-md bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10" onClick={e => e.stopPropagation()}>
-                            {/* Modal Header */}
+                            {/* 模态框头部 */}
                             <div className="flex items-center justify-between p-4 border-b border-theme-highlight bg-theme-surface/50">
                                 <h3 className="font-mono text-sm uppercase text-theme-primary tracking-widest">{t('PLAYLIST_COUNT')}</h3>
                                 <button
@@ -398,7 +397,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                                 </button>
                             </div>
 
-                            {/* List */}
+                            {/* 列表 */}
                             <div className="overflow-y-auto p-2 custom-scrollbar flex-1 bg-black/20">
                                 {playlist.length === 0 ? (
                                     <div className="text-center p-8 text-theme-dim font-mono text-xs">{t('NO_TRACK')}</div>
@@ -428,7 +427,7 @@ const AudioPlayer: React.FC<{ language: Language }> = ({ language }) => {
                                 )}
                             </div>
 
-                            {/* Footer Actions */}
+                            {/* 底部操作 */}
                             <div className="p-4 border-t border-theme-highlight bg-theme-surface/50 flex justify-end gap-3">
                                 <div className="text-[10px] text-theme-dim self-center mr-auto">
                                     {playlist.length} {t('FILES_LOADED')}

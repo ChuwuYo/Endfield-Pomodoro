@@ -15,7 +15,7 @@ const STORAGE_KEY = 'origin_terminal_tasks';
 const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
   const t = useTranslation(language);
 
-  // Load from LocalStorage on mount - initialize state directly
+  // 在挂载时从LocalStorage加载 - 直接初始化状态
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -30,7 +30,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
 
   const [inputValue, setInputValue] = useState('');
 
-  // Save to LocalStorage on update
+  // 更新时保存到LocalStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }, [tasks]);
