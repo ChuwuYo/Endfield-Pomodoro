@@ -9,21 +9,111 @@ interface PomodoroProps {
   settings: Settings;
   sessionCount: number;
   onSessionsUpdate: (count: number) => void;
-  onTick?: (timeLeft: number, mode: TimerMode) => void;
+  // 将 isActive 明确传递给父组件，方便父组件区分「有剩余但已暂停」与「正在运行」
+  onTick?: (timeLeft: number, mode: TimerMode, isActive: boolean) => void;
 }
+
+// 持久化计时器负载类型
+type TimerPayload = {
+  mode: TimerMode;
+  timeLeft: number;
+  isActive: boolean;
+  startTs?: number;
+};
 
 const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsUpdate, onTick }) => {
   const t = useTranslation(settings.language);
-  const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
-  const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
-  const [isActive, setIsActive] = useState(false);
-  // 移除本地状态以依赖props
   const playSound = useSound(settings.soundEnabled, settings.soundVolume);
 
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
 
+  // 在恢复流程期间阻止 resetTimer 覆盖恢复的计时状态
+  const restoredRef = useRef(false);
+ 
+  // 本地持久化键（用于在刷新后恢复计时器状态）
+  const TIMER_STORAGE = 'origin_terminal_timer';
+ 
+  // 本地状态：模式、剩余时间、是否激活
+  const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
+  const [timeLeft, setTimeLeft] = useState<number>(() => settings.workDuration * 60);
+  const [isActive, setIsActive] = useState<boolean>(false);
+ 
+  // 从 localStorage 恢复计时器（仅在挂载时执行）
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem(TIMER_STORAGE);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
+
+      const candidateMode = parsed.mode as TimerMode | undefined;
+      const candidateTime = typeof parsed.timeLeft === 'number' ? parsed.timeLeft : null;
+      const candidateActive = Boolean(parsed.isActive);
+      const candidateStart = typeof parsed.startTs === 'number' ? parsed.startTs : null;
+
+      let restoredMode: TimerMode | undefined;
+      let restoredTime: number | null = null;
+      let restoredActive = false;
+      let restoredStart: number | null = null;
+
+      if (candidateMode) restoredMode = candidateMode;
+
+      if (candidateTime != null) {
+        let restored = candidateTime;
+        if (candidateActive && candidateStart) {
+          const elapsed = Math.floor((Date.now() - candidateStart) / 1000);
+          restored = Math.max(0, candidateTime - elapsed);
+          restoredStart = candidateStart;
+        }
+        restoredTime = restored;
+        restoredActive = Boolean(candidateActive && restored > 0);
+      }
+
+      // 将多个 state 更新合并并标记为已恢复，避免随后 resetTimer 覆盖
+      if (restoredMode !== undefined || restoredTime !== null || restoredActive || restoredStart !== null) {
+        restoredRef.current = true;
+        if (restoredMode !== undefined) setMode(restoredMode);
+        if (restoredTime !== null) setTimeLeft(restoredTime);
+        setIsActive(restoredActive);
+        if (restoredStart !== null) {
+          // 如果是工作模式并且存在 startTs，应用到父级统计（通过 onTick 父组件会同步 start）
+          // 这里仅触发一次 onTick 以同步外部状态（包含 isActive）
+          if (onTick) onTick(restoredTime as number, restoredMode ?? TimerMode.WORK, restoredActive);
+        } else {
+          if (restoredTime !== null && onTick) onTick(restoredTime, restoredMode ?? TimerMode.WORK, restoredActive);
+        }
+      }
+    } catch {
+      // 忽略解析错误，继续使用默认状态
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  // 将计时器状态持久化到 localStorage（mode / timeLeft / isActive 变化时更新）
+  useEffect(() => {
+    try {
+      const payload: TimerPayload = { mode, timeLeft, isActive };
+      if (isActive) {
+        // 计算当前会话的起始时间戳，便于刷新后继续计时
+        const total = getTotalTime();
+        const elapsed = total - timeLeft;
+        payload.startTs = Date.now() - elapsed * 1000;
+      }
+      localStorage.setItem(TIMER_STORAGE, JSON.stringify(payload));
+    } catch {
+      // 持久化失败时记录错误但不影响运行
+    }
+    // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, timeLeft, isActive, settings.workDuration, settings.shortBreakDuration, settings.longBreakDuration]);
+ 
+  useEffect(() => {
+    // 如果刚刚从 localStorage 恢复过来，跳过本次 reset（避免覆盖恢复的剩余时间/运行状态）
+    if (restoredRef.current) {
+      restoredRef.current = false;
+      return;
+    }
     resetTimer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, settings.workDuration, settings.shortBreakDuration, settings.longBreakDuration]);
@@ -43,24 +133,26 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         break;
     }
     setTimeLeft(newTime);
-    if (onTick) onTick(newTime, mode);
+    // reset 时明确告诉父组件已停止（isActive = false）
+    if (onTick) onTick(newTime, mode, false);
   };
 
   useEffect(() => {
     let interval: number | undefined;
-
+  
     if (isActive && timeLeft > 0) {
       interval = window.setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = prev - 1;
-          if (onTick) onTick(newTime, mode);
+          // tick 时明确传递当前运行状态（isActive = true）
+          if (onTick) onTick(newTime, mode, true);
           return newTime;
         });
       }, 1000);
     } else if (timeLeft === 0) {
       handleComplete();
     }
-
+  
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, timeLeft]);
@@ -88,7 +180,10 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   const toggleTimer = () => {
     if (!isActive) playSound('start');
-    setIsActive(!isActive);
+    const next = !isActive;
+    setIsActive(next);
+    // 主动通知父组件当前剩余时间、模式与运行状态，确保在暂停/恢复时父组件（footer/title）立即同步状态
+    if (onTick) onTick(timeLeft, mode, next);
   };
 
   const formatTime = (seconds: number) => {

@@ -24,8 +24,12 @@ const DEFAULT_SETTINGS: Settings = {
 
 const STORAGE_KEYS = {
     SETTINGS: 'origin_terminal_settings',
-    SESSIONS: 'origin_terminal_sessions'
+    SESSIONS: 'origin_terminal_sessions',
+    TOTAL_SECONDS: 'origin_terminal_total_seconds',
+    CURRENT_SESSION_START: 'origin_terminal_current_session_start'
 };
+// 与 Pomodoro 共享的计时器持久化键（用于恢复计时器运行/暂停/剩余时间）
+const TIMER_STORAGE = 'origin_terminal_timer';
 
 const View = {
     DASHBOARD: 'DASHBOARD',
@@ -140,12 +144,23 @@ const App: React.FC = () => {
         return Number(saved) | 0;
     });
 
-    // 当前会话的会话计数（不持久化）
-    const [currentSessionCount, setCurrentSessionCount] = useState(0);
-    // 当前活动会话中经过的秒数
+    // 当前活动会话中经过的秒数（仅用于累计学习时间，work 模式下更新）
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
-    // 计时器运行状态（用于在标签页不可见时显示实时倒计时）
+    // 持久化的累计学习总秒数（包含已完成的会话），用于在刷新后仍显示总学习时长
+    const [persistedTotalSeconds, setPersistedTotalSeconds] = useState<number>(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.TOTAL_SECONDS);
+        return saved ? (Number(saved) || 0) : 0;
+    });
+    // 当前会话开始时间（时间戳毫秒），用于在刷新后继续计时当前会话
+    const [currentSessionStart, setCurrentSessionStart] = useState<number | null>(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION_START);
+        return saved ? (Number(saved) || null) : null;
+    });
+    // 计时器运行状态（任何模式，只要 timeLeft > 0 即视为运行）
     const [isTimerRunning, setIsTimerRunning] = useState(false);
+    // 用于在不可见标签页显示剩余时间：保存最近一次 tick 的剩余秒数与模式
+    const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+    const [remainingMode, setRemainingMode] = useState<TimerMode | null>(null);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
@@ -162,15 +177,19 @@ const App: React.FC = () => {
         };
         document.addEventListener('visibilitychange', handleVisibility);
     
-        if (document.hidden && isTimerRunning) {
-            const remaining = Math.max(0, settings.workDuration * 60 - elapsedSeconds);
+        if (document.hidden && isTimerRunning && remainingSeconds != null) {
+            const remaining = Math.max(0, remainingSeconds);
             const h = Math.floor(remaining / 3600);
             const m = Math.floor((remaining % 3600) / 60);
             const s = remaining % 60;
             const fmt = h > 0
                 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
                 : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            document.title = `${fmt} • ${t('APP_TITLE')}`;
+            // 休息时也显示模式标签（根据当前语言选择本地化短标签）
+            const modeLabel = remainingMode && remainingMode !== TimerMode.WORK
+                ? ` ${settings.language === Language.CN ? '休息' : 'Break'}`
+                : '';
+            document.title = `${fmt}${modeLabel} • ${t('APP_TITLE')}`;
         } else {
             // 仅在当前标题与默认标题不同时才恢复，避免在可见时每秒重复写入 document.title
             if (document.title !== t('APP_TITLE')) {
@@ -182,7 +201,7 @@ const App: React.FC = () => {
             document.removeEventListener('visibilitychange', handleVisibility);
             restoreTitle();
         };
-    }, [isTimerRunning, elapsedSeconds, settings.workDuration, t]);
+    }, [isTimerRunning, remainingSeconds, remainingMode, t, settings.language]);
 
     // 持久化设置
     useEffect(() => {
@@ -213,13 +232,13 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
-
+    
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
-
+    
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
-
+    
         return () => {
             clearInterval(timer);
             window.removeEventListener('online', handleOnline);
@@ -227,8 +246,70 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // 计算总学习时间（基于当前会话 + 当前会话中经过的时间）
-    const totalSeconds = (currentSessionCount * settings.workDuration * 60) + elapsedSeconds;
+    // 页面挂载时从 Pomodoro 的持久化状态恢复计时器信息，保证刷新后 App 的 footer / title 与计时器同步
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(TIMER_STORAGE);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
+    
+            const candidateMode = parsed.mode as TimerMode | undefined;
+            const candidateTime = typeof parsed.timeLeft === 'number' ? parsed.timeLeft : null;
+            const candidateActive = Boolean(parsed.isActive);
+            const candidateStart = typeof parsed.startTs === 'number' ? parsed.startTs : null;
+    
+            const updates: {
+                mode?: TimerMode;
+                remaining?: number | null;
+                running?: boolean;
+                elapsed?: number | null;
+                start?: number | null;
+            } = {};
+    
+            if (candidateMode) updates.mode = candidateMode;
+    
+            if (candidateTime != null) {
+                let restored = candidateTime;
+                if (candidateActive && candidateStart) {
+                    const elapsed = Math.floor((Date.now() - candidateStart) / 1000);
+                    restored = Math.max(0, candidateTime - elapsed);
+                    // 如果是工作模式，计算 elapsedSeconds 与 startTs
+                    if (candidateMode === TimerMode.WORK) {
+                        const totalWorkSeconds = settings.workDuration * 60;
+                        const newElapsed = totalWorkSeconds - restored;
+                        updates.elapsed = newElapsed;
+                        updates.start = candidateStart;
+                    }
+                }
+                updates.remaining = restored;
+                updates.running = Boolean(candidateActive && restored > 0);
+            }
+    
+            // 将多个 setState 操作延迟到下一 tick，避免在 effect 中同步触发级联渲染
+            if (Object.keys(updates).length > 0) {
+                setTimeout(() => {
+                    if (updates.mode) setRemainingMode(updates.mode);
+                    if (typeof updates.remaining !== 'undefined') setRemainingSeconds(updates.remaining as number | null);
+                    if (typeof updates.running !== 'undefined') setIsTimerRunning(Boolean(updates.running));
+                    if (typeof updates.elapsed !== 'undefined') setElapsedSeconds(updates.elapsed as number);
+                    if (typeof updates.start !== 'undefined') setCurrentSessionStart(updates.start as number | null);
+                }, 0);
+            }
+        } catch (err) {
+            console.error('Failed to restore timer state', err);
+        }
+        // 依赖 settings.workDuration 以便计算 elapsedSeconds 使用最新设置
+    }, [settings.workDuration]);
+
+    // 计算总学习时间：
+    // - persistedTotalSeconds: 已完成会话累积的秒数（持久化）
+    // - 当前会话：优先使用 currentSessionStart（如果存在并且浏览器刷新后仍可计算），否则使用内存中的 elapsedSeconds
+    // 使用外部的 now 状态以避免在渲染中调用 impure Date.now()
+    const currentSessionElapsed = currentSessionStart
+        ? Math.floor((now.getTime() - currentSessionStart) / 1000)
+        : elapsedSeconds;
+    const totalSeconds = persistedTotalSeconds + currentSessionElapsed;
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -417,18 +498,73 @@ const App: React.FC = () => {
                             sessionCount={sessionCount}
                             onSessionsUpdate={(newCount) => {
                                 setSessionCount(newCount);
-                                setCurrentSessionCount(prev => prev + 1);
-                                setElapsedSeconds(0); // 重置经过时间，因为会话已完成
+                                // 会话完成：把当前会话的 elapsedSeconds（或基于 start 的值）累加到持久化总时长
+                                const finishedElapsed = currentSessionStart
+                                    ? Math.floor((now.getTime() - currentSessionStart) / 1000)
+                                    : elapsedSeconds;
+                                setPersistedTotalSeconds(prev => {
+                                    const next = prev + finishedElapsed;
+                                    try {
+                                        localStorage.setItem(STORAGE_KEYS.TOTAL_SECONDS, String(next));
+                                    } catch (e) {
+                                        console.error('Failed to persist total seconds', e);
+                                    }
+                                    return next;
+                                });
+                                // 清理当前会话相关状态
+                                setElapsedSeconds(0); // 重置经过时间
+                                setCurrentSessionStart(null);
+                                try {
+                                    localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
+                                } catch (e) {
+                                    console.error('Failed to remove current session start', e);
+                                }
                             }}
-                            onTick={(timeLeft, mode) => {
-                                const running = mode === TimerMode.WORK && timeLeft > 0;
+                            onTick={(timeLeft, mode, isActive) => {
+                                const running = Boolean(isActive && timeLeft > 0);
                                 setIsTimerRunning(running);
-
+                                setRemainingSeconds(timeLeft);
+                                setRemainingMode(mode);
+    
                                 if (mode === TimerMode.WORK) {
                                     const totalWorkSeconds = settings.workDuration * 60;
-                                    setElapsedSeconds(totalWorkSeconds - timeLeft);
+                                    const newElapsed = totalWorkSeconds - timeLeft;
+                                    setElapsedSeconds(newElapsed);
+    
+                                    if (isActive) {
+                                        // 如果当前会话还没有记录开始时间，则以当前时间减去已经经过秒数来计算开始时间，
+                                        // 这样页面刷新后仍能基于时间戳继续计算当前会话的经过时间。
+                                        if (!currentSessionStart && newElapsed > 0) {
+                                            const startTs = Date.now() - newElapsed * 1000;
+                                            setCurrentSessionStart(startTs);
+                                            try {
+                                                localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION_START, String(startTs));
+                                            } catch (e) {
+                                                console.error('Failed to persist current session start', e);
+                                            }
+                                        }
+                                    } else {
+                                        // 已暂停：清除 currentSessionStart，避免 footer 继续基于时间戳累加
+                                        if (currentSessionStart) {
+                                            setCurrentSessionStart(null);
+                                            try {
+                                                localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
+                                            } catch (e) {
+                                                console.error('Failed to remove current session start', e);
+                                            }
+                                        }
+                                    }
                                 } else {
+                                    // 休息时间不计入学习时长，确保 currentSessionStart 被清理
                                     setElapsedSeconds(0);
+                                    if (currentSessionStart) {
+                                        setCurrentSessionStart(null);
+                                        try {
+                                            localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION_START);
+                                        } catch (e) {
+                                            console.error('Failed to remove current session start', e);
+                                        }
+                                    }
                                 }
                             }}
                         />
