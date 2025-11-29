@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Pomodoro from './components/Pomodoro';
 import TaskManager from './components/TaskManager';
@@ -34,7 +33,7 @@ const View = {
 } as const;
 type View = typeof View[keyof typeof View];
 
-// Extended Theme Definitions
+// 扩展主题定义
 const THEMES = {
     [ThemePreset.ORIGIN]: {
         '--color-base': '#111113',
@@ -119,7 +118,7 @@ const THEMES = {
 };
 
 const App: React.FC = () => {
-    // Load settings from localStorage
+    // 从localStorage加载设置
     const [settings, setSettings] = useState<Settings>(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (saved) {
@@ -135,15 +134,15 @@ const App: React.FC = () => {
         return DEFAULT_SETTINGS;
     });
 
-    // Load session count from localStorage
+    // 从localStorage加载会话计数
     const [sessionCount, setSessionCount] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
         return Number(saved) | 0;
     });
 
-    // Session count for current session (not persisted)
+    // 当前会话的会话计数（不持久化）
     const [currentSessionCount, setCurrentSessionCount] = useState(0);
-    // Elapsed seconds in the current active session
+    // 当前活动会话中经过的秒数
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -152,12 +151,12 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
-    // Update Document Title
+    // 更新文档标题
     useEffect(() => {
         document.title = t('APP_TITLE');
     }, [t]);
 
-    // Persist settings
+    // 持久化设置
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
@@ -166,7 +165,7 @@ const App: React.FC = () => {
         }
     }, [settings]);
 
-    // Persist session count
+    // 持久化会话计数
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEYS.SESSIONS, sessionCount.toString());
@@ -175,7 +174,7 @@ const App: React.FC = () => {
         }
     }, [sessionCount]);
 
-    // Apply Theme
+    // 应用主题
     useEffect(() => {
         const root = document.documentElement;
         const themeColors = THEMES[settings.theme];
@@ -186,13 +185,13 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
-        
+
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
-        
+
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
-        
+
         return () => {
             clearInterval(timer);
             window.removeEventListener('online', handleOnline);
@@ -200,7 +199,7 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // Calculate total study time (based on current session + elapsed time in current session)
+    // 计算总学习时间（基于当前会话 + 当前会话中经过的时间）
     const totalSeconds = (currentSessionCount * settings.workDuration * 60) + elapsedSeconds;
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -208,16 +207,16 @@ const App: React.FC = () => {
 
     return (
         <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
-            {/* Background Visuals (Z-0) */}
+            {/* 背景视觉效果 (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
-            {/* Foreground HUD Visuals (Z-50, pointer-events-none) - Visual Overlay */}
+            {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
             <ForegroundLayer theme={settings.theme} />
 
-            {/* Header Bar (Z-40) - Best Practice: Top level UI, below pointer effects if they are 'screens', but accessible */}
+            {/* 头部栏 (Z-40) - 最佳实践：顶级UI，在指针效果下方如果它们是'屏幕'，但可访问 */}
             <header className="fixed top-0 left-0 right-0 z-40 select-none border-b border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md shadow-lg">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 max-w-[1920px] mx-auto">
-                    {/* Brand / Logo */}
+                    {/* 品牌/Logo */}
                     <div className="flex flex-col">
                         <div className="flex items-center gap-3">
                             <div className="w-1.5 h-6 md:h-8 bg-theme-primary shadow-[0_0_10px_var(--color-primary)]"></div>
@@ -232,7 +231,7 @@ const App: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Navigation & Status */}
+                    {/* 导航和状态 */}
                     <div className="flex items-center gap-4 md:gap-6">
                         <div className="flex items-center gap-1 p-1 bg-black/20 rounded-md border border-theme-highlight/30">
                             <Button
@@ -241,11 +240,11 @@ const App: React.FC = () => {
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.DASHBOARD ? '' : 'text-theme-dim'}`}
                                 title={t('DASHBOARD')}
                             >
-                                {/* Mobile Icon */}
+                                {/* 移动端图标 */}
                                 <span className="md:hidden">
                                     <i className="ri-dashboard-line text-lg"></i>
                                 </span>
-                                {/* Desktop Text */}
+                                {/* 桌面端文本 */}
                                 <span className="hidden md:inline">{t('DASHBOARD')}</span>
                             </Button>
                             <div className="w-[1px] h-4 bg-theme-highlight/30 mx-1"></div>
@@ -255,11 +254,11 @@ const App: React.FC = () => {
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.SETTINGS ? '' : 'text-theme-dim'}`}
                                 title={t('SYSTEM_CONFIG')}
                             >
-                                {/* Mobile Icon */}
+                                {/* 移动端图标 */}
                                 <span className="md:hidden">
                                     <i className="ri-settings-3-line text-lg"></i>
                                 </span>
-                                {/* Desktop Text */}
+                                {/* 桌面端文本 */}
                                 <span className="hidden md:inline">{t('SYSTEM_CONFIG')}</span>
                             </Button>
                         </div>
@@ -272,13 +271,13 @@ const App: React.FC = () => {
                 </div>
             </header>
 
-            {/* Main Content Area (Z-10) */}
+            {/* 主要内容区域 (Z-10) */}
             <main className="flex-1 pt-24 md:pt-28 pb-8 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar">
                 {currentView === View.SETTINGS ? (
                     <div className="max-w-4xl mx-auto w-full h-full pb-20 pt-6 px-2">
                         <Panel title={t('SYSTEM_CONFIG')} className="p-4 md:p-8 backdrop-blur-xl bg-theme-surface/80 mt-2">
                             <div className="space-y-10">
-                                {/* Timers */}
+                                {/* 计时器 */}
                                 <div className="space-y-4">
                                     <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
                                         <span>{t('CYCLE_PARAMETERS')}</span>
@@ -312,7 +311,7 @@ const App: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Appearance & Language */}
+                                {/* 外观和语言 */}
                                 <div className="space-y-4">
                                     <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
                                         <span>{t('INTERFACE_CUSTOMIZATION')}</span>
@@ -350,7 +349,7 @@ const App: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Toggles */}
+                                {/* 切换选项 */}
                                 <div className="space-y-4">
                                     <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
                                         <span>{t('AUTOMATION_FEEDBACK')}</span>
@@ -379,9 +378,9 @@ const App: React.FC = () => {
                     </div>
                 ) : null}
 
-                {/* Dashboard - Always rendered but hidden when in settings */}
+                {/* 仪表板 - 始终渲染但在设置时隐藏 */}
                 <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
-                    {/* Left: Pomodoro (Larger) */}
+                    {/* 左侧：番茄钟（较大） */}
                     <div className="lg:col-span-7 flex flex-col h-auto min-h-[450px] md:h-[500px]">
                         <Pomodoro
                             settings={settings}
@@ -389,7 +388,7 @@ const App: React.FC = () => {
                             onSessionsUpdate={(newCount) => {
                                 setSessionCount(newCount);
                                 setCurrentSessionCount(prev => prev + 1);
-                                setElapsedSeconds(0); // Reset elapsed time as session is complete
+                                setElapsedSeconds(0); // 重置经过时间，因为会话已完成
                             }}
                             onTick={(timeLeft, mode) => {
                                 if (mode === TimerMode.WORK) {
@@ -402,24 +401,24 @@ const App: React.FC = () => {
                         />
                     </div>
 
-                    {/* Right Column */}
+                    {/* 右侧列 */}
                     <div className="lg:col-span-5 flex flex-col gap-6 h-auto">
-                        {/* Tasks */}
+                        {/* 任务 */}
                         <div className="h-auto min-h-[200px]">
                             <TaskManager language={settings.language} />
                         </div>
-                        {/* Audio */}
+                        {/* 音频 */}
                         <div className="h-auto min-h-[160px] md:h-48 shrink-0">
                             <AudioPlayer language={settings.language} />
                         </div>
                     </div>
 
-                    {/* Mobile Bottom Spacer */}
+                    {/* 移动端底部间距 */}
                     <div className="h-24 w-full md:hidden shrink-0"></div>
                 </div>
             </main>
 
-            {/* Footer (Z-40) */}
+            {/* 页脚 (Z-40) */}
             <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 select-none">
                 <div className="max-w-[1920px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="flex items-center gap-2">

@@ -8,7 +8,7 @@
 
 > **TERMINAL_Version // SYSTEM_ONLINE**
 >
-> 一个 Cyber UI 风格启发的沉浸式 Web 番茄钟应用。
+> 一个 Cyber UI 和 终末地 风格启发的沉浸式 Web 番茄钟应用。
 
 ## ✨ 核心特性 (Core Features)
 
@@ -88,6 +88,7 @@
 
 ```text
 src/                     # 源代码目录
+├── assets/              # 静态资源文件
 ├── components/          # UI 组件库
 │   ├── AudioPlayer.tsx  # 音频播放器组件
 │   ├── Checkbox.tsx     # 复选框组件

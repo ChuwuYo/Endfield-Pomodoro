@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { TimerMode } from '../types';
 import type { Settings } from '../types';
@@ -18,7 +17,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
   const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
   const [isActive, setIsActive] = useState(false);
-  // Removed local state for completedSessions to rely on props
+  // 移除本地状态以依赖props
   const playSound = useSound(settings.soundEnabled, settings.soundVolume);
 
   const settingsRef = useRef(settings);
@@ -127,7 +126,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   return (
     <Panel className="w-full h-full p-8" title={t('CHRONO_MODULE')}>
       <div className="flex flex-col h-full w-full items-center justify-between relative">
-        {/* Top Info */}
+        {/* 顶部信息 */}
         <div className="w-full flex justify-between items-start border-b border-theme-highlight/30 pb-4 shrink-0">
           <div className="flex flex-col">
             <span className="text-[10px] text-theme-dim tracking-widest uppercase mb-1">{t('STATUS')}</span>
@@ -141,10 +140,10 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
           </div>
         </div>
 
-        {/* Timer Display */}
+        {/* 计时器显示 */}
         <div className="flex-1 w-full flex items-center justify-center relative py-8 min-h-0">
           <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center shrink-0 group">
-            {/* Pulsing Back Ring (Breathing Effect) */}
+            {/* 脉冲背景环（呼吸效果） */}
             {isActive && (
               <div className="absolute inset-0 rounded-full border-2 border-theme-primary/30 animate-ping-slow"></div>
             )}
@@ -156,7 +155,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
                   <stop offset="100%" stopColor="var(--color-secondary)" />
                 </linearGradient>
               </defs>
-              {/* Track */}
+              {/* 轨道 */}
               <circle
                 className="text-theme-highlight/20"
                 strokeWidth="2"
@@ -166,7 +165,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
                 cx="128"
                 cy="128"
               />
-              {/* Progress */}
+              {/* 进度 */}
               <circle
                 className={`${mode === TimerMode.WORK ? 'text-theme-primary' : 'text-theme-accent'} transition-all duration-1000 ease-linear`}
                 strokeWidth="4"
@@ -180,7 +179,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
                 cy="128"
                 style={{ filter: 'drop-shadow(0 0 4px var(--color-primary))' }}
               />
-              {/* Glow Tip */}
+              {/* 发光尖端 */}
               <circle
                 fill="var(--color-text)"
                 r="4"
@@ -194,14 +193,14 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
               />
             </svg>
 
-            {/* Inner Decorative Elements */}
+            {/* 内部装饰元素 */}
             <div className={`absolute inset-8 border border-theme-highlight/20 rounded-full opacity-50 border-dashed ${isActive ? 'animate-spin-slow' : ''}`}></div>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute rotate-45"></div>
               <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute -rotate-45"></div>
             </div>
 
-            {/* Time Text */}
+            {/* 时间文本 */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
               <span className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform ${isActive ? 'scale-105' : 'scale-100'}`}>
                 {formatTime(timeLeft)}
@@ -211,7 +210,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
           </div>
         </div>
 
-        {/* Controls */}
+        {/* 控制 */}
         <div className="w-full grid grid-cols-4 gap-4 mt-4 shrink-0">
           <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="col-span-2 h-14 text-lg" title={isActive ? t('PAUSE') : t('INITIALIZE')}>
             {isActive ? t('PAUSE') : t('INITIALIZE')}
