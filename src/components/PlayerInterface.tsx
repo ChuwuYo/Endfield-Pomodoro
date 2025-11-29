@@ -53,9 +53,16 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const volumeBarRef = useRef<HTMLDivElement>(null);
     const isDraggingRef = useRef(false);
     const isVolumeDraggingRef = useRef(false);
+    const previousVolumeRef = useRef<number>(0.5);
     const [dragTime, setDragTime] = useState<number | null>(null);
     const [dragVolume, setDragVolume] = useState<number | null>(null);
-    const [previousVolume, setPreviousVolume] = useState<number>(0.5);
+
+    // 同步保存非零音量值到 ref
+    useEffect(() => {
+        if (volume > 0) {
+            previousVolumeRef.current = volume;
+        }
+    }, [volume]);
 
     // 格式化时间
     const formatTime = (seconds: number) => {
@@ -263,9 +270,9 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         className={`${displayVolume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
                         onClick={() => {
                             if (displayVolume === 0) {
-                                onVolumeChange(previousVolume || 0.5);
+                                onVolumeChange(previousVolumeRef.current || 0.5);
                             } else {
-                                setPreviousVolume(displayVolume);
+                                previousVolumeRef.current = displayVolume;
                                 onVolumeChange(0);
                             }
                         }}
