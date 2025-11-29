@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-
-// Meting API 配置
-const METING_API_BASE_URL = 'https://api.injahow.cn/meting/';
+import { METING_API_BASE_URL } from '../constants';
 
 export interface MetingAudio {
     name: string;

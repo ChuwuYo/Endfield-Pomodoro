@@ -55,6 +55,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const isVolumeDraggingRef = useRef(false);
     const [dragTime, setDragTime] = useState<number | null>(null);
     const [dragVolume, setDragVolume] = useState<number | null>(null);
+    const [previousVolume, setPreviousVolume] = useState<number>(0.5);
 
     // 格式化时间
     const formatTime = (seconds: number) => {
@@ -260,7 +261,14 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
                     <i
                         className={`${displayVolume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
-                        onClick={() => onVolumeChange(displayVolume === 0 ? 0.5 : 0)}
+                        onClick={() => {
+                            if (displayVolume === 0) {
+                                onVolumeChange(previousVolume || 0.5);
+                            } else {
+                                setPreviousVolume(displayVolume);
+                                onVolumeChange(0);
+                            }
+                        }}
                     ></i>
                     <div className="w-full h-4 flex items-center relative group">
                         <div

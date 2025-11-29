@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { NEXT_TRACK_RETRY_DELAY_MS } from '../constants';
 
 export interface Song {
     name: string;
@@ -15,7 +16,6 @@ export const PlayMode = {
 } as const;
 
 export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
-
 
 export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -73,7 +73,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
         const handleError = () => {
             setIsLoading(false);
             setError('加载失败');
-            setTimeout(() => handleNextRef.current?.(true), 1000);
+            setTimeout(() => handleNextRef.current?.(true), NEXT_TRACK_RETRY_DELAY_MS);
         };
 
         audio.addEventListener('timeupdate', handleTimeUpdate);

@@ -8,6 +8,7 @@ import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './compon
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { useTranslation } from './utils/i18n';
+import { STORAGE_KEYS } from './constants';
 import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -25,13 +26,6 @@ const DEFAULT_SETTINGS: Settings = {
         type: 'playlist',
         id: '9094583817'
     }
-};
-
-const STORAGE_KEYS = {
-    SETTINGS: 'origin_terminal_settings',
-    SESSIONS: 'origin_terminal_sessions',
-    TOTAL_SECONDS: 'origin_terminal_total_seconds',
-    CURRENT_SESSION_START: 'origin_terminal_current_session_start'
 };
 
 const View = {
@@ -123,6 +117,23 @@ const THEMES = {
         '--color-dim': '#94a3b8'
     }
 };
+
+// 音乐平台选项配置
+const getMusicPlatformOptions = (t: ReturnType<typeof useTranslation>) => [
+    { value: 'netease', label: t('PLATFORM_NETEASE') },
+    { value: 'tencent', label: t('PLATFORM_TENCENT') },
+    { value: 'kugou', label: t('PLATFORM_KUGOU') },
+    { value: 'xiami', label: t('PLATFORM_XIAMI') },
+    { value: 'baidu', label: t('PLATFORM_BAIDU') }
+];
+
+// 音乐类型选项配置
+const getMusicTypeOptions = (t: ReturnType<typeof useTranslation>) => [
+    { value: 'playlist', label: t('TYPE_PLAYLIST') },
+    { value: 'album', label: t('TYPE_ALBUM') },
+    { value: 'song', label: t('TYPE_SONG') },
+    { value: 'artist', label: t('TYPE_ARTIST') }
+];
 
 const App: React.FC = () => {
     // 从localStorage加载设置
@@ -462,13 +473,7 @@ const App: React.FC = () => {
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('PLATFORM')}</label>
                                             <CustomSelect
                                                 value={settings.musicConfig.server}
-                                                options={[
-                                                    { value: 'netease', label: t('PLATFORM_NETEASE') },
-                                                    { value: 'tencent', label: t('PLATFORM_TENCENT') },
-                                                    { value: 'kugou', label: t('PLATFORM_KUGOU') },
-                                                    { value: 'xiami', label: t('PLATFORM_XIAMI') },
-                                                    { value: 'baidu', label: t('PLATFORM_BAIDU') }
-                                                ]}
+                                                options={getMusicPlatformOptions(t)}
                                                 onChange={(value) => handleMusicConfigChange('server', value)}
                                             />
                                         </div>
@@ -476,12 +481,7 @@ const App: React.FC = () => {
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('TYPE')}</label>
                                             <CustomSelect
                                                 value={settings.musicConfig.type}
-                                                options={[
-                                                    { value: 'playlist', label: t('TYPE_PLAYLIST') },
-                                                    { value: 'album', label: t('TYPE_ALBUM') },
-                                                    { value: 'song', label: t('TYPE_SONG') },
-                                                    { value: 'artist', label: t('TYPE_ARTIST') }
-                                                ]}
+                                                options={getMusicTypeOptions(t)}
                                                 onChange={(value) => handleMusicConfigChange('type', value)}
                                             />
                                         </div>

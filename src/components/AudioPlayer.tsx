@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
+import { STORAGE_KEYS } from '../constants';
 import MusicPlayer from './MusicPlayer';
 import PlayerInterface from './PlayerInterface';
 
@@ -17,13 +18,13 @@ const AudioPlayer: React.FC<{
     // 音频源模式：'local' 本地文件 | 'online' 在线音乐
     // 优先从 localStorage 读取，如果没有则默认为 'online'
     const [audioSource, setAudioSource] = useState<'local' | 'online'>(() => {
-        const saved = localStorage.getItem('origin_terminal_audio_source');
+        const saved = localStorage.getItem(STORAGE_KEYS.AUDIO_SOURCE);
         return (saved === 'local' || saved === 'online') ? saved : 'online';
     });
 
     // 持久化音频源选择
     useEffect(() => {
-        localStorage.setItem('origin_terminal_audio_source', audioSource);
+        localStorage.setItem(STORAGE_KEYS.AUDIO_SOURCE, audioSource);
     }, [audioSource]);
 
     const [playlist, setPlaylist] = useState<File[]>([]);

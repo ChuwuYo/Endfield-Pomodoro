@@ -135,6 +135,7 @@ endfield-pomodoro/
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
 │   │   └── i18n.ts             # 国际化配置（中英双语）
+│   ├── constants.ts            # 全局常量定义（存储键、API配置等）
 │   ├── types.ts                # TypeScript 核心类型定义
 │   ├── App.tsx                 # 主应用组件与布局
 │   ├── main.tsx                # 渲染入口
@@ -170,6 +171,11 @@ endfield-pomodoro/
 - **TerminalUI**: 提供 Panel、Button、Input、Badge 等终端风格基础组件
 - **CustomSelect**: 自定义下拉选择框，支持复杂选项渲染
 
+### 配置与常量
+- **constants.ts**: 全局常量管理
+- **musicConfig.ts**: 音乐播放器默认配置
+- **i18n.ts**: 国际化翻译配置
+
 ## 🌐 国际化支持 (i18n)
 
 项目完全支持中英双语，所有UI文本均通过 `i18n.ts` 管理，包括：
@@ -196,29 +202,42 @@ endfield-pomodoro/
 ## 🔧 开发建议 (Development Tips)
 
 ### 添加新主题
-在 `App.tsx` 的 themePresets 中添加新的主题配置：
+在 `App.tsx` 的 THEMES 中添加新的主题配置：
 
 ```typescript
-{
-  name: '你的主题名',
-  primary: '#颜色值',
-  highlight: '#颜色值',
-  // ... 其他配置
+[ThemePreset.YOUR_THEME]: {
+  '--color-base': '#颜色值',
+  '--color-surface': '#颜色值',
+  '--color-primary': '#颜色值',
+  // ... 其他 CSS 变量
 }
 ```
 
 ### 添加新语言
-在 src/utils/i18n.ts 中添加新的语言配置：
+在 `src/utils/i18n.ts` 中添加新的语言配置：
 
 ```typescript
 export const translations = {
   // ... 现有语言
-  'NEW_LANG': { /* 翻译内容 */ }
+  [Language.NEW_LANG]: { /* 翻译内容 */ }
 }
 ```
 
 ### 修改默认音乐配置
-编辑 `src/config/musicConfig.ts` 中的 defaultMetingConfig。
+编辑 `src/config/musicConfig.ts` 中的 `defaultMetingConfig`。
+
+### 修改全局常量
+编辑 `src/constants.ts` 统一管理所有常量：
+- **STORAGE_KEYS**: LocalStorage 存储键
+- **METING_API_BASE_URL**: 在线音乐 API 地址
+- **NEXT_TRACK_RETRY_DELAY_MS**: 音频重试延迟时间
+
+### 代码组织原则
+- **组件文件**: 只导出 React 组件，支持 Fast Refresh
+- **常量文件**: 所有常量统一在 `constants.ts` 中管理
+- **类型文件**: 所有 TypeScript 类型定义在 `types.ts` 中
+- **工具函数**: 纯函数放在 `utils/` 目录下
+- **自定义 Hooks**: 可复用的逻辑放在 `hooks/` 目录下
 
 ## 🤝 贡献 (Contributing)
 
