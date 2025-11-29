@@ -23,6 +23,11 @@ const DEFAULT_SETTINGS: Settings = {
     theme: ThemePreset.ORIGIN
 };
 
+const STORAGE_KEYS = {
+    SETTINGS: 'origin_terminal_settings',
+    SESSIONS: 'origin_terminal_sessions'
+};
+
 const View = {
     DASHBOARD: 'DASHBOARD',
     SETTINGS: 'SETTINGS'
@@ -114,9 +119,28 @@ const THEMES = {
 };
 
 const App: React.FC = () => {
-    const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-    // Removed unused sessionCount variable to fix linter warning
-    const [, setSessionCount] = useState(0);
+    // Load settings from localStorage
+    const [settings, setSettings] = useState<Settings>(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    return { ...DEFAULT_SETTINGS, ...parsed };
+                }
+            } catch (e) {
+                console.error('Failed to load settings', e);
+            }
+        }
+        return DEFAULT_SETTINGS;
+    });
+
+    // Load session count from localStorage
+    const [sessionCount, setSessionCount] = useState(() => {
+        const saved = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+        return Number(saved) | 0;
+    });
+
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -127,6 +151,24 @@ const App: React.FC = () => {
     useEffect(() => {
         document.title = t('APP_TITLE');
     }, [t]);
+
+    // Persist settings
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+        } catch (e) {
+            console.error('Failed to persist settings', e);
+        }
+    }, [settings]);
+
+    // Persist session count
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEYS.SESSIONS, sessionCount.toString());
+        } catch (e) {
+            console.error('Failed to persist session count', e);
+        }
+    }, [sessionCount]);
 
     // Apply Theme
     useEffect(() => {
@@ -154,7 +196,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* Background Visuals (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
@@ -330,7 +372,11 @@ const App: React.FC = () => {
                 <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
                     {/* Left: Pomodoro (Larger) */}
                     <div className="lg:col-span-7 flex flex-col h-auto min-h-[450px] md:h-[500px]">
-                        <Pomodoro settings={settings} onSessionsUpdate={setSessionCount} />
+                        <Pomodoro
+                            settings={settings}
+                            sessionCount={sessionCount}
+                            onSessionsUpdate={setSessionCount}
+                        />
                     </div>
 
                     {/* Right Column */}
