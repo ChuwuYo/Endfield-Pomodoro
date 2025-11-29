@@ -260,8 +260,22 @@ export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
 
 export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ORIGIN }) => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    useEffect(() => {
+        if (isMobile) return;
+
         let animationFrameId: number;
         const handleMouseMove = (e: MouseEvent) => {
             cancelAnimationFrame(animationFrameId);
@@ -277,7 +291,10 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
             window.removeEventListener('mousemove', handleMouseMove);
             cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [isMobile]);
+
+    // 移动端不渲染鼠标交互层
+    if (isMobile) return null;
 
     if (theme === ThemePreset.ORIGIN) {
         return (

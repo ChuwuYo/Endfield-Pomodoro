@@ -206,7 +206,7 @@ const App: React.FC = () => {
     const seconds = totalSeconds % 60;
 
     return (
-        <div className="h-screen bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-screen h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* 背景视觉效果 (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
@@ -375,6 +375,8 @@ const App: React.FC = () => {
                                 </div>
                             </div>
                         </Panel>
+                        {/* 移动端底部额外间距，防止被 Footer 遮挡 */}
+                        <div className="h-24 w-full md:hidden shrink-0"></div>
                     </div>
                 ) : null}
 
@@ -419,7 +421,7 @@ const App: React.FC = () => {
             </main>
 
             {/* 页脚 (Z-40) */}
-            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 select-none">
+            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none">
                 <div className="max-w-[1920px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <span className="text-theme-primary/80 uppercase tracking-wider">{t('TOTAL_STUDY_TIME')}:</span>
