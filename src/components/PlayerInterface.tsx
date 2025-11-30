@@ -16,7 +16,7 @@ export interface PlayerInterfaceProps {
     playMode: AudioMode;
     language: Language;
     isLoading?: boolean;
-    
+
     // 回调
     onPlayPause: () => void;
     onNext: () => void;
@@ -76,7 +76,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     useEffect(() => {
         const handleGlobalMouseMove = (e: MouseEvent) => {
             e.preventDefault();
-            
+
             // 进度条拖拽
             if (isDraggingRef.current && progressBarRef.current && duration > 0) {
                 const rect = progressBarRef.current.getBoundingClientRect();
@@ -84,7 +84,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 const newTime = (clickX / rect.width) * duration;
                 setDragTime(newTime);
             }
-            
+
             // 音量条拖拽 - 实时更新
             if (isVolumeDraggingRef.current && volumeBarRef.current) {
                 const rect = volumeBarRef.current.getBoundingClientRect();
@@ -127,14 +127,20 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
             <div className="flex-1 min-h-0 flex flex-col justify-center mb-2">
                 {/* 顶部信息栏 */}
                 <div className="flex justify-between items-end border-b border-theme-highlight/30 pb-2 mb-2">
-                    <div className="flex flex-col overflow-hidden mr-4">
+                    <div className="flex flex-col overflow-hidden mr-4 flex-1">
                         <span className="text-[10px] text-theme-dim uppercase tracking-widest">
                             {isLoading ? t('CONNECTING') : t('STATUS')}
                         </span>
                         {currentTrackName ? (
-                            <div className="text-sm font-mono text-theme-primary truncate animate-pulse-fast leading-tight mt-1">
-                                {isPlaying ? '► ' : '❚❚ '} {currentTrackName}
-                                {currentArtist && <span className="text-xs text-theme-dim ml-2">- {currentArtist}</span>}
+                            <div className="flex flex-col mt-1">
+                                <div className="text-sm font-mono text-theme-primary truncate animate-pulse-fast leading-tight">
+                                    {isPlaying ? '► ' : '❚❚ '} {currentTrackName}
+                                </div>
+                                {currentArtist && (
+                                    <div className="text-xs text-theme-dim truncate leading-tight mt-0.5">
+                                        {currentArtist}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="text-sm font-mono text-theme-dim uppercase leading-tight mt-1">{t('NO_TRACK')}</div>
@@ -150,8 +156,11 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     {/* 封面 */}
                     {coverUrl && (
                         <div
-                            className={`w-12 h-12 rounded-full border border-theme-primary/30 bg-cover bg-center shrink-0 ${isPlaying ? 'animate-spin-slow' : ''}`}
-                            style={{ backgroundImage: `url(${coverUrl})` }}
+                            className="w-12 h-12 rounded-full border border-theme-primary/30 bg-cover bg-center shrink-0 animate-spin-slow"
+                            style={{
+                                backgroundImage: `url(${coverUrl})`,
+                                animationPlayState: isPlaying ? 'running' : 'paused'
+                            }}
                         ></div>
                     )}
 
@@ -296,7 +305,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         {/* 可拖拽的圆球滑块 */}
                         <div
                             className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform hover:scale-125"
-                            style={{ 
+                            style={{
                                 left: `${displayVolume * 100}%`,
                                 transform: 'translateX(-50%)'
                             }}
