@@ -294,7 +294,7 @@ const App: React.FC = () => {
     const seconds = totalSeconds % 60;
 
     return (
-        <div className="h-screen h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+        <div className="h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* 背景视觉效果 (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
 
@@ -611,7 +611,15 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
                         <span>{t('COPYRIGHT')}</span>
                         <span className="hidden md:inline text-theme-highlight">|</span>
-                        <span className="hidden md:inline">@ChuwuYo</span>
+                        <a
+                            href="https://github.com/ChuwuYo/Endfield-Pomodoro"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hidden md:flex items-center gap-1 hover:text-theme-primary transition-colors"
+                        >
+                            <i className="ri-github-fill"></i>
+                            <span>@ChuwuYo</span>
+                        </a>
                     </div>
                 </div>
             </footer>
