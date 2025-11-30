@@ -265,26 +265,12 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
     useEffect(() => {
         const mq = window.matchMedia('(max-width: 768px)');
         const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-        const legacyHandler = (e: MediaQueryListEvent | MediaQueryList) => {
-            const matches = 'matches' in e ? e.matches : mq.matches;
-            setIsMobile(Boolean(matches));
-        };
 
-        // 仅订阅变化，不在 effect 中同步设置状态（初始值由 useState 的懒惰初始化处理）
-        if (typeof mq.addEventListener === 'function') {
-            // addEventListener 的签名与 MediaQueryListEvent 匹配，安全传递
-            mq.addEventListener('change', handler as unknown as (this: MediaQueryList, ev: MediaQueryListEvent) => void);
-        } else if (typeof mq.addListener === 'function') {
-            // 旧 API 签名可能不同，使用受控的类型断言来调用（避免 any）
-            (mq as MediaQueryList & { addListener?: (listener: (this: MediaQueryList, ev: MediaQueryListEvent) => void) => void }).addListener?.(legacyHandler as unknown as (this: MediaQueryList, ev: MediaQueryListEvent) => void);
-        }
+        // 使用现代 addEventListener API
+        mq.addEventListener('change', handler);
 
         return () => {
-            if (typeof mq.removeEventListener === 'function') {
-                mq.removeEventListener('change', handler as unknown as (this: MediaQueryList, ev: MediaQueryListEvent) => void);
-            } else if (typeof mq.removeListener === 'function') {
-                (mq as MediaQueryList & { removeListener?: (listener: (this: MediaQueryList, ev: MediaQueryListEvent) => void) => void }).removeListener?.(legacyHandler as unknown as (this: MediaQueryList, ev: MediaQueryListEvent) => void);
-            }
+            mq.removeEventListener('change', handler);
         };
     }, []);
 
