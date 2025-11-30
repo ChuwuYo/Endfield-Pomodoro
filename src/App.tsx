@@ -15,8 +15,8 @@ const DEFAULT_SETTINGS: Settings = {
     workDuration: 25,
     shortBreakDuration: 5,
     longBreakDuration: 15,
-    autoStartBreaks: false,
-    autoStartWork: false,
+    autoStartBreaks: true,
+    autoStartWork: true,
     soundEnabled: true,
     soundVolume: 0.5,
     language: Language.CN,
@@ -129,10 +129,7 @@ const getMusicPlatformOptions = (t: ReturnType<typeof useTranslation>) => [
 
 // 音乐类型选项配置
 const getMusicTypeOptions = (t: ReturnType<typeof useTranslation>) => [
-    { value: 'playlist', label: t('TYPE_PLAYLIST') },
-    { value: 'album', label: t('TYPE_ALBUM') },
-    { value: 'song', label: t('TYPE_SONG') },
-    { value: 'artist', label: t('TYPE_ARTIST') }
+    { value: 'playlist', label: t('TYPE_PLAYLIST') }
 ];
 
 const App: React.FC = () => {
@@ -151,6 +148,9 @@ const App: React.FC = () => {
         }
         return DEFAULT_SETTINGS;
     });
+
+    // 临时音乐配置状态，用于在点击应用前存储更改
+    const [tempMusicConfig, setTempMusicConfig] = useState(settings.musicConfig);
 
     // 从localStorage加载会话计数
     const [sessionCount, setSessionCount] = useState(() => {
@@ -182,14 +182,19 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
-    // 辅助函数：更新音乐配置
+    // 辅助函数：更新临时音乐配置
     const handleMusicConfigChange = (key: keyof Settings['musicConfig'], value: string) => {
+        setTempMusicConfig(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
+
+    // 应用音乐配置
+    const applyMusicConfig = () => {
         setSettings(prev => ({
             ...prev,
-            musicConfig: {
-                ...prev.musicConfig,
-                [key]: value
-            }
+            musicConfig: tempMusicConfig
         }));
     };
 
@@ -472,7 +477,7 @@ const App: React.FC = () => {
                                         <div>
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('PLATFORM')}</label>
                                             <CustomSelect
-                                                value={settings.musicConfig.server}
+                                                value={tempMusicConfig.server}
                                                 options={getMusicPlatformOptions(t)}
                                                 onChange={(value) => handleMusicConfigChange('server', value)}
                                             />
@@ -480,7 +485,7 @@ const App: React.FC = () => {
                                         <div>
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('TYPE')}</label>
                                             <CustomSelect
-                                                value={settings.musicConfig.type}
+                                                value={tempMusicConfig.type}
                                                 options={getMusicTypeOptions(t)}
                                                 onChange={(value) => handleMusicConfigChange('type', value)}
                                             />
@@ -489,11 +494,20 @@ const App: React.FC = () => {
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('ID')}</label>
                                             <Input
                                                 type="text"
-                                                value={settings.musicConfig.id}
+                                                value={tempMusicConfig.id}
                                                 onChange={(e) => handleMusicConfigChange('id', e.target.value)}
                                                 placeholder={t('ENTER_ID_PLACEHOLDER')}
                                             />
                                         </div>
+                                    </div>
+                                    <div className="flex justify-end pt-2">
+                                        <Button
+                                            variant="primary"
+                                            onClick={applyMusicConfig}
+                                            className="px-6 py-1.5 text-xs font-mono tracking-wider"
+                                        >
+                                            {t('APPLY_SETTINGS')}
+                                        </Button>
                                     </div>
                                 </div>
                             </div>

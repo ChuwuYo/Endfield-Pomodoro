@@ -6,6 +6,7 @@ import { Language, AudioMode } from '../types';
 import { STORAGE_KEYS } from '../constants';
 import MusicPlayer from './MusicPlayer';
 import PlayerInterface from './PlayerInterface';
+import { parseBlob } from 'music-metadata';
 
 const AudioPlayer: React.FC<{
     language: Language;
@@ -22,19 +23,22 @@ const AudioPlayer: React.FC<{
         return (saved === 'local' || saved === 'online') ? saved : 'online';
     });
 
-    // 持久化音频源选择
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEYS.AUDIO_SOURCE, audioSource);
-    }, [audioSource]);
-
     const [playlist, setPlaylist] = useState<File[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [isPlaying, setIsPlaying] = useState(false);
+
+    // 持久化音频源选择，并在切换时重置播放状态
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEYS.AUDIO_SOURCE, audioSource);
+        // 切换模式时重置播放状态
+        setIsPlaying(false);
+    }, [audioSource]);
     const [volume, setVolume] = useState(0.5);
     const [mode, setMode] = useState<AudioMode>(AudioMode.SEQUENTIAL);
     const [showPlaylist, setShowPlaylist] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [coverUrl, setCoverUrl] = useState<string | undefined>(undefined);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -47,6 +51,55 @@ const AudioPlayer: React.FC<{
             }
         }
     };
+
+    // 提取音频封面
+    const extractCoverArt = useCallback(async (file: File) => {
+        let newCoverUrl: string | undefined;
+        try {
+            const metadata = await parseBlob(file);
+            const picture = metadata.common.picture?.[0];
+
+            if (picture) {
+                const blob = new Blob([picture.data as BlobPart], { type: picture.format });
+                newCoverUrl = URL.createObjectURL(blob);
+            }
+        } catch (error) {
+            console.warn('Failed to extract cover art:', error);
+        }
+
+        setCoverUrl(prevUrl => {
+            if (prevUrl) {
+                URL.revokeObjectURL(prevUrl);
+            }
+            return newCoverUrl;
+        });
+    }, []);
+
+    // 切换到在线模式时清理封面URL
+    useEffect(() => {
+        if (audioSource === 'online') {
+            setCoverUrl(prevUrl => {
+                if (prevUrl) {
+                    URL.revokeObjectURL(prevUrl);
+                }
+                return undefined;
+            });
+        }
+    }, [audioSource]);
+
+    // 组件卸载时清理封面URL
+    useEffect(() => {
+        return () => {
+            setCoverUrl(prevUrl => {
+                if (prevUrl) {
+                    URL.revokeObjectURL(prevUrl);
+                }
+                return undefined;
+            });
+        };
+    }, []);
+
+
 
     const playTrack = (index: number) => {
         if (index >= 0 && index < playlist.length) {
@@ -142,55 +195,92 @@ const AudioPlayer: React.FC<{
         }
     }, [duration]);
 
-    // 同步音频元素与状态
+    // 同步音频元素与音量
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;
         }
     }, [volume]);
 
-    // 跟踪音频播放时间
+    // 用 ref 跟踪是否应该在加载完成后自动播放
+    const shouldAutoPlayRef = useRef(false);
+
+    // 当曲目改变时加载音频源并提取封面（仅本地模式）
     useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
+        // 只在本地模式下处理
+        if (audioSource !== 'local') return;
 
-        const handleTimeUpdate = () => {
-            setCurrentTime(audio.currentTime);
-        };
-        const handleLoadedMetadata = () => setDuration(audio.duration);
-
-        audio.addEventListener('timeupdate', handleTimeUpdate);
-        audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-        return () => {
-            audio.removeEventListener('timeupdate', handleTimeUpdate);
-            audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        };
-    }, []);
-
-    // 当曲目改变时加载音频源（不在播放/暂停切换时）
-    useEffect(() => {
         if (currentIndex >= 0 && playlist[currentIndex] && audioRef.current) {
             const file = playlist[currentIndex];
             const url = URL.createObjectURL(file);
-            audioRef.current.src = url;
-            audioRef.current.load();
+            const audio = audioRef.current;
+
+            // 重置状态
+            setCurrentTime(0);
+            setDuration(0);
+
+            // 提取封面
+            extractCoverArt(file);
+
+            // 设置音频源
+            audio.src = url;
+
+            // 记录当前是否应该自动播放
+            shouldAutoPlayRef.current = isPlaying;
+
+            // 添加一次性事件监听器来处理加载
+            const handleLoadedMetadata = () => {
+                setDuration(audio.duration || 0);
+            };
+
+            const handleCanPlay = () => {
+                // 如果应该播放，则开始播放
+                if (shouldAutoPlayRef.current) {
+                    audio.play().catch((error) => {
+                        console.error('Playback failed:', error);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                setCurrentTime(audio.currentTime);
+            };
+
+            audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.addEventListener('canplay', handleCanPlay);
+            audio.addEventListener('timeupdate', handleTimeUpdate);
+
+            // 加载音频
+            audio.load();
 
             return () => {
+                // 清理
+                audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.removeEventListener('canplay', handleCanPlay);
+                audio.removeEventListener('timeupdate', handleTimeUpdate);
                 URL.revokeObjectURL(url);
             };
         }
-    }, [currentIndex, playlist]);
+        // 注意：这里不要添加 isPlaying 依赖，否则暂停/播放会重新加载音频
+        // 添加 audioSource 依赖，确保切换回本地模式时重新加载音频
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentIndex, playlist, audioSource, extractCoverArt]);
 
+    // 控制播放/暂停（不依赖曲目切换）
     useEffect(() => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.play().catch(() => setIsPlaying(false));
-            } else {
-                audioRef.current.pause();
+        const audio = audioRef.current;
+        if (!audio || currentIndex === -1) return;
+
+        // 只在非加载状态下响应 isPlaying 变化
+        if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
+            if (isPlaying && audio.paused) {
+                audio.play().catch(() => setIsPlaying(false));
+            } else if (!isPlaying && !audio.paused) {
+                audio.pause();
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, currentIndex]);
 
     const currentTrackName = currentIndex >= 0 && playlist[currentIndex] ? playlist[currentIndex].name : null;
 
@@ -238,6 +328,7 @@ const AudioPlayer: React.FC<{
                             duration={duration}
                             volume={volume}
                             currentTrackName={currentTrackName}
+                            coverUrl={coverUrl}
                             playlistCount={playlist.length}
                             currentIndex={currentIndex}
                             playMode={mode}
@@ -279,21 +370,53 @@ const AudioPlayer: React.FC<{
                                                 {playlist.map((file, idx) => (
                                                     <li
                                                         key={idx}
-                                                        className={`flex items-center p-3 cursor-pointer border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
-                                                        onClick={() => playTrack(idx)}
+                                                        className={`flex items-center p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
                                                     >
-                                                        <div className={`w-8 font-mono text-xs ${idx === currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
-                                                            {(idx + 1).toString().padStart(2, '0')}
+                                                        <div
+                                                            className="flex items-center flex-1 min-w-0 cursor-pointer"
+                                                            onClick={() => playTrack(idx)}
+                                                        >
+                                                            <div className={`w-8 font-mono text-xs ${idx === currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
+                                                                {(idx + 1).toString().padStart(2, '0')}
+                                                            </div>
+                                                            <div className={`flex-1 font-mono text-sm truncate ${idx === currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
+                                                                {file.name}
+                                                            </div>
+                                                            {idx === currentIndex && isPlaying && (
+                                                                /* Material Symbols Light: graphic_eq */
+                                                                <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center">
+                                                                    <i className="ri-rhythm-line text-base"></i>
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                        <div className={`flex-1 font-mono text-sm truncate ${idx === currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
-                                                            {file.name}
-                                                        </div>
-                                                        {idx === currentIndex && isPlaying && (
-                                                            /* Material Symbols Light: graphic_eq */
-                                                            <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center">
-                                                                <i className="ri-rhythm-line text-base"></i>
-                                                            </span>
-                                                        )}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                // 如果删除的是当前播放的曲目，清理封面URL
+                                                                if (idx === currentIndex && coverUrl) {
+                                                                    URL.revokeObjectURL(coverUrl);
+                                                                    setCoverUrl(undefined);
+                                                                }
+                                                                const newPlaylist = playlist.filter((_, i) => i !== idx);
+                                                                setPlaylist(newPlaylist);
+                                                                // 如果删除的是当前播放的曲目
+                                                                if (idx === currentIndex) {
+                                                                    if (newPlaylist.length === 0) {
+                                                                        setCurrentIndex(-1);
+                                                                        setIsPlaying(false);
+                                                                    } else if (idx >= newPlaylist.length) {
+                                                                        setCurrentIndex(newPlaylist.length - 1);
+                                                                    }
+                                                                } else if (idx < currentIndex) {
+                                                                    // 如果删除的曲目在当前播放曲目之前，需要调整索引
+                                                                    setCurrentIndex(prev => prev - 1);
+                                                                }
+                                                            }}
+                                                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
+                                                            title={t('DELETE_TRACK')}
+                                                        >
+                                                            <i className="ri-close-line text-lg"></i>
+                                                        </button>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -306,7 +429,17 @@ const AudioPlayer: React.FC<{
                                             {playlist.length} {t('FILES_LOADED')}
                                         </div>
                                         <button
-                                            onClick={() => setPlaylist([])}
+                                            onClick={() => {
+                                                setCoverUrl(prevUrl => {
+                                                    if (prevUrl) {
+                                                        URL.revokeObjectURL(prevUrl);
+                                                    }
+                                                    return undefined;
+                                                });
+                                                setPlaylist([]);
+                                                setCurrentIndex(-1);
+                                                setIsPlaying(false);
+                                            }}
                                             className="text-xs font-mono px-3 py-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                                             disabled={playlist.length === 0}
                                         >
