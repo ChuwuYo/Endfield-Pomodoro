@@ -54,33 +54,30 @@ const AudioPlayer: React.FC<{
 
     // 提取音频封面
     const extractCoverArt = useCallback(async (file: File) => {
+        let newCoverUrl: string | undefined;
         try {
             const metadata = await parseBlob(file);
             const picture = metadata.common.picture?.[0];
 
             if (picture) {
                 const blob = new Blob([picture.data as BlobPart], { type: picture.format });
-                const coverDataUrl = URL.createObjectURL(blob);
-
-                // 清除旧封面并设置新封面
-                setCoverUrl(prevUrl => {
-                    if (prevUrl) {
-                        URL.revokeObjectURL(prevUrl);
-                    }
-                    return coverDataUrl;
-                });
-            } else {
-                // 如果没有封面，清除之前的封面
-                setCoverUrl(prevUrl => {
-                    if (prevUrl) {
-                        URL.revokeObjectURL(prevUrl);
-                    }
-                    return undefined;
-                });
+                newCoverUrl = URL.createObjectURL(blob);
             }
         } catch (error) {
             console.warn('Failed to extract cover art:', error);
-            // 出错时也清除封面
+        }
+
+        setCoverUrl(prevUrl => {
+            if (prevUrl) {
+                URL.revokeObjectURL(prevUrl);
+            }
+            return newCoverUrl;
+        });
+    }, []);
+
+    // 切换到在线模式时清理封面URL
+    useEffect(() => {
+        if (audioSource === 'online') {
             setCoverUrl(prevUrl => {
                 if (prevUrl) {
                     URL.revokeObjectURL(prevUrl);
@@ -88,22 +85,19 @@ const AudioPlayer: React.FC<{
                 return undefined;
             });
         }
-    }, []);
+    }, [audioSource]);
 
-    // 清理封面URL（切换模式或组件卸载时）
+    // 组件卸载时清理封面URL
     useEffect(() => {
         return () => {
-            // 组件卸载或切换到在线模式时，清理封面URL
-            if (audioSource === 'online') {
-                setCoverUrl(prevUrl => {
-                    if (prevUrl) {
-                        URL.revokeObjectURL(prevUrl);
-                    }
-                    return undefined;
-                });
-            }
+            setCoverUrl(prevUrl => {
+                if (prevUrl) {
+                    URL.revokeObjectURL(prevUrl);
+                }
+                return undefined;
+            });
         };
-    }, [audioSource]);
+    }, []);
 
 
 
