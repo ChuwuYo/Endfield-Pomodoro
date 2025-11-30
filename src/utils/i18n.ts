@@ -92,6 +92,7 @@ export const translations = {
     FILES_LOADED: 'FILES LOADED',
     CLEAR: 'CLEAR',
     ADD_TRACKS: 'ADD TRACKS',
+    DELETE_TRACK: 'DELETE TRACK',
 
     // Button Tooltips
     PLAY_PAUSE: 'PLAY/PAUSE',
@@ -200,6 +201,7 @@ export const translations = {
     FILES_LOADED: '已加载文件',
     CLEAR: '清空',
     ADD_TRACKS: '添加曲目',
+    DELETE_TRACK: '删除曲目',
 
     // Button Tooltips
     PLAY_PAUSE: '播放/暂停',

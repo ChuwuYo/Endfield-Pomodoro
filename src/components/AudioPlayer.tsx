@@ -414,7 +414,7 @@ const AudioPlayer: React.FC<{
                                                                 }
                                                             }}
                                                             className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
-                                                            title={t('DELETE_TASK')}
+                                                            title={t('DELETE_TRACK')}
                                                         >
                                                             <i className="ri-close-line text-lg"></i>
                                                         </button>
