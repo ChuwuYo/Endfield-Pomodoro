@@ -425,6 +425,12 @@ const AudioPlayer: React.FC<{
                                         </div>
                                         <button
                                             onClick={() => {
+                                                setCoverUrl(prevUrl => {
+                                                    if (prevUrl) {
+                                                        URL.revokeObjectURL(prevUrl);
+                                                    }
+                                                    return undefined;
+                                                });
                                                 setPlaylist([]);
                                                 setCurrentIndex(-1);
                                                 setIsPlaying(false);
