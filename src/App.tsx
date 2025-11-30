@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS: Settings = {
     autoStartWork: true,
     soundEnabled: true,
     soundVolume: 0.5,
-    language: Language.CN,
+    language: navigator.language.toLowerCase().startsWith('zh') ? Language.CN : Language.EN,
     theme: ThemePreset.INDUSTRIAL,
     musicConfig: {
         server: 'netease',
