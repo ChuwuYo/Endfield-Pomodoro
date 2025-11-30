@@ -392,6 +392,11 @@ const AudioPlayer: React.FC<{
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
+                                                                // 如果删除的是当前播放的曲目，清理封面URL
+                                                                if (idx === currentIndex && coverUrl) {
+                                                                    URL.revokeObjectURL(coverUrl);
+                                                                    setCoverUrl(undefined);
+                                                                }
                                                                 const newPlaylist = playlist.filter((_, i) => i !== idx);
                                                                 setPlaylist(newPlaylist);
                                                                 // 如果删除的是当前播放的曲目
