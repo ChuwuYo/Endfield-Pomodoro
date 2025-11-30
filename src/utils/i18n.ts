@@ -103,6 +103,7 @@ export const translations = {
     TOGGLE_TASK: 'TOGGLE TASK',
     DELETE_TASK: 'DELETE TASK',
     CLEAR_ALL_TASKS: 'CLEAR ALL TASKS',
+    RESET_SESSIONS: 'RESET CYCLES',
 
     // Footer
     TOTAL_STUDY_TIME: 'SESSION OPERATION TIME',
@@ -212,6 +213,7 @@ export const translations = {
     TOGGLE_TASK: '切换任务状态',
     DELETE_TASK: '删除任务',
     CLEAR_ALL_TASKS: '清除所有任务',
+    RESET_SESSIONS: '重置完成周期',
 
     // Footer
     TOTAL_STUDY_TIME: '本次累计作业时长',

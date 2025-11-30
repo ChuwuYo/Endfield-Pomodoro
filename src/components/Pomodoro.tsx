@@ -30,15 +30,15 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   // 在恢复流程期间阻止 resetTimer 覆盖恢复的计时状态
   const restoredRef = useRef(false);
- 
+
   // 本地持久化键（用于在刷新后恢复计时器状态）
   const TIMER_STORAGE = 'origin_terminal_timer';
- 
+
   // 本地状态：模式、剩余时间、是否激活
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
   const [timeLeft, setTimeLeft] = useState<number>(() => settings.workDuration * 60);
   const [isActive, setIsActive] = useState<boolean>(false);
- 
+
   // 从 localStorage 恢复计时器（仅在挂载时执行）
   useEffect(() => {
     try {
@@ -90,7 +90,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   // 将计时器状态持久化到 localStorage（mode / timeLeft / isActive 变化时更新）
   useEffect(() => {
     try {
@@ -109,7 +109,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, timeLeft, isActive, settings.workDuration, settings.shortBreakDuration, settings.longBreakDuration]);
- 
+
   useEffect(() => {
     // 如果刚刚从 localStorage 恢复过来，跳过本次 reset（避免覆盖恢复的剩余时间/运行状态）
     if (restoredRef.current) {
@@ -141,7 +141,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   useEffect(() => {
     let interval: number | undefined;
-  
+
     if (isActive && timeLeft > 0) {
       interval = window.setInterval(() => {
         setTimeLeft((prev) => {
@@ -154,7 +154,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     } else if (timeLeft === 0) {
       handleComplete();
     }
-  
+
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, timeLeft]);
@@ -231,9 +231,19 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
               {getStatusText()}
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] text-theme-dim tracking-widest uppercase mb-1">{t('SESSIONS_COMPLETED')}</span>
-            <div className="text-2xl font-mono text-theme-text">{sessionCount.toString().padStart(2, '0')}</div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              className="w-8 h-8 p-0 text-theme-dim hover:text-theme-primary border-theme-dim/20 hover:border-theme-primary/50"
+              onClick={() => onSessionsUpdate(0)}
+              title={t('RESET_SESSIONS')}
+            >
+              <i className="ri-refresh-line text-lg"></i>
+            </Button>
+            <div className="text-right">
+              <span className="text-[10px] text-theme-dim tracking-widest uppercase mb-1 block">{t('SESSIONS_COMPLETED')}</span>
+              <div className="text-2xl font-mono text-theme-text">{sessionCount.toString().padStart(2, '0')}</div>
+            </div>
           </div>
         </div>
 
