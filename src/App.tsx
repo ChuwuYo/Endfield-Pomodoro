@@ -22,9 +22,9 @@ const DEFAULT_SETTINGS: Settings = {
     language: ((() => {
         const browserLangs = navigator.languages || [navigator.language];
         for (const lang of browserLangs) {
+            if (!lang) continue;
             const lowerLang = lang.toLowerCase();
             if (lowerLang.startsWith('zh')) return Language.CN;
-            if (lowerLang.startsWith('en')) return Language.EN;
         }
         return Language.EN;
     })()),
