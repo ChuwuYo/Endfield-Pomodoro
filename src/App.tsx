@@ -19,7 +19,15 @@ const DEFAULT_SETTINGS: Settings = {
     autoStartWork: true,
     soundEnabled: true,
     soundVolume: 0.5,
-    language: navigator.language.toLowerCase().startsWith('zh') ? Language.CN : Language.EN,
+    language: ((() => {
+        const browserLangs = navigator.languages || [navigator.language];
+        for (const lang of browserLangs) {
+            const lowerLang = lang.toLowerCase();
+            if (lowerLang.startsWith('zh')) return Language.CN;
+            if (lowerLang.startsWith('en')) return Language.EN;
+        }
+        return Language.EN;
+    })()),
     theme: ThemePreset.INDUSTRIAL,
     musicConfig: {
         server: 'netease',
