@@ -79,7 +79,7 @@ export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (
    (这些不会在鼠标移动时重新渲染)
    ========================================================================= */
 
-const OriginGrid = React.memo(() => (
+const OriginGrid = () => (
     <>
         <div className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -90,9 +90,9 @@ const OriginGrid = React.memo(() => (
         <div className="absolute bottom-20 right-10 w-64 h-[1px] bg-theme-dim/20"></div>
         <div className="absolute -bottom-64 -left-64 w-[600px] h-[600px] border border-theme-dim/5 rounded-full pointer-events-none"></div>
     </>
-));
+);
 
-const AzureGrid = React.memo(() => (
+const AzureGrid = () => (
     <>
         <div className="absolute inset-0 opacity-[0.05]"
             style={{
@@ -101,9 +101,9 @@ const AzureGrid = React.memo(() => (
             }}></div>
         <div className="absolute inset-0 bg-gradient-to-t from-theme-base via-transparent to-theme-base opacity-80"></div>
     </>
-));
+);
 
-const NeonGrid = React.memo(() => (
+const NeonGrid = () => (
     <>
         <div className="absolute inset-0 opacity-20"
             style={{
@@ -115,7 +115,7 @@ const NeonGrid = React.memo(() => (
         <div className="absolute top-0 w-full h-full bg-gradient-to-b from-theme-base via-transparent to-theme-primary/10"></div>
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-theme-primary/20 blur-[100px]"></div>
     </>
-));
+);
 
 // 在组件外部生成矩阵列以避免重新随机化
 const generateMatrixColumns = () => {
@@ -136,7 +136,7 @@ const generateMatrixColumns = () => {
 
 const matrixColumns = generateMatrixColumns();
 
-const MatrixRain = React.memo(() => {
+const MatrixRain = () => {
     const columns = matrixColumns;
 
     return (
@@ -154,12 +154,12 @@ const MatrixRain = React.memo(() => {
             <style>{`@keyframes rain { 0% { transform: translateY(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
         </div>
     );
-});
+};
 
-const TacticalGrid = React.memo(() => (
+const TacticalGrid = () => (
     <div className="absolute inset-0"
         style={{ backgroundImage: 'radial-gradient(var(--color-dim) 1px, transparent 1px)', backgroundSize: '30px 30px', opacity: 0.1 }}></div>
-));
+);
 
 // 在组件外部生成皇家粒子
 const generateRoyalParticles = () => {
@@ -181,7 +181,7 @@ const generateRoyalParticles = () => {
 
 const royalParticles = generateRoyalParticles();
 
-const RoyalParticles = React.memo(() => {
+const RoyalParticles = () => {
     const particles = royalParticles;
 
     return (
@@ -201,9 +201,9 @@ const RoyalParticles = React.memo(() => {
             <div className="absolute inset-0 bg-gradient-to-tr from-theme-base via-transparent to-theme-highlight/10"></div>
         </>
     );
-});
+};
 
-const IndustrialGrid = React.memo(() => (
+const IndustrialGrid = () => (
     <>
         <div className="absolute inset-0 opacity-10"
             style={{
@@ -212,9 +212,9 @@ const IndustrialGrid = React.memo(() => (
             }}></div>
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-theme-highlight/20 to-transparent"></div>
     </>
-));
+);
 
-const LaboratoryGrid = React.memo(() => (
+const LaboratoryGrid = () => (
     <>
         <div className="absolute inset-0 opacity-20"
             style={{
@@ -223,7 +223,7 @@ const LaboratoryGrid = React.memo(() => (
             }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white/0 mix-blend-overlay"></div>
     </>
-));
+);
 
 /* =========================================================================
    鼠标跟踪器和背景容器 (Z-0)
