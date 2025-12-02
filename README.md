@@ -35,12 +35,13 @@
 本项目采用最新的前端技术栈构建，确保高性能与开发体验：
 
 - **核心框架**: [React 19](https://react.dev/) - 利用最新的 Hooks 和并发特性
+- **性能优化**: [React Compiler](https://react.dev/learn/react-compiler) - 自动记忆化优化，无需手动 useMemo/useCallback
 - **构建工具**: [Vite](https://vitejs.dev/) - 极速的冷启动与热更新体验
 - **开发语言**: [TypeScript](https://www.typescriptlang.org/) - 强类型保障代码健壮性
 - **样式方案**: [TailwindCSS v4](https://tailwindcss.com/) - 原子化 CSS 引擎，配合 CSS Variables 实现动态主题切换
 - **图标库**: [Remixicon](https://remixicon.com/) + [Lucide React](https://lucide.dev/) - 风格统一的开源图标集
 - **音频处理**: Web Audio API - 原生实现振荡器音效，无额外音频资源依赖
-- **状态管理**: React Hooks (useState, useEffect, useRef, useMemo, useCallback)
+- **状态管理**: React Hooks (useState, useEffect, useRef)
 - **工具函数**: [react-use](https://github.com/streamich/react-use) - 实用的 React Hooks 集合
 
 ## 🚀 快速开始 (Getting Started)
@@ -178,6 +179,15 @@ export const translations = {
 - **类型文件**: 所有 TypeScript 类型定义在 `types.ts` 中
 - **工具函数**: 纯函数放在 `utils/` 目录下
 - **自定义 Hooks**: 可复用的逻辑放在 `hooks/` 目录下
+
+### React Compiler 说明
+
+本项目启用了 React Compiler，会自动优化组件性能：
+- 自动记忆化组件输出，无需使用 `React.memo`
+- 自动缓存计算结果，无需使用 `useMemo`
+- 自动优化回调函数，无需使用 `useCallback`
+- 编译器配置位于 [vite.config.ts](./vite.config.ts) 中
+- 使用 React DevTools 可查看哪些组件被编译器优化（显示 "Memo ✨" 徽章）
 
 ## 🤝 贡献 (Contributing)
 

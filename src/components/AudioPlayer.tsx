@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
@@ -53,7 +53,7 @@ const AudioPlayer: React.FC<{
     };
 
     // 提取音频封面
-    const extractCoverArt = useCallback(async (file: File) => {
+    const extractCoverArt = async (file: File) => {
         let newCoverUrl: string | undefined;
         try {
             const metadata = await parseBlob(file);
@@ -73,7 +73,7 @@ const AudioPlayer: React.FC<{
             }
             return newCoverUrl;
         });
-    }, []);
+    };
 
     // 切换到在线模式时清理封面URL
     useEffect(() => {
@@ -187,13 +187,13 @@ const AudioPlayer: React.FC<{
         }
     };
 
-    const handleSeek = useCallback((newTime: number) => {
+    const handleSeek = (newTime: number) => {
         if (audioRef.current && duration > 0) {
             const clampedTime = Math.max(0, Math.min(newTime, duration));
             audioRef.current.currentTime = clampedTime;
             setCurrentTime(clampedTime);
         }
-    }, [duration]);
+    };
 
     // 同步音频元素与音量
     useEffect(() => {

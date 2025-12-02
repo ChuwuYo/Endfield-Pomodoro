@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+
 
 // 简单的振荡器蜂鸣声
 const playBeep = (vol: number = 0.5, type: 'start' | 'end' | 'tick' = 'tick') => {
@@ -40,9 +40,9 @@ const playBeep = (vol: number = 0.5, type: 'start' | 'end' | 'tick' = 'tick') =>
 };
 
 export const useSound = (enabled: boolean, volume: number) => {
-  return useCallback((type: 'start' | 'end' | 'tick') => {
+  return (type: 'start' | 'end' | 'tick') => {
     if (enabled) {
       playBeep(volume, type);
     }
-  }, [enabled, volume]);
+  };
 };

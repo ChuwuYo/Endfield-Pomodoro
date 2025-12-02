@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NEXT_TRACK_RETRY_DELAY_MS } from '../constants';
 
 export interface Song {
@@ -30,7 +30,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
 
     // 切歌逻辑
-    const handleNext = useCallback((isAuto: boolean = false) => {
+    const handleNext = (isAuto: boolean = false) => {
         if (playlist.length === 0) return;
 
         let nextIndex = currentIndex;
@@ -53,7 +53,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
 
         setCurrentIndex(nextIndex);
         setIsPlaying(true);
-    }, [currentIndex, playlist.length, playMode]);
+    };
 
     useEffect(() => {
         handleNextRef.current = handleNext;
@@ -151,7 +151,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     }, [isPlaying, playlist.length]);
 
     // 播放控制
-    const togglePlay = useCallback(() => {
+    const togglePlay = () => {
         if (!audioRef.current) return;
 
         if (isPlaying) {
@@ -165,9 +165,9 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
                     .catch(err => console.error("播放失败:", err));
             }
         }
-    }, [isPlaying]);
+    };
 
-    const handlePrev = useCallback(() => {
+    const handlePrev = () => {
         if (playlist.length === 0) return;
 
         let prevIndex = currentIndex;
@@ -184,33 +184,33 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
 
         setCurrentIndex(prevIndex);
         setIsPlaying(true);
-    }, [currentIndex, playlist.length, playMode]);
+    };
 
     // 进度跳转
-    const seek = useCallback((time: number) => {
+    const seek = (time: number) => {
         if (audioRef.current) {
             const newTime = Math.max(0, Math.min(time, duration));
             audioRef.current.currentTime = newTime;
             setCurrentTime(newTime);
         }
-    }, [duration]);
+    };
 
     // 切换模式
-    const toggleMode = useCallback(() => {
+    const toggleMode = () => {
         setPlayMode(prev => {
             if (prev === PlayMode.SEQUENCE) return PlayMode.LOOP;
             if (prev === PlayMode.LOOP) return PlayMode.RANDOM;
             return PlayMode.SEQUENCE;
         });
-    }, []);
+    };
 
     // 直接播放指定索引
-    const playTrack = useCallback((index: number) => {
+    const playTrack = (index: number) => {
         if (index >= 0 && index < playlist.length) {
             setCurrentIndex(index);
             setIsPlaying(true);
         }
-    }, [playlist.length]);
+    };
 
     return {
         currentSong: playlist[currentIndex],
