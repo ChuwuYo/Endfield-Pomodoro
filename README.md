@@ -187,7 +187,8 @@ export const translations = {
 - 自动缓存计算结果，无需使用 `useMemo`
 - 自动优化回调函数，无需使用 `useCallback`
 - 编译器配置位于 [vite.config.ts](./vite.config.ts) 中
-- 使用 React DevTools 可查看哪些组件被编译器优化（显示 "Memo ✨" 徽章）
+- 使用 React DevTools 可查看哪些组件被编译器优化
+- 由于编译器仍处于实验阶段，我保留了一些 `useMemo` 和 `useCallback` 调用，以确保兼容性
 
 ## 🤝 贡献 (Contributing)
 
