@@ -188,11 +188,11 @@ export const translations = {
 - 自动优化回调函数，无需使用 `useCallback`
 - 编译器配置位于 [vite.config.ts](./vite.config.ts) 中
 - 使用 React DevTools 可查看哪些组件被编译器优化
-- 由于编译器仍处于实验阶段，我保留了一些 `useMemo` 和 `useCallback` 调用，以确保兼容性
+- 由于编译器仍处于实验阶段，我保留了一些 hooks 调用，以确保兼容性
 
 ## 🤝 贡献 (Contributing)
 
-欢迎提交 Issue 或 Pull Request 来改进这个终端系统。请确保遵循现有的代码风格（TypeScript + TailwindCSS）。
+欢迎提交 Issue 或 Pull Request ，请确保遵循现有的代码风格。
 
 ## 📄 许可证 (License)
 
