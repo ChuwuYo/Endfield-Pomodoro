@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
-import { STORAGE_KEYS } from '../constants';
+import { STORAGE_KEYS, TOAST_DURATION_MS } from '../constants';
 import MusicPlayer from './MusicPlayer';
 import PlayerInterface from './PlayerInterface';
 import MessageDisplay from './MessageDisplay';
@@ -48,7 +48,7 @@ const AudioPlayer: React.FC<{
         } else if (isOnline && !prevOnlineRef.current && audioSource === 'local') {
             // 从离线恢复到在线时显示提示
             setShowOnlineToast(true);
-            const timer = setTimeout(() => setShowOnlineToast(false), 4000);
+            const timer = setTimeout(() => setShowOnlineToast(false), TOAST_DURATION_MS);
             return () => clearTimeout(timer);
         }
         prevOnlineRef.current = isOnline;
