@@ -67,7 +67,7 @@ const THEMES = {
     [ThemePreset.NEON]: {
         '--color-base': '#180024',
         '--color-surface': '#2e0242',
-        '--color-highlight': '#4c0f66',
+        '--color-highlight': '#ad39ffff',
         '--color-primary': '#ff00ff', // Magenta
         '--color-secondary': '#00ffff', // Cyan
         '--color-accent': '#ffff00', // Yellow
@@ -78,11 +78,11 @@ const THEMES = {
         '--color-base': '#000000',
         '--color-surface': '#031403',
         '--color-highlight': '#082908',
-        '--color-primary': '#00ff41', // Matrix Green
-        '--color-secondary': '#008f11',
+        '--color-primary': '#d0ff4b', // Matrix Green
+        '--color-secondary': '#3cf551ff',
         '--color-accent': '#ccffcc',
         '--color-text': '#e0fce0',
-        '--color-dim': '#14532d'
+        '--color-dim': '#77fbacff'
     },
     [ThemePreset.TACTICAL]: {
         '--color-base': '#1c1917', // Warm grey dark
@@ -116,8 +116,8 @@ const THEMES = {
     },
     [ThemePreset.LABORATORY]: {
         '--color-base': '#f8fafc',
-        '--color-surface': '#f1f5f9',
-        '--color-highlight': '#e2e8f0',
+        '--color-surface': '#edeff0ff',
+        '--color-highlight': '#cbced1ff',
         '--color-primary': '#0ea5e9', // Sky Blue
         '--color-secondary': '#64748b', // Slate
         '--color-accent': '#ec4899', // Pink
@@ -317,17 +317,37 @@ const App: React.FC = () => {
             {/* 头部栏 (Z-40) - 最佳实践：顶级UI，在指针效果下方如果它们是'屏幕'，但可访问 */}
             <header className="fixed top-0 left-0 right-0 z-40 select-none border-b border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md shadow-lg">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 max-w-[1920px] mx-auto">
-                    {/* 品牌/Logo */}
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-6 md:h-8 bg-theme-primary shadow-[0_0_10px_var(--color-primary)]"></div>
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-bold font-sans tracking-tighter leading-none text-theme-text uppercase">
-                                    Endfield Protocol
+                    {/* 品牌/Logo - 终末地风格 */}
+                    <div className="flex items-center gap-4">
+                        {/* 左侧黄色条带装饰 */}
+                        <div className="relative hidden md:flex items-center">
+                            <div className="w-1 h-10 bg-theme-primary" />
+                            <div className="w-3 h-10 bg-theme-primary/20 ml-0.5" />
+                            <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-theme-primary/50" />
+                        </div>
+
+                        {/* 主标题区 */}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-theme-primary md:hidden" />
+                                <h1 className="text-lg md:text-xl font-bold font-sans tracking-tight leading-none text-theme-text uppercase flex items-center">
+                                    <span className="text-theme-dim font-normal mr-1">[</span>
+                                    ENDFIELD
+                                    <span className="text-theme-dim font-normal ml-1">]</span>
                                 </h1>
-                                <div className="text-[10px] font-mono text-theme-primary tracking-[0.3em] opacity-80 mt-1 hidden md:block">
-                                    TERMINAL_V{pkg.version} // {isOnline ? 'SYSTEM_ONLINE' : 'SYSTEM_OFFLINE'}
-                                </div>
+                            </div>
+
+                            {/* 副标题 - 桌面端 */}
+                            <div className="hidden md:flex items-center gap-2 mt-1">
+                                <span className="text-[10px] font-mono text-theme-primary tracking-widest">PROTOCOL</span>
+                                <span className="text-theme-dim text-[10px]">•</span>
+                                <span className="text-[10px] font-mono text-theme-dim tracking-wider">
+                                    V{pkg.version}
+                                </span>
+                                <span className="text-theme-dim text-[10px]">//</span>
+                                <span className={`text-[10px] font-mono ${isOnline ? 'text-green-500' : 'text-red-500'}`}>
+                                    {isOnline ? 'ONLINE' : 'OFFLINE'}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -599,7 +619,7 @@ const App: React.FC = () => {
                         </div>
                         {/* 音频 */}
                         <div className="h-auto min-h-[160px] md:h-48 shrink-0">
-                            <AudioPlayer language={settings.language} musicConfig={settings.musicConfig} />
+                            <AudioPlayer language={settings.language} musicConfig={settings.musicConfig} isOnline={isOnline} />
                         </div>
                     </div>
 
