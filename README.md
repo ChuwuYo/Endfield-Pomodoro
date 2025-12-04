@@ -87,6 +87,7 @@ endfield-pomodoro/
 │   ├── assets/                 # 静态资源文件
 │   ├── components/             # UI 组件库
 │   │   ├── AudioPlayer.tsx     # 本地音频播放器组件
+│   │   ├── MessageDisplay.tsx  # 消息显示组件
 │   │   ├── MusicPlayer.tsx     # 在线音乐播放器组件
 │   │   ├── PlayerInterface.tsx # 播放器UI界面组件
 │   │   ├── Checkbox.tsx        # 复选框组件
@@ -102,7 +103,7 @@ endfield-pomodoro/
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
 │   │   └── i18n.ts             # 国际化配置（中英双语）
-│   ├── constants.ts            # 全局常量定义（存储键、API配置等）
+│   ├── constants.ts            # 全局常量定义
 │   ├── types.ts                # TypeScript 核心类型定义
 │   ├── App.tsx                 # 主应用组件与布局
 │   ├── main.tsx                # 渲染入口
@@ -136,6 +137,7 @@ endfield-pomodoro/
 - 高亮色 (--theme-highlight)
 - 背景色 (--theme-bg, --theme-surface)
 - 文本色 (--theme-text, --theme-dim)
+- 状态色 (--theme-success, --theme-error)
 - 特效色 (--glow-color, --particle-color)
 
 所有主题配置存储在 `App.tsx` 中，可轻松扩展新主题。
@@ -150,6 +152,8 @@ endfield-pomodoro/
   '--color-base': '#颜色值',
   '--color-surface': '#颜色值',
   '--color-primary': '#颜色值',
+  '--color-success': '#颜色值', // 成功状态颜色
+  '--color-error': '#颜色值', // 错误状态颜色
   // ... 其他 CSS 变量
 }
 ```
@@ -172,6 +176,7 @@ export const translations = {
 - **STORAGE_KEYS**: LocalStorage 存储键
 - **METING_API_BASE_URL**: 在线音乐 API 地址
 - **NEXT_TRACK_RETRY_DELAY_MS**: 音频重试延迟时间
+- **TOAST_DURATION_MS**: 提示消息显示时长（毫秒）
 
 ### 代码组织原则
 - **组件文件**: 只导出 React 组件，支持 Fast Refresh
