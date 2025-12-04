@@ -35,3 +35,4 @@ export const METING_API_BASE_URL = 'https://api.injahow.cn/meting/';
  * - hooks/useOnlinePlayer.ts
  */
 export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳转下一曲的延迟（毫秒）
+export const TOAST_DURATION_MS = 4000; // 提示消息显示时长（毫秒）

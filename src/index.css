@@ -17,21 +17,13 @@
   --color-theme-accent: var(--color-accent);
   --color-theme-text: var(--color-text);
   --color-theme-dim: var(--color-dim);
+  --color-theme-success: var(--color-success);
+  --color-theme-error: var(--color-error);
 
   /* 动画配置 */
   --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-spin-slow: spin 12s linear infinite;
   --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-  --animate-glitch: glitch 0.2s linear infinite;
-
-  @keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
-  }
 }
 
 /* 主题的基础变量（通过React动态切换） */
@@ -68,9 +60,11 @@ body {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-highlight);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
@@ -79,3 +73,83 @@ body {
 .clip-path-slant {
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
+
+/* 小型斜切 - 适用于小组件如 Checkbox */
+.clip-path-slant-sm {
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+
+/* Checkbox 专用样式 */
+.checkbox-endfield {
+  position: relative;
+  background: color-mix(in srgb, var(--color-highlight) 20%, transparent);
+  border: 1px solid var(--color-highlight);
+  transition: all 0.2s ease;
+}
+
+.checkbox-endfield:hover {
+  border-color: var(--color-primary);
+}
+
+.checkbox-endfield::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--color-primary);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.checkbox-endfield:hover::before {
+  opacity: 1;
+}
+
+/* Checkbox 勾选框样式 */
+.checkbox-box {
+  position: relative;
+  border: 1.5px solid var(--color-dim);
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.checkbox-box.checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-primary);
+}
+
+.checkbox-box::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.checkbox-box:hover::after {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+/* 数据流动画 */
+@keyframes data-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.data-flow-bg {
+  background: linear-gradient(90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--color-primary) 10%, transparent) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: data-flow 3s linear infinite;
+}
+

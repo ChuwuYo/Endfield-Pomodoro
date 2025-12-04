@@ -93,6 +93,10 @@ export const translations = {
     CLEAR: 'CLEAR',
     ADD_TRACKS: 'ADD TRACKS',
     DELETE_TRACK: 'DELETE TRACK',
+    OFFLINE_MODE_ONLY: 'OFFLINE - LOCAL MODE ONLY',
+    NETWORK_RESTORED: 'NETWORK RESTORED',
+    ONLINE_MODE_AVAILABLE: 'Online mode now available',
+    SWITCH: 'SWITCH',
 
     // Button Tooltips
     PLAY_PAUSE: 'PLAY/PAUSE',
@@ -202,6 +206,10 @@ export const translations = {
     CLEAR: '清空',
     ADD_TRACKS: '添加曲目',
     DELETE_TRACK: '删除曲目',
+    OFFLINE_MODE_ONLY: '离线中 - 仅支持本地模式',
+    NETWORK_RESTORED: '网络已恢复',
+    ONLINE_MODE_AVAILABLE: '在线模式现已可用',
+    SWITCH: '切换',
 
     // Button Tooltips
     PLAY_PAUSE: '播放/暂停',

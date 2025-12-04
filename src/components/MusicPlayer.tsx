@@ -4,6 +4,7 @@ import { useOnlinePlayer, PlayMode } from '../hooks/useOnlinePlayer';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
 import PlayerInterface from './PlayerInterface';
+import MessageDisplay from './MessageDisplay';
 
 interface MusicPlayerProps {
     config: {
@@ -45,8 +46,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language }) => {
 
     if (dataLoading) {
         return (
-            <div className="flex flex-col items-center justify-center h-full text-theme-dim animate-pulse">
-                <div className="text-xs font-mono">{t('CONNECTING')}</div>
+            <div className="flex flex-col items-center justify-center h-full">
+                <MessageDisplay 
+                    messageKey="CONNECTING" 
+                    language={language} 
+                />
             </div>
         );
     }
