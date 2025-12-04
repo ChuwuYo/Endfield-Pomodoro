@@ -6,12 +6,14 @@ import { Language, AudioMode } from '../types';
 import { STORAGE_KEYS } from '../constants';
 import MusicPlayer from './MusicPlayer';
 import PlayerInterface from './PlayerInterface';
+import MessageDisplay from './MessageDisplay';
 import { parseBlob } from 'music-metadata';
 
 const AudioPlayer: React.FC<{
     language: Language;
     musicConfig: { server: string; type: string; id: string };
-}> = ({ language, musicConfig }) => {
+    isOnline: boolean;
+}> = ({ language, musicConfig, isOnline }) => {
     const t = useTranslation(language);
     const audioRef = useRef<HTMLAudioElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +35,25 @@ const AudioPlayer: React.FC<{
         // 切换模式时重置播放状态
         setIsPlaying(false);
     }, [audioSource]);
+
+    // Toast 提示状态
+    const [showOnlineToast, setShowOnlineToast] = useState(false);
+    const prevOnlineRef = useRef(isOnline);
+
+    // 离线时自动切换到本地模式，在线时显示提示
+    useEffect(() => {
+        if (!isOnline && audioSource === 'online') {
+            // 离线时自动切换到本地模式
+            setAudioSource('local');
+        } else if (isOnline && !prevOnlineRef.current && audioSource === 'local') {
+            // 从离线恢复到在线时显示提示
+            setShowOnlineToast(true);
+            const timer = setTimeout(() => setShowOnlineToast(false), 4000);
+            return () => clearTimeout(timer);
+        }
+        prevOnlineRef.current = isOnline;
+    }, [isOnline, audioSource]);
+
     const [volume, setVolume] = useState(0.5);
     const [mode, setMode] = useState<AudioMode>(AudioMode.SEQUENTIAL);
     const [showPlaylist, setShowPlaylist] = useState(false);
@@ -286,20 +307,41 @@ const AudioPlayer: React.FC<{
 
     return (
         <Panel
-            className="p-4 h-full min-h-[160px]"
+            className="p-4 h-full min-h-[160px] relative"
             title={
                 <div className="flex items-center justify-between w-full">
                     <span>{t('AUDIO_MODULE')}</span>
                     <button
-                        onClick={() => setAudioSource(prev => prev === 'local' ? 'online' : 'local')}
-                        className="px-2 py-0.5 text-[9px] font-mono border border-theme-highlight/50 text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm uppercase tracking-wider"
-                        title={audioSource === 'local' ? t('SWITCH_TO_ONLINE') : t('SWITCH_TO_LOCAL')}
+                        onClick={() => {
+                            if (!isOnline && audioSource === 'local') return;
+                            setAudioSource(prev => prev === 'local' ? 'online' : 'local');
+                        }}
+                        className={`px-2 py-0.5 text-[9px] font-mono border transition-colors rounded-sm uppercase tracking-wider ${!isOnline && audioSource === 'local'
+                                ? 'border-theme-highlight/30 text-theme-dim/50 cursor-not-allowed'
+                                : 'border-theme-highlight/50 text-theme-dim hover:text-theme-primary hover:border-theme-primary'
+                            }`}
+                        title={!isOnline && audioSource === 'local' ? t('OFFLINE_MODE_ONLY') : audioSource === 'local' ? t('SWITCH_TO_ONLINE') : t('SWITCH_TO_LOCAL')}
+                        disabled={!isOnline && audioSource === 'local'}
                     >
                         {audioSource === 'local' ? `⇄ ${t('ONLINE_MODE')}` : `⇄ ${t('LOCAL_MODE')}`}
                     </button>
                 </div>
             }
         >
+            {/* 网络恢复提示 - 使用 MessageDisplay 组件 */}
+            {showOnlineToast && (
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50">
+                    <MessageDisplay 
+                        messageKey="NETWORK_RESTORED" 
+                        language={language} 
+                        actionButton={{
+                            textKey: "SWITCH_TO_ONLINE",
+                            onClick: () => { setShowOnlineToast(false); setAudioSource('online'); }
+                        }}
+                    />
+                </div>
+            )}
+
             {audioSource === 'online' ? (
                 // 在线音乐模式：使用 MusicPlayer 组件，占满全部高度
                 <div className="flex flex-col h-full w-full">
