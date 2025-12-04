@@ -21,12 +21,7 @@ const DEFAULT_SETTINGS: Settings = {
     soundVolume: 0.5,
     language: ((() => {
         const browserLangs = navigator.languages || [navigator.language];
-        for (const lang of browserLangs) {
-            if (!lang) continue;
-            const lowerLang = lang.toLowerCase();
-            if (lowerLang.startsWith('zh')) return Language.CN;
-        }
-        return Language.EN;
+        return browserLangs.some(lang => lang?.toLowerCase().startsWith('zh')) ? Language.CN : Language.EN;
     })()),
     theme: ThemePreset.INDUSTRIAL,
     musicConfig: {
@@ -52,7 +47,9 @@ const THEMES = {
         '--color-secondary': '#fbbf24', // Amber
         '--color-accent': '#06b6d4', // Cyan
         '--color-text': '#e4e4e7',
-        '--color-dim': '#71717a'
+        '--color-dim': '#71717a',
+        '--color-success': '#22c55e', // Green
+        '--color-error': '#ef4444' // Red
     },
     [ThemePreset.AZURE]: {
         '--color-base': '#0f172a',
@@ -62,7 +59,9 @@ const THEMES = {
         '--color-secondary': '#94a3b8', // Slate
         '--color-accent': '#f472b6', // Pink
         '--color-text': '#f1f5f9',
-        '--color-dim': '#64748b'
+        '--color-dim': '#64748b',
+        '--color-success': '#22c55e', // Green
+        '--color-error': '#ef4444' // Red
     },
     [ThemePreset.NEON]: {
         '--color-base': '#180024',
@@ -72,7 +71,9 @@ const THEMES = {
         '--color-secondary': '#00ffff', // Cyan
         '--color-accent': '#ffff00', // Yellow
         '--color-text': '#f5d0fe',
-        '--color-dim': '#a21caf'
+        '--color-dim': '#a21caf',
+        '--color-success': '#00ff00', // Bright Green
+        '--color-error': '#ff0000' // Bright Red
     },
     [ThemePreset.MATRIX]: {
         '--color-base': '#000000',
@@ -82,7 +83,9 @@ const THEMES = {
         '--color-secondary': '#3cf551ff',
         '--color-accent': '#ccffcc',
         '--color-text': '#e0fce0',
-        '--color-dim': '#77fbacff'
+        '--color-dim': '#77fbacff',
+        '--color-success': '#00ff00', // Matrix Green
+        '--color-error': '#ff0000' // Red
     },
     [ThemePreset.TACTICAL]: {
         '--color-base': '#1c1917', // Warm grey dark
@@ -92,7 +95,9 @@ const THEMES = {
         '--color-secondary': '#a8a29e', // Stone
         '--color-accent': '#78716c',
         '--color-text': '#f5f5f4',
-        '--color-dim': '#57534e'
+        '--color-dim': '#57534e',
+        '--color-success': '#16a34a', // Forest Green
+        '--color-error': '#dc2626' // Dark Red
     },
     [ThemePreset.ROYAL]: {
         '--color-base': '#100c19',
@@ -102,7 +107,9 @@ const THEMES = {
         '--color-secondary': '#fbbf24', // Gold
         '--color-accent': '#e879f9',
         '--color-text': '#f3e8ff',
-        '--color-dim': '#6b21a8'
+        '--color-dim': '#6b21a8',
+        '--color-success': '#a1f65cff', // Violet
+        '--color-error': '#dc2626' // Dark Red
     },
     [ThemePreset.INDUSTRIAL]: {
         '--color-base': '#e5e5e5',
@@ -112,7 +119,9 @@ const THEMES = {
         '--color-secondary': '#eab308', // Caution Yellow
         '--color-accent': '#262626', // Dark Grey
         '--color-text': '#171717',
-        '--color-dim': '#737373'
+        '--color-dim': '#737373',
+        '--color-success': '#16a34a', // Forest Green
+        '--color-error': '#dc2626' // Dark Red
     },
     [ThemePreset.LABORATORY]: {
         '--color-base': '#f8fafc',
@@ -122,7 +131,9 @@ const THEMES = {
         '--color-secondary': '#64748b', // Slate
         '--color-accent': '#ec4899', // Pink
         '--color-text': '#0f172a',
-        '--color-dim': '#94a3b8'
+        '--color-dim': '#94a3b8',
+        '--color-success': '#059669', // Emerald
+        '--color-error': '#dc2626' // Dark Red
     }
 };
 
@@ -345,7 +356,7 @@ const App: React.FC = () => {
                                     V{pkg.version}
                                 </span>
                                 <span className="text-theme-dim text-[10px]">//</span>
-                                <span className={`text-[10px] font-mono ${isOnline ? 'text-green-500' : 'text-red-500'}`}>
+                                <span className={`text-[10px] font-mono ${isOnline ? 'text-theme-success' : 'text-theme-error'}`}>
                                     {isOnline ? 'ONLINE' : 'OFFLINE'}
                                 </span>
                             </div>

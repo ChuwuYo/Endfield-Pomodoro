@@ -17,6 +17,8 @@
   --color-theme-accent: var(--color-accent);
   --color-theme-text: var(--color-text);
   --color-theme-dim: var(--color-dim);
+  --color-theme-success: var(--color-success);
+  --color-theme-error: var(--color-error);
 
   /* 动画配置 */
   --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
