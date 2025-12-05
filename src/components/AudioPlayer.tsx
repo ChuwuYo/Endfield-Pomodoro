@@ -104,10 +104,10 @@ const AudioPlayer: React.FC<{
                 </div>
             )}
 
-            <div className={`flex flex-col h-full w-full ${audioSource === 'online' ? '' : 'hidden'}`}>
+            <div className={`flex flex-col h-full w-full ${audioSource === 'online' ? '' : 'invisible absolute inset-0 pointer-events-none'}`}>
                 <MusicPlayer config={musicConfig} language={language} enabled={audioSource === 'online'} />
             </div>
-            <div className={`flex flex-col h-full w-full relative ${audioSource === 'local' ? '' : 'hidden'}`}>
+            <div className={`flex flex-col h-full w-full relative ${audioSource === 'local' ? '' : 'invisible absolute inset-0 pointer-events-none'}`}>
                 <>
                     <input
                         type="file"
