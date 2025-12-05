@@ -108,6 +108,12 @@ export const translations = {
     CLEAR_ALL_TASKS: 'CLEAR ALL TASKS',
     RESET_SESSIONS: 'RESET CYCLES',
 
+    // PWA
+    pwa_update_available: 'New version available!',
+    pwa_update_now: 'UPDATE',
+    pwa_update_later: 'LATER',
+    pwa_offline: 'OFFLINE MODE',
+
     // Footer
     TOTAL_STUDY_TIME: 'SESSION OPERATION TIME',
     COPYRIGHT: '© 2025 ENDFIELD PROTOCOL. ALL RIGHTS RESERVED.',
@@ -220,6 +226,12 @@ export const translations = {
     DELETE_TASK: '删除任务',
     CLEAR_ALL_TASKS: '清除所有任务',
     RESET_SESSIONS: '重置完成周期',
+
+    // PWA
+    pwa_update_available: '发现新版本！',
+    pwa_update_now: '立即更新',
+    pwa_update_later: '稍后',
+    pwa_offline: '离线模式',
 
     // Footer
     TOTAL_STUDY_TIME: '本次累计作业时长',

@@ -7,6 +7,7 @@ import { Language, ThemePreset, TimerMode } from './types';
 import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './components/TerminalUI';
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
+import { PWAPrompt } from './components/PWAPrompt';
 import { useTranslation } from './utils/i18n';
 import { STORAGE_KEYS } from './constants';
 import pkg from '../package.json';
@@ -676,6 +677,9 @@ const App: React.FC = () => {
                     </div>
                 </div>
             </footer>
+
+            {/* PWA 更新提示 */}
+            <PWAPrompt t={t} />
         </div>
     );
 };
