@@ -7,7 +7,8 @@ import { STORAGE_KEYS, TOAST_DURATION_MS } from '../constants';
 import MusicPlayer from './MusicPlayer';
 import PlayerInterface from './PlayerInterface';
 import MessageDisplay from './MessageDisplay';
-import { useLocalPlayer, PlayMode } from '../hooks/useLocalPlayer';
+import { useLocalPlayer } from '../hooks/useLocalPlayer';
+import { PlayMode } from '../types';
 
 const AudioPlayer: React.FC<{
     language: Language;
@@ -56,7 +57,10 @@ const AudioPlayer: React.FC<{
             case PlayMode.SEQUENCE: return AudioMode.SEQUENTIAL;
             case PlayMode.LOOP: return AudioMode.REPEAT_ONE;
             case PlayMode.RANDOM: return AudioMode.SHUFFLE;
-            default: return AudioMode.SEQUENTIAL;
+            default:
+                // 使用类型断言确保所有情况都被处理
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                return ((_: never) => AudioMode.SEQUENTIAL)(mode);
         }
     };
 

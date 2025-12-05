@@ -17,8 +17,9 @@ export function PWAPrompt({ t }: PWAPromptProps) {
     // 清理定时器的 effect
     useEffect(() => {
         return () => {
-            if (intervalRef.current) {
+            if (intervalRef.current !== null) {
                 clearInterval(intervalRef.current);
+                intervalRef.current = null;
             }
         };
     }, []);
@@ -31,7 +32,9 @@ export function PWAPrompt({ t }: PWAPromptProps) {
             // 每小时检查一次更新
             if (r) {
                 // 清除之前的定时器（如果有）
-                if (intervalRef.current) clearInterval(intervalRef.current);
+                if (intervalRef.current !== null) {
+                    clearInterval(intervalRef.current);
+                }
                 intervalRef.current = window.setInterval(() => {
                     r.update();
                 }, 60 * 60 * 1000);
@@ -45,7 +48,12 @@ export function PWAPrompt({ t }: PWAPromptProps) {
     if (!needRefresh) return null;
 
     return (
-        <div className="fixed bottom-4 right-4 z-[9999] p-4 bg-theme-surface border border-theme-primary clip-path-slant shadow-lg max-w-xs">
+        <div
+            className="fixed bottom-4 right-4 z-[9999] p-4 bg-theme-surface border border-theme-primary clip-path-slant shadow-lg max-w-xs"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+        >
             <div className="flex items-start gap-3">
                 <i className="ri-refresh-line text-theme-primary text-xl flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">

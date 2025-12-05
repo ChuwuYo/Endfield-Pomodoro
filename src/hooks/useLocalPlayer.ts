@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { parseBlob } from 'music-metadata';
 import { AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
+import { PlayMode } from '../types';
 
 export interface LocalTrack {
     id: string;
@@ -11,13 +12,7 @@ export interface LocalTrack {
     coverUrl?: string;
 }
 
-export const PlayMode = {
-    SEQUENCE: 'sequence',
-    LOOP: 'loop',
-    RANDOM: 'random'
-} as const;
 
-export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
 export const useLocalPlayer = (enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);

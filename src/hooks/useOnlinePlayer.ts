@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
+import { PlayMode } from '../types';
 
 export interface Song {
     name: string;
@@ -9,13 +10,7 @@ export interface Song {
     lrc: string;
 }
 
-export const PlayMode = {
-    SEQUENCE: 'sequence',
-    LOOP: 'loop',
-    RANDOM: 'random'
-} as const;
 
-export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
 export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -29,14 +24,6 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
-
-    // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理资源
-    const playlistRef = useRef<Song[]>([]);
-
-    // 更新 ref 以保持与 prop 同步
-    useEffect(() => {
-        playlistRef.current = playlist;
-    }, [playlist]);
 
     // 切歌逻辑
     const handleNext = useCallback((isAuto: boolean = false) => {
@@ -172,7 +159,15 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
                     setIsPlaying(false);
                 });
             } else {
-                // 添加超时回退，如果 canplay 事件长时间未触发
+                // 添加 canplay 监听和超时回退
+                const onCanPlay = () => {
+                    audio.play().catch(err => {
+                        console.error("Playback failed:", err);
+                        setIsPlaying(false);
+                    });
+                };
+                audio.addEventListener('canplay', onCanPlay, { once: true });
+                
                 const timeoutId = setTimeout(() => {
                     if (audioRef.current && audioRef.current.readyState < 2) {
                         console.warn('Audio loading timeout');
@@ -180,7 +175,10 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
                     }
                 }, AUDIO_LOADING_TIMEOUT_MS);
 
-                return () => clearTimeout(timeoutId);
+                return () => {
+                    clearTimeout(timeoutId);
+                    audio.removeEventListener('canplay', onCanPlay);
+                };
             }
         } else {
             audio.pause();
@@ -228,6 +226,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
         if (audioRef.current) {
             const newTime = Math.max(0, Math.min(time, duration));
             audioRef.current.currentTime = newTime;
+            lastTimeRef.current = newTime;
             setCurrentTime(newTime);
         }
     };

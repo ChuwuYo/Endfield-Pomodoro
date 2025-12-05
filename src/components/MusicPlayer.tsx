@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useMetingData, type MetingAudio } from '../hooks/useMetingData';
-import { useOnlinePlayer, PlayMode } from '../hooks/useOnlinePlayer';
+import { useOnlinePlayer } from '../hooks/useOnlinePlayer';
+import { PlayMode } from '../types';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
 import PlayerInterface from './PlayerInterface';

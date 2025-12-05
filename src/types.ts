@@ -12,6 +12,13 @@ export const Language = {
 } as const;
 export type Language = typeof Language[keyof typeof Language];
 
+export const PlayMode = {
+  SEQUENCE: 'sequence',
+  LOOP: 'loop',
+  RANDOM: 'random'
+} as const;
+export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
+
 export const ThemePreset = {
   ORIGIN: 'ORIGIN',
   AZURE: 'AZURE',
