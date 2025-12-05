@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { NEXT_TRACK_RETRY_DELAY_MS } from '../constants';
 
 export interface Song {
@@ -17,7 +17,7 @@ export const PlayMode = {
 
 export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
-export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => {
+export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -28,9 +28,17 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
+    
+    // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理资源
+    const playlistRef = useRef<Song[]>([]);
+    
+    // 更新 ref 以保持与 prop 同步
+    useEffect(() => {
+        playlistRef.current = playlist;
+    }, [playlist]);
 
     // 切歌逻辑
-    const handleNext = (isAuto: boolean = false) => {
+    const handleNext = useCallback((isAuto: boolean = false) => {
         if (playlist.length === 0) return;
 
         let nextIndex = currentIndex;
@@ -53,7 +61,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
 
         setCurrentIndex(nextIndex);
         setIsPlaying(true);
-    };
+    }, [currentIndex, playMode, playlist.length]);
 
     useEffect(() => {
         handleNextRef.current = handleNext;
@@ -92,9 +100,18 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             audio.removeEventListener('canplay', handleCanPlay);
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('error', handleError);
+            
+            // 清理所有音频资源
+            playlistRef.current.forEach(song => {
+                if (song.url && song.url.startsWith('blob:')) {
+                    URL.revokeObjectURL(song.url);
+                }
+                if (song.cover && song.cover.startsWith('blob:')) {
+                    URL.revokeObjectURL(song.cover);
+                }
+            });
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [volume]);
 
     // 监听音量变化（独立effect）
     useEffect(() => {
@@ -102,6 +119,15 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             audioRef.current.volume = volume;
         }
     }, [volume]);
+
+    // 当禁用时暂停播放
+    useEffect(() => {
+        if (!enabled && audioRef.current) {
+            audioRef.current.pause();
+            // 使用 setTimeout 避免在 effect 中同步调用 setState
+            setTimeout(() => setIsPlaying(false), 0);
+        }
+    }, [enabled]);
 
     // 监听播放列表和索引变化
     useEffect(() => {

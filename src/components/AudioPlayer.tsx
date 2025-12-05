@@ -25,7 +25,7 @@ const AudioPlayer: React.FC<{
     });
 
     // 使用本地播放器 hook
-    const localPlayer = useLocalPlayer();
+    const localPlayer = useLocalPlayer(audioSource === 'local');
 
     // 持久化音频源选择
     useEffect(() => {
@@ -104,13 +104,11 @@ const AudioPlayer: React.FC<{
                 </div>
             )}
 
-            {audioSource === 'online' ? (
-                <div className="flex flex-col h-full w-full">
-                    <MusicPlayer config={musicConfig} language={language} />
-                </div>
-            ) : (
-                <div className="flex flex-col h-full w-full relative">
-                    <>
+            <div className={`flex flex-col h-full w-full ${audioSource === 'online' ? '' : 'hidden'}`}>
+                <MusicPlayer config={musicConfig} language={language} enabled={audioSource === 'online'} />
+            </div>
+            <div className={`flex flex-col h-full w-full relative ${audioSource === 'local' ? '' : 'hidden'}`}>
+                <>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -147,7 +145,7 @@ const AudioPlayer: React.FC<{
                             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
                                 <div className="absolute inset-0" onClick={() => setShowPlaylist(false)}></div>
 
-                                <div className="w-full max-w-md bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10" onClick={e => e.stopPropagation()}>
+                                <div className="w-full max-w-lg bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10" onClick={e => e.stopPropagation()}>
                                     <div className="flex items-center justify-between p-4 border-b border-theme-highlight bg-theme-surface/50">
                                         <h3 className="font-mono text-sm uppercase text-theme-primary tracking-widest">{t('PLAYLIST_COUNT')}</h3>
                                         <button
@@ -164,22 +162,30 @@ const AudioPlayer: React.FC<{
                                         ) : (
                                             <ul className="space-y-1">
                                                 {localPlayer.playlist.map((track, idx) => (
+
                                                     <li
                                                         key={idx}
-                                                        className={`flex items-center p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
+                                                        className={`flex items-start p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
                                                     >
                                                         <div
-                                                            className="flex items-center flex-1 min-w-0 cursor-pointer"
+                                                            className="flex items-start flex-1 min-w-0 cursor-pointer"
                                                             onClick={() => localPlayer.playTrack(idx)}
                                                         >
-                                                            <div className={`w-8 font-mono text-xs ${idx === localPlayer.currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
+                                                            <div className={`w-8 font-mono text-xs pt-0.5 flex-shrink-0 ${idx === localPlayer.currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
                                                                 {(idx + 1).toString().padStart(2, '0')}
                                                             </div>
-                                                            <div className={`flex-1 font-mono text-sm truncate ${idx === localPlayer.currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
-                                                                {track.name}
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className={`font-mono text-sm truncate ${idx === localPlayer.currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
+                                                                    {track.name}
+                                                                </div>
+                                                                {track.artist && (
+                                                                    <div className="font-mono text-xs text-theme-dim truncate mt-0.5">
+                                                                        {track.artist}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             {idx === localPlayer.currentIndex && localPlayer.isPlaying && (
-                                                                <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center">
+                                                                <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center flex-shrink-0">
                                                                     <i className="ri-rhythm-line text-base"></i>
                                                                 </span>
                                                             )}
@@ -189,7 +195,7 @@ const AudioPlayer: React.FC<{
                                                                 e.stopPropagation();
                                                                 localPlayer.removeTrack(idx);
                                                             }}
-                                                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
+                                                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0 self-center"
                                                             title={t('DELETE_TRACK')}
                                                         >
                                                             <i className="ri-close-line text-lg"></i>
@@ -224,8 +230,7 @@ const AudioPlayer: React.FC<{
                             document.body
                         )}
                     </>
-                </div>
-            )}
+            </div>
         </Panel>
     );
 };

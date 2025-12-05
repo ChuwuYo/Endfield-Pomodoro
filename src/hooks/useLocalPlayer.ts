@@ -17,9 +17,16 @@ export const PlayMode = {
 
 export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
-export const useLocalPlayer = () => {
+export const useLocalPlayer = (enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [playlist, setPlaylist] = useState<LocalTrack[]>([]);
+    // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理 Blob URL
+    const playlistRef = useRef<LocalTrack[]>([]);
+    
+    // 更新 ref 以保持与 state 同步
+    useEffect(() => {
+        playlistRef.current = playlist;
+    }, [playlist]);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [currentTime, setCurrentTime] = useState<number>(0);
@@ -148,6 +155,14 @@ export const useLocalPlayer = () => {
             audio.pause();
         }
     }, [isPlaying, currentIndex]);
+
+    // 当禁用时暂停播放
+    useEffect(() => {
+        if (!enabled && audioRef.current) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+        }
+    }, [enabled]);
 
     // 添加文件到播放列表
     const addFiles = useCallback(async (files: File[]) => {
@@ -298,12 +313,12 @@ export const useLocalPlayer = () => {
     // 组件卸载时清理所有 Blob URL
     useEffect(() => {
         return () => {
-            playlist.forEach(track => {
+            // 使用 ref 中的最新 playlist，而不是闭包中的初始空 playlist
+            playlistRef.current.forEach(track => {
                 URL.revokeObjectURL(track.blobUrl);
                 if (track.coverUrl) URL.revokeObjectURL(track.coverUrl);
             });
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const currentTrack = currentIndex >= 0 ? playlist[currentIndex] : null;

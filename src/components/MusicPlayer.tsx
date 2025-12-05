@@ -13,9 +13,10 @@ interface MusicPlayerProps {
         id: string;
     };
     language: Language;
+    enabled?: boolean;
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language }) => {
+const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language, enabled = true }) => {
     const t = useTranslation(language);
 
     const { audioList: metingData, loading: dataLoading, error: dataError } = useMetingData(config);
@@ -32,7 +33,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language }) => {
         }));
     }, [metingData]);
 
-    const player = useOnlinePlayer(playlist);
+    const player = useOnlinePlayer(playlist, false, enabled);
 
     // 映射 PlayMode 到 AudioMode
     const mapPlayMode = (mode: string): AudioMode => {
