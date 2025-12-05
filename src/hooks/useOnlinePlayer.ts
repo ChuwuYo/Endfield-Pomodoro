@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS } from '../constants';
+import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
 
 export interface Song {
     name: string;
@@ -19,6 +19,7 @@ export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
 export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const lastTimeRef = useRef(0);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [currentTime, setCurrentTime] = useState<number>(0);
@@ -73,7 +74,13 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
         // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
-        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const handleTimeUpdate = () => {
+            const time = audio.currentTime;
+            if (Math.abs(time - lastTimeRef.current) >= TIME_UPDATE_THROTTLE_SECONDS) {
+                lastTimeRef.current = time;
+                setCurrentTime(time);
+            }
+        };
         const handleLoadedMetadata = () => setDuration(audio.duration);
         const handleEnded = () => handleNextRef.current?.(true);
         const handleCanPlay = () => setIsLoading(false);

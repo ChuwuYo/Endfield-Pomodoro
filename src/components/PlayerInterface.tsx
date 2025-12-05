@@ -57,6 +57,15 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const [dragTime, setDragTime] = useState<number | null>(null);
     const [dragVolume, setDragVolume] = useState<number | null>(null);
 
+    // 用 ref 保存回调和 duration，避免事件监听器频繁重建
+    const onSeekRef = useRef(onSeek);
+    const onVolumeChangeRef = useRef(onVolumeChange);
+    const durationRef = useRef(duration);
+
+    useEffect(() => { onSeekRef.current = onSeek; }, [onSeek]);
+    useEffect(() => { onVolumeChangeRef.current = onVolumeChange; }, [onVolumeChange]);
+    useEffect(() => { durationRef.current = duration; }, [duration]);
+
     // 同步保存非零音量值到 ref
     useEffect(() => {
         if (volume > 0) {
@@ -78,10 +87,10 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
             e.preventDefault();
 
             // 进度条拖拽
-            if (isDraggingRef.current && progressBarRef.current && duration > 0) {
+            if (isDraggingRef.current && progressBarRef.current && durationRef.current > 0) {
                 const rect = progressBarRef.current.getBoundingClientRect();
                 const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                const newTime = (clickX / rect.width) * duration;
+                const newTime = (clickX / rect.width) * durationRef.current;
                 setDragTime(newTime);
             }
 
@@ -96,16 +105,21 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
 
         const handleGlobalMouseUp = () => {
             // 进度条释放
-            if (isDraggingRef.current && dragTime !== null) {
-                onSeek(dragTime);
-                setDragTime(null);
+            if (isDraggingRef.current) {
+                // 使用函数式更新获取最新 dragTime
+                setDragTime(prev => {
+                    if (prev !== null) onSeekRef.current(prev);
+                    return null;
+                });
             }
             isDraggingRef.current = false;
 
             // 音量条释放
-            if (isVolumeDraggingRef.current && dragVolume !== null) {
-                onVolumeChange(dragVolume);
-                setDragVolume(null);
+            if (isVolumeDraggingRef.current) {
+                setDragVolume(prev => {
+                    if (prev !== null) onVolumeChangeRef.current(prev);
+                    return null;
+                });
             }
             isVolumeDraggingRef.current = false;
         };
@@ -116,7 +130,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
             window.removeEventListener('mousemove', handleGlobalMouseMove);
             window.removeEventListener('mouseup', handleGlobalMouseUp);
         };
-    }, [duration, dragTime, dragVolume, onSeek, onVolumeChange]);
+    }, []); // 空依赖，只挂载一次
 
     const displayTime = dragTime !== null ? dragTime : currentTime;
     const displayVolume = dragVolume !== null ? dragVolume : volume;

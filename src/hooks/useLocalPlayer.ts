@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { parseBlob } from 'music-metadata';
-import { AUDIO_LOADING_TIMEOUT_MS } from '../constants';
+import { AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
 
 export interface LocalTrack {
     file: File;
@@ -20,6 +20,7 @@ export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
 export const useLocalPlayer = (enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const lastTimeRef = useRef(0);
     const [playlist, setPlaylist] = useState<LocalTrack[]>([]);
     // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理 Blob URL
     const playlistRef = useRef<LocalTrack[]>([]);
@@ -78,7 +79,13 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
-        const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const onTimeUpdate = () => {
+            const time = audio.currentTime;
+            if (Math.abs(time - lastTimeRef.current) >= TIME_UPDATE_THROTTLE_SECONDS) {
+                lastTimeRef.current = time;
+                setCurrentTime(time);
+            }
+        };
         const onLoadedMetadata = () => {
             setDuration(audio.duration);
             setIsLoading(false);
