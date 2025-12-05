@@ -39,9 +39,9 @@ const AudioPlayer: React.FC<{
     // 离线时自动切换到本地模式，在线时显示提示
     useEffect(() => {
         if (!isOnline && audioSource === 'online') {
-            setAudioSource('local');
+            queueMicrotask(() => setAudioSource('local'));
         } else if (isOnline && !prevOnlineRef.current && audioSource === 'local') {
-            setShowOnlineToast(true);
+            queueMicrotask(() => setShowOnlineToast(true));
             const timer = setTimeout(() => setShowOnlineToast(false), TOAST_DURATION_MS);
             return () => clearTimeout(timer);
         }
@@ -109,127 +109,128 @@ const AudioPlayer: React.FC<{
             </div>
             <div className={`flex flex-col h-full w-full relative ${audioSource === 'local' ? '' : 'hidden'}`}>
                 <>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            accept="audio/*"
-                            multiple
-                            className="hidden"
-                        />
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="audio/*"
+                        multiple
+                        className="hidden"
+                    />
 
-                        <PlayerInterface
-                            isPlaying={localPlayer.isPlaying}
-                            currentTime={localPlayer.currentTime}
-                            duration={localPlayer.duration}
-                            volume={localPlayer.volume}
-                            currentTrackName={localPlayer.currentTrack?.name ?? null}
-                            currentArtist={localPlayer.currentTrack?.artist}
-                            coverUrl={localPlayer.currentTrack?.coverUrl}
-                            playlistCount={localPlayer.playlist.length}
-                            currentIndex={localPlayer.currentIndex}
-                            playMode={mapPlayMode(localPlayer.playMode)}
-                            language={language}
-                            isLoading={localPlayer.isLoading}
-                            onPlayPause={localPlayer.togglePlay}
-                            onNext={localPlayer.handleNext}
-                            onPrev={localPlayer.handlePrev}
-                            onSeek={localPlayer.seek}
-                            onVolumeChange={localPlayer.setVolume}
-                            onModeToggle={localPlayer.toggleMode}
-                            onPlaylistToggle={() => setShowPlaylist(true)}
-                        />
+                    <PlayerInterface
+                        isPlaying={localPlayer.isPlaying}
+                        currentTime={localPlayer.currentTime}
+                        duration={localPlayer.duration}
+                        volume={localPlayer.volume}
+                        currentTrackName={localPlayer.currentTrack?.name ?? null}
+                        currentArtist={localPlayer.currentTrack?.artist}
+                        coverUrl={localPlayer.currentTrack?.coverUrl}
+                        playlistCount={localPlayer.playlist.length}
+                        currentIndex={localPlayer.currentIndex}
+                        playMode={mapPlayMode(localPlayer.playMode)}
+                        language={language}
+                        isLoading={localPlayer.isLoading}
+                        onPlayPause={localPlayer.togglePlay}
+                        onNext={localPlayer.handleNext}
+                        onPrev={localPlayer.handlePrev}
+                        onSeek={localPlayer.seek}
+                        onVolumeChange={localPlayer.setVolume}
+                        onModeToggle={localPlayer.toggleMode}
+                        onPlaylistToggle={() => setShowPlaylist(true)}
+                    />
 
-                        {/* 播放列表弹出模态框 */}
-                        {showPlaylist && createPortal(
-                            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
-                                <div className="absolute inset-0" onClick={() => setShowPlaylist(false)}></div>
+                    {/* 播放列表弹出模态框 */}
+                    {showPlaylist && createPortal(
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+                            <div className="absolute inset-0" onClick={() => setShowPlaylist(false)}></div>
 
-                                <div className="w-full max-w-lg bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10" onClick={e => e.stopPropagation()}>
-                                    <div className="flex items-center justify-between p-4 border-b border-theme-highlight bg-theme-surface/50">
-                                        <h3 className="font-mono text-sm uppercase text-theme-primary tracking-widest">{t('PLAYLIST_COUNT')}</h3>
-                                        <button
-                                            onClick={() => setShowPlaylist(false)}
-                                            className="text-theme-dim hover:text-theme-primary p-1"
-                                        >
-                                            <i className="ri-close-line text-xl"></i>
-                                        </button>
-                                    </div>
+                            <div className="w-full max-w-lg bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between p-4 border-b border-theme-highlight bg-theme-surface/50">
+                                    <h3 className="font-mono text-sm uppercase text-theme-primary tracking-widest">{t('PLAYLIST_COUNT')}</h3>
+                                    <button
+                                        onClick={() => setShowPlaylist(false)}
+                                        className="text-theme-dim hover:text-theme-primary p-1"
+                                    >
+                                        <i className="ri-close-line text-xl"></i>
+                                    </button>
+                                </div>
 
-                                    <div className="overflow-y-auto p-2 custom-scrollbar flex-1 bg-black/20">
-                                        {localPlayer.playlist.length === 0 ? (
-                                            <div className="text-center p-8 text-theme-dim font-mono text-xs">{t('NO_TRACK')}</div>
-                                        ) : (
-                                            <ul className="space-y-1">
-                                                {localPlayer.playlist.map((track, idx) => (
+                                <div className="overflow-y-auto p-2 custom-scrollbar flex-1 bg-black/20">
+                                    {localPlayer.playlist.length === 0 ? (
+                                        <div className="text-center p-8 text-theme-dim font-mono text-xs">{t('NO_TRACK')}</div>
+                                    ) : (
+                                        <ul className="space-y-1">
+                                            {localPlayer.playlist.map((track, idx) => (
 
-                                                    <li
-                                                        key={idx}
-                                                        className={`flex items-start p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
+                                                <li
+                                                    key={idx}
+                                                    className={`flex items-start p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
+                                                >
+                                                    <div
+                                                        className="flex items-start flex-1 min-w-0 cursor-pointer"
+                                                        onClick={() => localPlayer.playTrack(idx)}
                                                     >
-                                                        <div
-                                                            className="flex items-start flex-1 min-w-0 cursor-pointer"
-                                                            onClick={() => localPlayer.playTrack(idx)}
-                                                        >
-                                                            <div className={`w-8 font-mono text-xs pt-0.5 flex-shrink-0 ${idx === localPlayer.currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
-                                                                {(idx + 1).toString().padStart(2, '0')}
+                                                        <div className={`w-8 font-mono text-xs pt-0.5 flex-shrink-0 ${idx === localPlayer.currentIndex ? 'text-theme-primary font-bold' : 'text-theme-dim'}`}>
+                                                            {(idx + 1).toString().padStart(2, '0')}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className={`font-mono text-sm truncate ${idx === localPlayer.currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
+                                                                {track.name}
                                                             </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className={`font-mono text-sm truncate ${idx === localPlayer.currentIndex ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'}`}>
-                                                                    {track.name}
+                                                            {track.artist && (
+                                                                <div className="font-mono text-xs text-theme-dim truncate mt-0.5">
+                                                                    {track.artist}
                                                                 </div>
-                                                                {track.artist && (
-                                                                    <div className="font-mono text-xs text-theme-dim truncate mt-0.5">
-                                                                        {track.artist}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {idx === localPlayer.currentIndex && localPlayer.isPlaying && (
-                                                                <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center flex-shrink-0">
-                                                                    <i className="ri-rhythm-line text-base"></i>
-                                                                </span>
                                                             )}
                                                         </div>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                localPlayer.removeTrack(idx);
-                                                            }}
-                                                            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0 self-center"
-                                                            title={t('DELETE_TRACK')}
-                                                        >
-                                                            <i className="ri-close-line text-lg"></i>
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-
-                                    <div className="p-4 border-t border-theme-highlight bg-theme-surface/50 flex justify-end gap-3">
-                                        <div className="text-[10px] text-theme-dim self-center mr-auto">
-                                            {localPlayer.playlist.length} {t('FILES_LOADED')}
-                                        </div>
-                                        <button
-                                            onClick={localPlayer.clearPlaylist}
-                                            className="text-xs font-mono px-3 py-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                                            disabled={localPlayer.playlist.length === 0}
-                                        >
-                                            {t('CLEAR')}
-                                        </button>
-                                        <button
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="text-xs font-mono border border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-black px-4 py-1 transition-all uppercase flex items-center gap-1"
-                                        >
-                                            <i className="ri-add-line text-base"></i>
-                                            {t('ADD_TRACKS')}
-                                        </button>
-                                    </div>
+                                                        {idx === localPlayer.currentIndex && localPlayer.isPlaying && (
+                                                            <span className="text-xs text-theme-primary animate-pulse ml-2 flex items-center flex-shrink-0">
+                                                                <i className="ri-rhythm-line text-base"></i>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            localPlayer.removeTrack(idx);
+                                                        }}
+                                                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0 self-center"
+                                                        title={t('DELETE_TRACK')}
+                                                    >
+                                                        <i className="ri-close-line text-lg"></i>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </div>
-                            </div>,
-                            document.body
-                        )}
-                    </>
+
+                                <div className="p-4 border-t border-theme-highlight bg-theme-surface/50 flex justify-end gap-3">
+                                    <div className="text-[10px] text-theme-dim self-center mr-auto">
+                                        {localPlayer.playlist.length} {t('FILES_LOADED')}
+                                        <div className="text-[9px]">{t('DUPLICATE_SKIP_HINT')}</div>
+                                    </div>
+                                    <button
+                                        onClick={localPlayer.clearPlaylist}
+                                        className="text-xs font-mono px-3 py-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                        disabled={localPlayer.playlist.length === 0}
+                                    >
+                                        {t('CLEAR')}
+                                    </button>
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="text-xs font-mono border border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-black px-4 py-1 transition-all uppercase flex items-center gap-1"
+                                    >
+                                        <i className="ri-add-line text-base"></i>
+                                        {t('ADD_TRACKS')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>,
+                        document.body
+                    )}
+                </>
             </div>
         </Panel>
     );

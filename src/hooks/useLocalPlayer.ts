@@ -181,6 +181,18 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         const newTracks: LocalTrack[] = [];
 
         for (const file of files) {
+            // 检查是否已存在相同文件
+            const isDuplicate = playlistRef.current.some(track => 
+                track.file.name === file.name &&
+                track.file.size === file.size &&
+                track.file.lastModified === file.lastModified
+            );
+            
+            if (isDuplicate) {
+                console.warn(`Skip duplicate file: ${file.name}`);
+                continue;
+            }
+            
             const blobUrl = URL.createObjectURL(file);
             let coverUrl: string | undefined;
             let artist: string | undefined;

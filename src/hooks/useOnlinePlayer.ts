@@ -151,7 +151,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
                         await audio.play();
                     }
                 } catch (err) {
-                    console.error("播放失败:", err);
+                    console.error("Playback failed:", err);
                     setIsPlaying(false);
                 }
             };
@@ -168,7 +168,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
         if (isPlaying) {
             if (audio.readyState >= 2) {
                 audio.play().catch(err => {
-                    console.error("播放失败:", err);
+                    console.error("Playback failed:", err);
                     setIsPlaying(false);
                 });
             } else {
@@ -199,7 +199,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => setIsPlaying(true))
-                    .catch(err => console.error("播放失败:", err));
+                    .catch(err => console.error("Playback failed:", err));
             }
         }
     };
