@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { parseBlob } from 'music-metadata';
+import { AUDIO_LOADING_TIMEOUT_MS } from '../constants';
 
 export interface LocalTrack {
     file: File;
@@ -74,7 +75,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     // 初始化 Audio 对象（只执行一次）
     useEffect(() => {
         const audio = new Audio();
-        audio.volume = volume;
+        // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
         const onTimeUpdate = () => setCurrentTime(audio.currentTime);
@@ -107,7 +108,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             audio.removeEventListener('waiting', onWaiting);
             audio.removeEventListener('error', onError);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // 监听音量变化
@@ -128,7 +128,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         // 只在 URL 真正变化时才重新加载
         if (audio.src !== track.blobUrl) {
             const wasPlaying = isPlaying;
-            setIsLoading(true);
+            // 使用 queueMicrotask 避免同步更新状态
+            queueMicrotask(() => setIsLoading(true));
             audio.src = track.blobUrl;
             audio.load();
 
@@ -151,6 +152,16 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 console.error('Playback failed:', err);
                 setIsPlaying(false);
             });
+        } else if (isPlaying && audio.readyState < 2) {
+            // 添加超时回退，如果 canplay 事件长时间未触发
+            const timeoutId = setTimeout(() => {
+                if (audioRef.current && audioRef.current.readyState < 2) {
+                    console.warn('Audio loading timeout');
+                    setIsPlaying(false);
+                }
+            }, AUDIO_LOADING_TIMEOUT_MS);
+            
+            return () => clearTimeout(timeoutId);
         } else if (!isPlaying && !audio.paused) {
             audio.pause();
         }
@@ -160,7 +171,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     useEffect(() => {
         if (!enabled && audioRef.current) {
             audioRef.current.pause();
-            setIsPlaying(false);
+            // 使用 queueMicrotask 避免同步更新状态
+            queueMicrotask(() => setIsPlaying(false));
         }
     }, [enabled]);
 

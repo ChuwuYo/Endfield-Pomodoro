@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { NEXT_TRACK_RETRY_DELAY_MS } from '../constants';
+import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS } from '../constants';
 
 export interface Song {
     name: string;
@@ -28,10 +28,10 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
-    
+
     // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理资源
     const playlistRef = useRef<Song[]>([]);
-    
+
     // 更新 ref 以保持与 prop 同步
     useEffect(() => {
         playlistRef.current = playlist;
@@ -70,7 +70,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
     // 初始化 Audio 对象（只执行一次）
     useEffect(() => {
         const audio = new Audio();
-        audio.volume = volume;
+        // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
         const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
@@ -100,7 +100,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
             audio.removeEventListener('canplay', handleCanPlay);
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('error', handleError);
-            
+
             // 清理所有音频资源
             playlistRef.current.forEach(song => {
                 if (song.url && song.url.startsWith('blob:')) {
@@ -111,7 +111,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
                 }
             });
         };
-    }, [volume]);
+    }, []);
 
     // 监听音量变化（独立effect）
     useEffect(() => {
@@ -124,8 +124,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
     useEffect(() => {
         if (!enabled && audioRef.current) {
             audioRef.current.pause();
-            // 使用 setTimeout 避免在 effect 中同步调用 setState
-            setTimeout(() => setIsPlaying(false), 0);
+            queueMicrotask(() => setIsPlaying(false));
         }
     }, [enabled]);
 
@@ -139,9 +138,9 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
 
         if (audio.src !== currentSong.url) {
             const wasPlaying = isPlaying;
-            
+
             audio.src = currentSong.url;
-            
+
             const loadAndPlay = async () => {
                 try {
                     setIsLoading(true);
@@ -167,10 +166,22 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
         if (!audio || playlist.length === 0) return;
 
         if (isPlaying) {
-            audio.play().catch(err => {
-                console.error("播放失败:", err);
-                setIsPlaying(false);
-            });
+            if (audio.readyState >= 2) {
+                audio.play().catch(err => {
+                    console.error("播放失败:", err);
+                    setIsPlaying(false);
+                });
+            } else {
+                // 添加超时回退，如果 canplay 事件长时间未触发
+                const timeoutId = setTimeout(() => {
+                    if (audioRef.current && audioRef.current.readyState < 2) {
+                        console.warn('Audio loading timeout');
+                        setIsPlaying(false);
+                    }
+                }, AUDIO_LOADING_TIMEOUT_MS);
+
+                return () => clearTimeout(timeoutId);
+            }
         } else {
             audio.pause();
         }
