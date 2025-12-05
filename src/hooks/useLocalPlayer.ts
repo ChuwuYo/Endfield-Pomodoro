@@ -156,15 +156,25 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 setIsPlaying(false);
             });
         } else if (isPlaying && audio.readyState < 2) {
-            // 添加超时回退，如果 canplay 事件长时间未触发
+            const onCanPlay = () => {
+                audio.play().catch(err => {
+                    console.error('Playback failed:', err);
+                    setIsPlaying(false);
+                });
+            };
+            audio.addEventListener('canplay', onCanPlay, { once: true });
+
             const timeoutId = setTimeout(() => {
                 if (audioRef.current && audioRef.current.readyState < 2) {
                     console.warn('Audio loading timeout');
                     setIsPlaying(false);
                 }
             }, AUDIO_LOADING_TIMEOUT_MS);
-            
-            return () => clearTimeout(timeoutId);
+
+            return () => {
+                clearTimeout(timeoutId);
+                audio.removeEventListener('canplay', onCanPlay);
+            };
         } else if (!isPlaying && !audio.paused) {
             audio.pause();
         }

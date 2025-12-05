@@ -47,7 +47,7 @@ const THEMES = {
         '--color-primary': '#ea580c', // Orange
         '--color-secondary': '#fbbf24', // Amber
         '--color-accent': '#06b6d4', // Cyan
-        '--color-text': '#e4e4e7',
+        '--color-text': '#fcf8deff',
         '--color-dim': '#71717a',
         '--color-success': '#22c55e', // Green
         '--color-error': '#ef4444' // Red
@@ -95,7 +95,7 @@ const THEMES = {
         '--color-primary': '#d97706', // Amber 600
         '--color-secondary': '#a8a29e', // Stone
         '--color-accent': '#78716c',
-        '--color-text': '#f5f5f4',
+        '--color-text': '#f6f6dfff',
         '--color-dim': '#57534e',
         '--color-success': '#16a34a', // Forest Green
         '--color-error': '#dc2626' // Dark Red
