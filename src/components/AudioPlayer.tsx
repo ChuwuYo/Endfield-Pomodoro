@@ -57,10 +57,10 @@ const AudioPlayer: React.FC<{
             case PlayMode.SEQUENCE: return AudioMode.SEQUENTIAL;
             case PlayMode.LOOP: return AudioMode.REPEAT_ONE;
             case PlayMode.RANDOM: return AudioMode.SHUFFLE;
-            default:
-                // 使用类型断言确保所有情况都被处理
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                return ((_: never) => AudioMode.SEQUENTIAL)(mode);
+            default: {
+                const exhaustiveCheck: never = mode;
+                return exhaustiveCheck;
+            }
         }
     };
 

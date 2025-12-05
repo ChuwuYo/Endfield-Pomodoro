@@ -74,7 +74,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
         const handleWaiting = () => setIsLoading(true);
         const handleError = () => {
             setIsLoading(false);
-            setError('加载失败');
+            setError('Load failed');
             setTimeout(() => handleNextRef.current?.(true), NEXT_TRACK_RETRY_DELAY_MS);
         };
 
