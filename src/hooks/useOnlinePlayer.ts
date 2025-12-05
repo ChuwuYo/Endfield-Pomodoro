@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { NEXT_TRACK_RETRY_DELAY_MS } from '../constants';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
+import { PlayMode } from '../types';
 
 export interface Song {
     name: string;
@@ -9,16 +10,11 @@ export interface Song {
     lrc: string;
 }
 
-export const PlayMode = {
-    SEQUENCE: 'sequence',
-    LOOP: 'loop',
-    RANDOM: 'random'
-} as const;
 
-export type PlayMode = typeof PlayMode[keyof typeof PlayMode];
 
-export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => {
+export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const lastTimeRef = useRef(0);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [currentTime, setCurrentTime] = useState<number>(0);
@@ -30,7 +26,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
 
     // 切歌逻辑
-    const handleNext = (isAuto: boolean = false) => {
+    const handleNext = useCallback((isAuto: boolean = false) => {
         if (playlist.length === 0) return;
 
         let nextIndex = currentIndex;
@@ -53,7 +49,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
 
         setCurrentIndex(nextIndex);
         setIsPlaying(true);
-    };
+    }, [currentIndex, playMode, playlist.length]);
 
     useEffect(() => {
         handleNextRef.current = handleNext;
@@ -62,17 +58,23 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
     // 初始化 Audio 对象（只执行一次）
     useEffect(() => {
         const audio = new Audio();
-        audio.volume = volume;
+        // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
-        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const handleTimeUpdate = () => {
+            const time = audio.currentTime;
+            if (Math.abs(time - lastTimeRef.current) >= TIME_UPDATE_THROTTLE_SECONDS) {
+                lastTimeRef.current = time;
+                setCurrentTime(time);
+            }
+        };
         const handleLoadedMetadata = () => setDuration(audio.duration);
         const handleEnded = () => handleNextRef.current?.(true);
         const handleCanPlay = () => setIsLoading(false);
         const handleWaiting = () => setIsLoading(true);
         const handleError = () => {
             setIsLoading(false);
-            setError('加载失败');
+            setError('Load failed');
             setTimeout(() => handleNextRef.current?.(true), NEXT_TRACK_RETRY_DELAY_MS);
         };
 
@@ -92,8 +94,10 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             audio.removeEventListener('canplay', handleCanPlay);
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('error', handleError);
+
+            // 注意：在线播放器的歌曲 URL 来自 Meting API，不是 blob URL，因此不需要清理
+            // 保留此注释是为了提醒未来开发者，如果在线播放器开始支持 blob URL，需要添加相应的清理逻辑
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // 监听音量变化（独立effect）
@@ -102,6 +106,14 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             audioRef.current.volume = volume;
         }
     }, [volume]);
+
+    // 当禁用时暂停播放
+    useEffect(() => {
+        if (!enabled && audioRef.current) {
+            audioRef.current.pause();
+            queueMicrotask(() => setIsPlaying(false));
+        }
+    }, [enabled]);
 
     // 监听播放列表和索引变化
     useEffect(() => {
@@ -113,9 +125,9 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
 
         if (audio.src !== currentSong.url) {
             const wasPlaying = isPlaying;
-            
+
             audio.src = currentSong.url;
-            
+
             const loadAndPlay = async () => {
                 try {
                     setIsLoading(true);
@@ -126,7 +138,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
                         await audio.play();
                     }
                 } catch (err) {
-                    console.error("播放失败:", err);
+                    console.error("Playback failed:", err);
                     setIsPlaying(false);
                 }
             };
@@ -141,10 +153,33 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
         if (!audio || playlist.length === 0) return;
 
         if (isPlaying) {
-            audio.play().catch(err => {
-                console.error("播放失败:", err);
-                setIsPlaying(false);
-            });
+            if (audio.readyState >= 2) {
+                audio.play().catch(err => {
+                    console.error("Playback failed:", err);
+                    setIsPlaying(false);
+                });
+            } else {
+                // 添加 canplay 监听和超时回退
+                const onCanPlay = () => {
+                    audio.play().catch(err => {
+                        console.error("Playback failed:", err);
+                        setIsPlaying(false);
+                    });
+                };
+                audio.addEventListener('canplay', onCanPlay, { once: true });
+                
+                const timeoutId = setTimeout(() => {
+                    if (audioRef.current && audioRef.current.readyState < 2) {
+                        console.warn('Audio loading timeout');
+                        setIsPlaying(false);
+                    }
+                }, AUDIO_LOADING_TIMEOUT_MS);
+
+                return () => {
+                    clearTimeout(timeoutId);
+                    audio.removeEventListener('canplay', onCanPlay);
+                };
+            }
         } else {
             audio.pause();
         }
@@ -162,7 +197,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => setIsPlaying(true))
-                    .catch(err => console.error("播放失败:", err));
+                    .catch(err => console.error("Playback failed:", err));
             }
         }
     };
@@ -191,6 +226,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false) => 
         if (audioRef.current) {
             const newTime = Math.max(0, Math.min(time, duration));
             audioRef.current.currentTime = newTime;
+            lastTimeRef.current = newTime;
             setCurrentTime(newTime);
         }
     };
