@@ -3,6 +3,7 @@ import { parseBlob } from 'music-metadata';
 import { AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
 
 export interface LocalTrack {
+    id: string;
     file: File;
     name: string;
     artist?: string;
@@ -221,7 +222,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 console.warn('Failed to extract metadata:', error);
             }
 
+            // 生成基于文件特征的确定性 ID
+            const trackId = `${file.name}-${file.size}-${file.lastModified}`;
+            
             newTracks.push({
+                id: trackId,
                 file,
                 name: title,
                 artist,

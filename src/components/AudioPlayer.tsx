@@ -164,7 +164,7 @@ const AudioPlayer: React.FC<{
                                             {localPlayer.playlist.map((track, idx) => (
 
                                                 <li
-                                                    key={idx}
+                                                    key={track.id}
                                                     className={`flex items-start p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? 'bg-theme-primary/10 border-theme-primary/30' : ''}`}
                                                 >
                                                     <div

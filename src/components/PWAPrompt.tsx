@@ -9,7 +9,7 @@ interface PWAPromptProps {
 
 /**
  * PWA 更新提示组件
- * 当检测到新版本时显示更新提示，让用户选择立即更新或稀后
+ * 当检测到新版本时显示更新提示，让用户选择立即更新或稍后
  */
 export function PWAPrompt({ t }: PWAPromptProps) {
     const intervalRef = useRef<number | null>(null);

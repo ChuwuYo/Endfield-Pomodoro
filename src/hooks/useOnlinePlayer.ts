@@ -108,15 +108,8 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('error', handleError);
 
-            // 清理所有音频资源
-            playlistRef.current.forEach(song => {
-                if (song.url && song.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(song.url);
-                }
-                if (song.cover && song.cover.startsWith('blob:')) {
-                    URL.revokeObjectURL(song.cover);
-                }
-            });
+            // 注意：在线播放器的歌曲 URL 来自 Meting API，不是 blob URL，因此不需要清理
+            // 保留此注释是为了提醒未来开发者，如果在线播放器开始支持 blob URL，需要添加相应的清理逻辑
         };
     }, []);
 
