@@ -39,6 +39,8 @@
   --color-accent: #262626;
   --color-text: #171717;
   --color-dim: #737373;
+  --color-success: #16a34a;
+  --color-error: #dc2626;
 }
 
 /* 基础样式 */
