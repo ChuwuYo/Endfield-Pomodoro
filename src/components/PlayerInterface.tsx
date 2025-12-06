@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
+import { SECONDS_PER_MINUTE } from '../constants';
 
 export interface PlayerInterfaceProps {
     // 状态
@@ -76,8 +77,8 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     // 格式化时间
     const formatTime = (seconds: number) => {
         if (isNaN(seconds) || !isFinite(seconds)) return '00:00';
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
+        const mins = Math.floor(seconds / SECONDS_PER_MINUTE);
+        const secs = Math.floor(seconds % SECONDS_PER_MINUTE);
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 

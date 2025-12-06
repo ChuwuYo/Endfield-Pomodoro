@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { METING_API_BASE_URL } from '../constants';
+import { METING_API_BASE_URL, API_FETCH_DELAY_MS } from '../constants';
 
 export interface MetingAudio {
     name: string;
@@ -62,7 +62,7 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
             // 短暂延迟以允许 UI 先渲染，减少初始加载卡顿
             const timeoutId = setTimeout(() => {
                 fetchMetingData();
-            }, 100);
+            }, API_FETCH_DELAY_MS);
 
             return () => clearTimeout(timeoutId);
         }

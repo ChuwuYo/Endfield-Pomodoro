@@ -49,6 +49,7 @@ export default defineConfig({
         lang: 'zh-CN'
       },
       workbox: {
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [

@@ -9,7 +9,7 @@ import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { PWAPrompt } from './components/PWAPrompt';
 import { useTranslation } from './utils/i18n';
-import { STORAGE_KEYS, MS_PER_SECOND } from './constants';
+import { STORAGE_KEYS, MS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from './constants';
 import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -235,9 +235,9 @@ const App: React.FC = () => {
 
         if (document.hidden && isTimerRunning && remainingSeconds != null) {
             const remaining = Math.max(0, remainingSeconds);
-            const h = Math.floor(remaining / 3600);
-            const m = Math.floor((remaining % 3600) / 60);
-            const s = remaining % 60;
+            const h = Math.floor(remaining / SECONDS_PER_HOUR);
+            const m = Math.floor((remaining % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+            const s = remaining % SECONDS_PER_MINUTE;
             const fmt = h > 0
                 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
                 : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -320,9 +320,9 @@ const App: React.FC = () => {
         ? Math.floor((now.getTime() - currentSessionStart) / MS_PER_SECOND)
         : elapsedSeconds;
     const totalSeconds = persistedTotalSeconds + currentSessionElapsed;
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+    const hours = Math.floor(totalSeconds / SECONDS_PER_HOUR);
+    const minutes = Math.floor((totalSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    const seconds = totalSeconds % SECONDS_PER_MINUTE;
 
     return (
         <div className="h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
@@ -632,7 +632,7 @@ const App: React.FC = () => {
                                     setRemainingMode(mode);
 
                                     if (mode === TimerMode.WORK) {
-                                        const totalWorkSeconds = settings.workDuration * 60;
+                                        const totalWorkSeconds = settings.workDuration * SECONDS_PER_MINUTE;
                                         const newElapsed = totalWorkSeconds - timeLeft;
                                         setElapsedSeconds(newElapsed);
 
