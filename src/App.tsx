@@ -518,21 +518,23 @@ const App: React.FC = () => {
                                         />
                                         <Checkbox
                                             checked={settings.notificationsEnabled}
-                                            onChange={(checked) => {
-                                                if (checked && 'Notification' in window) {
-                                                    if (Notification.permission === 'granted') {
-                                                        setSettings(prev => ({ ...prev, notificationsEnabled: true }));
-                                                    } else if (Notification.permission === 'denied') {
-                                                        alert(t('NOTIFICATION_PERMISSION_DENIED'));
-                                                        setSettings(prev => ({ ...prev, notificationsEnabled: false }));
-                                                    } else {
-                                                        Notification.requestPermission().then(permission => {
-                                                            setSettings(prev => ({ ...prev, notificationsEnabled: permission === 'granted' }));
-                                                        });
-                                                    }
-                                                } else {
+                                            onChange={async (checked) => {
+                                                if (!checked || !('Notification' in window)) {
                                                     setSettings(prev => ({ ...prev, notificationsEnabled: false }));
+                                                    return;
                                                 }
+
+                                                let permission = Notification.permission;
+                                                if (permission === 'default') {
+                                                    permission = await Notification.requestPermission();
+                                                }
+
+                                                if (permission === 'denied') {
+                                                    // TODO: 使用 alert 会阻塞 UI，未来可替换为非阻塞的 Toast/Message 组件
+                                                    alert(t('NOTIFICATION_PERMISSION_DENIED'));
+                                                }
+
+                                                setSettings(prev => ({ ...prev, notificationsEnabled: permission === 'granted' }));
                                             }}
                                             label={t('NOTIFICATIONS_ENABLED')}
                                         />
