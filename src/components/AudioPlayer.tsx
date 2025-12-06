@@ -109,7 +109,7 @@ const AudioPlayer: React.FC<{
             )}
 
             {audioSource === 'online' ? (
-                <MusicPlayer config={musicConfig} language={language} enabled={audioSource === 'online'} />
+                <MusicPlayer config={musicConfig} language={language} enabled />
             ) : (
                 <>
                     <input

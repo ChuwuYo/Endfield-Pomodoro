@@ -161,7 +161,12 @@ const App: React.FC = () => {
             try {
                 const parsed = JSON.parse(saved);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                    return { ...DEFAULT_SETTINGS, ...parsed };
+                    const loadedSettings = { ...DEFAULT_SETTINGS, ...parsed };
+                    // 检测通知权限被撤销时自动取消勾选
+                    if (loadedSettings.notificationsEnabled && 'Notification' in window && Notification.permission === 'denied') {
+                        loadedSettings.notificationsEnabled = false;
+                    }
+                    return loadedSettings;
                 }
             } catch (e) {
                 console.error('Failed to load settings', e);
@@ -508,16 +513,19 @@ const App: React.FC = () => {
                                         <Checkbox
                                             checked={settings.notificationsEnabled}
                                             onChange={(checked) => {
-                                                if (checked && 'Notification' in window && Notification.permission !== 'granted') {
-                                                    Notification.requestPermission().then(permission => {
-                                                        if (permission === 'granted') {
-                                                            setSettings({ ...settings, notificationsEnabled: true });
-                                                        } else {
-                                                            setSettings({ ...settings, notificationsEnabled: false });
-                                                        }
-                                                    });
+                                                if (checked && 'Notification' in window) {
+                                                    if (Notification.permission === 'granted') {
+                                                        setSettings(prev => ({ ...prev, notificationsEnabled: true }));
+                                                    } else if (Notification.permission === 'denied') {
+                                                        alert(t('NOTIFICATION_PERMISSION_DENIED'));
+                                                        setSettings(prev => ({ ...prev, notificationsEnabled: false }));
+                                                    } else {
+                                                        Notification.requestPermission().then(permission => {
+                                                            setSettings(prev => ({ ...prev, notificationsEnabled: permission === 'granted' }));
+                                                        });
+                                                    }
                                                 } else {
-                                                    setSettings({ ...settings, notificationsEnabled: checked });
+                                                    setSettings(prev => ({ ...prev, notificationsEnabled: false }));
                                                 }
                                             }}
                                             label={t('NOTIFICATIONS_ENABLED')}

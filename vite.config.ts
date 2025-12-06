@@ -19,7 +19,7 @@ export default defineConfig({
         name: 'Endfield Protocol - Pomodoro Terminal',
         short_name: 'Endfield',
         description: '融合 Cyber UI 和《终末地》风格的沉浸式番茄钟应用',
-        theme_color: '#fff7d0f4',
+        theme_color: '#fff7d0',
         background_color: '#e5e5e5',
         display: 'standalone',
         orientation: 'any',

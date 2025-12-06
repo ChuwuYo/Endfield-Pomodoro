@@ -69,7 +69,7 @@ export const translations = {
     NOTIFICATION_WORK_COMPLETE_BODY: 'Time to take a break.',
     NOTIFICATION_BREAK_COMPLETE_TITLE: 'BREAK CYCLE COMPLETE',
     NOTIFICATION_BREAK_COMPLETE_BODY: 'Time to get back to work.',
-    NOTIFICATION_PERMISSION_DENIED: 'Notification permission denied.',
+    NOTIFICATION_PERMISSION_DENIED: 'Notification permission denied. Please enable it in browser settings.',
 
     // Task Manager
     TASK_MODULE: 'MISSION PROTOCOLS',
@@ -195,7 +195,7 @@ export const translations = {
     NOTIFICATION_WORK_COMPLETE_BODY: '休息时间到了。',
     NOTIFICATION_BREAK_COMPLETE_TITLE: '休息周期结束',
     NOTIFICATION_BREAK_COMPLETE_BODY: '准备开始工作。',
-    NOTIFICATION_PERMISSION_DENIED: '通知权限被拒绝。',
+    NOTIFICATION_PERMISSION_DENIED: '通知权限已被拒绝，请在浏览器设置中手动允许。',
 
     // Task Manager
     TASK_MODULE: '任务协议',
