@@ -119,6 +119,7 @@ export const translations = {
     pwa_update_available: 'New version available!',
     pwa_update_now: 'UPDATE',
     pwa_update_later: 'LATER',
+    pwa_updating: 'UPDATING...',
     pwa_offline: 'OFFLINE MODE',
 
     // Footer
@@ -245,6 +246,7 @@ export const translations = {
     pwa_update_available: '发现新版本！',
     pwa_update_now: '立即更新',
     pwa_update_later: '稍后',
+    pwa_updating: '更新中...',
     pwa_offline: '离线模式',
 
     // Footer
