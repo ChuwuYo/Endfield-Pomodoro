@@ -159,11 +159,30 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, timeLeft]);
 
+  const sendNotification = (title: string, body: string) => {
+    if (!settingsRef.current.notificationsEnabled) return;
+    
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const n = new Notification(title, {
+          body,
+          icon: '/pwa-192x192.png',
+          requireInteraction: true,
+          silent: false
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+      } catch (e) {
+        console.error('Notification error:', e);
+      }
+    }
+  };
+
   const handleComplete = () => {
     playSound('end');
     setIsActive(false);
 
     if (mode === TimerMode.WORK) {
+      sendNotification(t('NOTIFICATION_WORK_COMPLETE_TITLE'), t('NOTIFICATION_WORK_COMPLETE_BODY'));
       const newCount = sessionCount + 1;
       onSessionsUpdate(newCount);
 
@@ -175,6 +194,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         if (settingsRef.current.autoStartBreaks) setIsActive(true);
       }
     } else {
+      sendNotification(t('NOTIFICATION_BREAK_COMPLETE_TITLE'), t('NOTIFICATION_BREAK_COMPLETE_BODY'));
       setMode(TimerMode.WORK);
       if (settingsRef.current.autoStartWork) setIsActive(true);
     }

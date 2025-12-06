@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: Settings = {
     autoStartWork: true,
     soundEnabled: true,
     soundVolume: 0.5,
+    notificationsEnabled: false,
     language: ((() => {
         const browserLangs = navigator.languages || [navigator.language];
         return browserLangs.some(lang => lang?.toLowerCase().startsWith('zh')) ? Language.CN : Language.EN;
@@ -504,6 +505,23 @@ const App: React.FC = () => {
                                             onChange={(checked) => setSettings({ ...settings, soundEnabled: checked })}
                                             label={t('AUDIO_FEEDBACK')}
                                         />
+                                        <Checkbox
+                                            checked={settings.notificationsEnabled}
+                                            onChange={(checked) => {
+                                                if (checked && 'Notification' in window && Notification.permission !== 'granted') {
+                                                    Notification.requestPermission().then(permission => {
+                                                        if (permission === 'granted') {
+                                                            setSettings({ ...settings, notificationsEnabled: true });
+                                                        } else {
+                                                            setSettings({ ...settings, notificationsEnabled: false });
+                                                        }
+                                                    });
+                                                } else {
+                                                    setSettings({ ...settings, notificationsEnabled: checked });
+                                                }
+                                            }}
+                                            label={t('NOTIFICATIONS_ENABLED')}
+                                        />
                                     </div>
                                 </div>
 
@@ -584,41 +602,39 @@ const App: React.FC = () => {
                                 clearCurrentSessionStart();
                             }}
                             onTick={(timeLeft, mode, isActive) => {
-                                const running = Boolean(isActive && timeLeft > 0);
-                                setIsTimerRunning(running);
-                                setRemainingSeconds(timeLeft);
-                                setRemainingMode(mode);
+                                queueMicrotask(() => {
+                                    const running = Boolean(isActive && timeLeft > 0);
+                                    setIsTimerRunning(running);
+                                    setRemainingSeconds(timeLeft);
+                                    setRemainingMode(mode);
 
-                                if (mode === TimerMode.WORK) {
-                                    const totalWorkSeconds = settings.workDuration * 60;
-                                    const newElapsed = totalWorkSeconds - timeLeft;
-                                    setElapsedSeconds(newElapsed);
+                                    if (mode === TimerMode.WORK) {
+                                        const totalWorkSeconds = settings.workDuration * 60;
+                                        const newElapsed = totalWorkSeconds - timeLeft;
+                                        setElapsedSeconds(newElapsed);
 
-                                    if (isActive) {
-                                        // 如果当前会话还没有记录开始时间，则以当前时间减去已经经过秒数来计算开始时间，
-                                        // 这样页面刷新后仍能基于时间戳继续计算当前会话的经过时间。
-                                        if (!currentSessionStart && newElapsed > 0) {
-                                            const startTs = Date.now() - newElapsed * 1000;
-                                            setCurrentSessionStart(startTs);
-                                            try {
-                                                localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION_START, String(startTs));
-                                            } catch (e) {
-                                                console.error('Failed to persist current session start', e);
+                                        if (isActive) {
+                                            if (!currentSessionStart && newElapsed > 0) {
+                                                const startTs = Date.now() - newElapsed * 1000;
+                                                setCurrentSessionStart(startTs);
+                                                try {
+                                                    localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION_START, String(startTs));
+                                                } catch (e) {
+                                                    console.error('Failed to persist current session start', e);
+                                                }
+                                            }
+                                        } else {
+                                            if (currentSessionStart) {
+                                                clearCurrentSessionStart();
                                             }
                                         }
                                     } else {
-                                        // 已暂停：清理 currentSessionStart，避免 footer 继续基于时间戳累加
+                                        setElapsedSeconds(0);
                                         if (currentSessionStart) {
                                             clearCurrentSessionStart();
                                         }
                                     }
-                                } else {
-                                    // 休息时间不计入学习时长，确保 currentSessionStart 被清理
-                                    setElapsedSeconds(0);
-                                    if (currentSessionStart) {
-                                        clearCurrentSessionStart();
-                                    }
-                                }
+                                });
                             }}
                         />
                     </div>
@@ -626,11 +642,11 @@ const App: React.FC = () => {
                     {/* 右侧列 */}
                     <div className="lg:col-span-5 flex flex-col gap-6 h-auto">
                         {/* 任务 */}
-                        <div className="h-auto min-h-[200px]">
+                        <div className="h-auto min-h-[220px]">
                             <TaskManager language={settings.language} />
                         </div>
                         {/* 音频 */}
-                        <div className="h-auto min-h-[160px] md:h-48 shrink-0">
+                        <div className="h-auto min-h-[180px] md:h-48 shrink-0">
                             <AudioPlayer language={settings.language} musicConfig={settings.musicConfig} isOnline={isOnline} />
                         </div>
                     </div>

@@ -46,6 +46,7 @@ export interface Settings {
   autoStartWork: boolean;
   soundEnabled: boolean;
   soundVolume: number;
+  notificationsEnabled: boolean;
   language: Language;
   theme: ThemePreset;
   musicConfig: {
