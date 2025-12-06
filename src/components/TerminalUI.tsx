@@ -56,7 +56,7 @@ export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (pro
     <div className={`relative group ${props.className}`}>
         <input
             {...props}
-            className={`bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 py-3 focus:outline-none focus:border-theme-primary w-full min-w-0 placeholder-theme-dim/70 transition-all duration-300`}
+            className={`bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 h-form-control focus:outline-none focus:border-theme-primary w-full min-w-0 placeholder-theme-dim/70 transition-all duration-300`}
         />
         <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-theme-primary group-hover:w-full transition-all duration-500"></div>
     </div>

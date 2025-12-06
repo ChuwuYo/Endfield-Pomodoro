@@ -24,6 +24,9 @@
   --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-spin-slow: spin 12s linear infinite;
   --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+  /* 表单控件统一高度 */
+  --spacing-form-control: 36px;
 }
 
 /* 主题的基础变量（通过React动态切换） */
@@ -152,4 +155,3 @@ body {
   background-size: 200% 100%;
   animation: data-flow 3s linear infinite;
 }
-

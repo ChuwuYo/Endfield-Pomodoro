@@ -410,13 +410,13 @@ const App: React.FC = () => {
                     <div className="max-w-4xl mx-auto w-full h-full pb-20 pt-6 px-2">
                         <Panel title={t('SYSTEM_CONFIG')} className="p-4 md:p-8 backdrop-blur-xl bg-theme-surface/80 mt-2">
                             <div className="space-y-10">
-                                {/* 计时器 */}
+                                {/* 计时器配置 */}
                                 <div className="space-y-4">
                                     <h3 className="text-theme-primary font-mono text-sm uppercase border-b border-theme-highlight pb-2 flex justify-between">
                                         <span>{t('CYCLE_PARAMETERS')}</span>
                                         <span className="text-[10px] opacity-50">CONFIG_SECTOR_01</span>
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('WORK_DURATION')}</label>
                                             <Input
@@ -450,7 +450,7 @@ const App: React.FC = () => {
                                         <span>{t('INTERFACE_CUSTOMIZATION')}</span>
                                         <span className="text-[10px] opacity-50">CONFIG_SECTOR_02</span>
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('LANGUAGE')}</label>
                                             <CustomSelect
@@ -488,7 +488,7 @@ const App: React.FC = () => {
                                         <span>{t('AUTOMATION_FEEDBACK')}</span>
                                         <span className="text-[10px] opacity-50">CONFIG_SECTOR_03</span>
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <Checkbox
                                             checked={settings.autoStartBreaks}
                                             onChange={(checked) => setSettings({ ...settings, autoStartBreaks: checked })}
@@ -513,7 +513,7 @@ const App: React.FC = () => {
                                         <span>{t('ONLINE_MUSIC_CONFIG')}</span>
                                         <span className="text-[10px] opacity-50">CONFIG_SECTOR_04</span>
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block text-[10px] font-mono text-theme-dim mb-2 uppercase tracking-wider">{t('PLATFORM')}</label>
                                             <CustomSelect
