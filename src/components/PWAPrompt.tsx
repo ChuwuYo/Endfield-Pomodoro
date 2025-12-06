@@ -7,86 +7,80 @@ interface PWAPromptProps {
     t: ReturnType<typeof useTranslation>;
 }
 
-/**
- * PWA 更新提示组件
- * 当检测到新版本时显示更新提示，让用户选择立即更新或稍后
- */
 export function PWAPrompt({ t }: PWAPromptProps) {
+    // 使用 Ref 存储 SW 注册实例，避免重复去 navigator 里查
+    const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
     const intervalRef = useRef<number | null>(null);
-    
-    // 清理定时器的 effect
-    useEffect(() => {
-        return () => {
-            if (intervalRef.current !== null) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        };
-    }, []);
 
-    // 监听 visibilitychange 事件来触发检查
-    useEffect(() => {
-        const updateSW = async () => {
-            // 获取 Service Worker 注册实例
-            if ('serviceWorker' in navigator) {
-                const r = await navigator.serviceWorker.getRegistration();
-                if (r) {
-                    r.update(); // 切回前台时，强制查更新
-                    console.log('App visible, checking for updates...');
-                }
-            }
-        };
+    const {
+        needRefresh: [needRefresh, setNeedRefresh],
+        updateServiceWorker,
+    } = useRegisterSW({
+        // 注册成功的回调
+        onRegistered(r) {
+            if (r) {
+                registrationRef.current = r;
+                
+                // 立即检查一次
+                r.update();
+                console.log('[PWA] Registered & Initial check fired');
 
+                // 设置轮询 (每小时)
+                // 先清理可能存在的旧定时器（防止多次注册）
+                if (intervalRef.current) clearInterval(intervalRef.current);
+                
+                intervalRef.current = window.setInterval(() => {
+                    // 闭包直接使用 r
+                    console.log('[PWA] Hourly check fired');
+                    r.update();
+                }, 60 * 60 * 1000);
+            }
+        },
+        onRegisterError(error) {
+            console.error('[PWA] Registration error:', error);
+        },
+    });
+
+    // 处理“可见性变化”的 Effect
+    useEffect(() => {
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                updateSW();
+            // 只有当页面可见，且我们手里已经拿到了 SW 注册实例时，才去检查
+            if (document.visibilityState === 'visible' && registrationRef.current) {
+                console.log('[PWA] Visibility visible, checking update...');
+                registrationRef.current.update();
             }
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
+        // 清理逻辑
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
-    
-    const {
-        needRefresh: [needRefresh, setNeedRefresh],
-        updateServiceWorker,
-    } = useRegisterSW({
-        onRegistered(r: ServiceWorkerRegistration | undefined) {
-            if (r) {
-                // 注册成功后，立刻强制检查一次更新
-                r.update();
-                console.log('PWA 注册成功，已立即检查更新');
-                
-                // 保持每小时轮询检查更新
-                if (intervalRef.current !== null) {
-                    clearInterval(intervalRef.current);
-                }
-                intervalRef.current = window.setInterval(() => {
-                    r.update();
-                }, 60 * 60 * 1000);
-            }
-        },
-        onRegisterError(error: Error) {
-            console.error('SW registration error:', error);
-        },
-    });
+    }, []); // 这里的依赖项为空是安全的，因为要的是 ref.current 的实时值
 
+    // 组件卸载时的清理
+    useEffect(() => {
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    // 如果不需要刷新，不渲染任何 DOM
     if (!needRefresh) return null;
 
     return (
         <div
-            className="fixed bottom-4 right-4 z-[9999] p-4 bg-theme-surface border border-theme-primary clip-path-slant shadow-lg max-w-xs"
+            className="fixed bottom-4 right-4 z-[9999] p-4 bg-theme-surface border border-theme-primary clip-path-slant shadow-lg max-w-xs animate-in slide-in-from-bottom-2 duration-300"
             role="status"
             aria-live="polite"
-            aria-atomic="true"
         >
             <div className="flex items-start gap-3">
-                <i className="ri-refresh-line text-theme-primary text-xl flex-shrink-0 mt-0.5" />
+                <i className="ri-refresh-line text-theme-primary text-xl flex-shrink-0 mt-0.5 animate-spin-slow" />
                 <div className="flex-1 min-w-0">
-                    <p className="text-theme-text font-mono text-sm mb-3">
+                    <p className="text-theme-text font-mono text-sm mb-3 font-bold">
                         {t('pwa_update_available')}
                     </p>
                     <div className="flex gap-2">
@@ -100,7 +94,7 @@ export function PWAPrompt({ t }: PWAPromptProps) {
                         <Button
                             onClick={() => setNeedRefresh(false)}
                             variant="ghost"
-                            className="text-xs py-1 px-3"
+                            className="text-xs py-1 px-3 hover:bg-theme-primary/10"
                         >
                             {t('pwa_update_later')}
                         </Button>
