@@ -378,9 +378,10 @@ const App: React.FC = () => {
                                 onClick={() => setCurrentView(View.DASHBOARD)}
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.DASHBOARD ? '' : 'text-theme-dim'}`}
                                 title={t('DASHBOARD')}
+                                aria-label={t('DASHBOARD')}
                             >
                                 {/* 移动端图标 */}
-                                <span className="md:hidden">
+                                <span className="md:hidden" aria-hidden="true">
                                     <i className="ri-dashboard-line text-lg font-normal"></i>
                                 </span>
                                 {/* 桌面端图标和文本 */}
@@ -395,9 +396,10 @@ const App: React.FC = () => {
                                 onClick={() => setCurrentView(View.SETTINGS)}
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.SETTINGS ? '' : 'text-theme-dim'}`}
                                 title={t('SYSTEM_CONFIG')}
+                                aria-label={t('SYSTEM_CONFIG')}
                             >
                                 {/* 移动端图标 */}
-                                <span className="md:hidden">
+                                <span className="md:hidden" aria-hidden="true">
                                     <i className="ri-settings-3-line text-lg font-normal"></i>
                                 </span>
                                 {/* 桌面端图标和文本 */}
@@ -526,7 +528,12 @@ const App: React.FC = () => {
 
                                                 let permission = Notification.permission;
                                                 if (permission === 'default') {
-                                                    permission = await Notification.requestPermission();
+                                                    try {
+                                                        permission = await Notification.requestPermission();
+                                                    } catch (err) {
+                                                        console.error('Failed to request notification permission', err);
+                                                        permission = 'denied';
+                                                    }
                                                 }
 
                                                 if (permission === 'denied') {
