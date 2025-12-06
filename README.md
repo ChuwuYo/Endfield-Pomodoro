@@ -30,9 +30,13 @@
 - **任务协议**: 存储限制（Max 6），聚焦当前目标
 - **完全自定义**: 计时参数、音效开关、音量及背景音乐源均可配置
 
-## 🛠️ 技术栈 (Tech Stack)
+### 📱 PWA支持
 
-本项目采用最新的前端技术栈构建，确保高性能与开发体验：
+- **离线支持**: 通过 Service Worker 实现离线缓存
+- **安装提示**: 自动检测 PWA 条件，提供安装提示
+- **在线音乐**: 实现API过滤，在PWA环境下也能播放在线音乐
+
+## 🛠️ 技术栈 (Tech Stack)
 
 - **核心框架**: [React 19](https://react.dev/) - 利用最新的 Hooks 和并发特性
 - **性能优化**: [React Compiler](https://react.dev/learn/react-compiler) - 自动记忆化优化，无需手动 useMemo/useCallback

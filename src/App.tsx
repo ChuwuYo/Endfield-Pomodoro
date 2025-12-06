@@ -45,97 +45,97 @@ const THEMES = {
         '--color-base': '#111113',
         '--color-surface': '#1c1c1f',
         '--color-highlight': '#2e2e33',
-        '--color-primary': '#ea580c', // Orange
-        '--color-secondary': '#fbbf24', // Amber
-        '--color-accent': '#06b6d4', // Cyan
+        '--color-primary': '#ea580c',
+        '--color-secondary': '#fbbf24',
+        '--color-accent': '#06b6d4',
         '--color-text': '#fcf8deff',
         '--color-dim': '#71717a',
-        '--color-success': '#22c55e', // Green
-        '--color-error': '#ef4444' // Red
+        '--color-success': '#22c55e',
+        '--color-error': '#ef4444'
     },
     [ThemePreset.AZURE]: {
         '--color-base': '#0f172a',
         '--color-surface': '#1e293b',
         '--color-highlight': '#334155',
-        '--color-primary': '#38bdf8', // Light Blue
-        '--color-secondary': '#94a3b8', // Slate
-        '--color-accent': '#f472b6', // Pink
+        '--color-primary': '#38bdf8',
+        '--color-secondary': '#94a3b8',
+        '--color-accent': '#f472b6',
         '--color-text': '#f1f5f9',
         '--color-dim': '#64748b',
-        '--color-success': '#22c55e', // Green
-        '--color-error': '#ef4444' // Red
+        '--color-success': '#22c55e',
+        '--color-error': '#ef4444'
     },
     [ThemePreset.NEON]: {
         '--color-base': '#180024',
         '--color-surface': '#2e0242',
-        '--color-highlight': '#ad39ffff',
-        '--color-primary': '#ff00ff', // Magenta
-        '--color-secondary': '#00ffff', // Cyan
-        '--color-accent': '#ffff00', // Yellow
+        '--color-highlight': '#ad39ff',
+        '--color-primary': '#ff00ff',
+        '--color-secondary': '#00ffff',
+        '--color-accent': '#ffff00',
         '--color-text': '#f5d0fe',
         '--color-dim': '#a21caf',
-        '--color-success': '#00ff00', // Bright Green
-        '--color-error': '#ff0000' // Bright Red
+        '--color-success': '#00ff00',
+        '--color-error': '#ff0000'
     },
     [ThemePreset.MATRIX]: {
         '--color-base': '#000000',
         '--color-surface': '#031403',
         '--color-highlight': '#082908',
-        '--color-primary': '#d0ff4b', // Matrix Green
-        '--color-secondary': '#3cf551ff',
+        '--color-primary': '#d0ff4b',
+        '--color-secondary': '#3cf551',
         '--color-accent': '#ccffcc',
         '--color-text': '#e0fce0',
-        '--color-dim': '#77fbacff',
-        '--color-success': '#00ff00', // Matrix Green
-        '--color-error': '#ff0000' // Red
+        '--color-dim': '#77fbac',
+        '--color-success': '#00ff00',
+        '--color-error': '#ff0000'
     },
     [ThemePreset.TACTICAL]: {
-        '--color-base': '#1c1917', // Warm grey dark
+        '--color-base': '#1c1917',
         '--color-surface': '#292524',
         '--color-highlight': '#44403c',
-        '--color-primary': '#d97706', // Amber 600
-        '--color-secondary': '#a8a29e', // Stone
+        '--color-primary': '#d97706',
+        '--color-secondary': '#a8a29e',
         '--color-accent': '#78716c',
-        '--color-text': '#f6f6dfff',
+        '--color-text': '#f6f6df',
         '--color-dim': '#57534e',
-        '--color-success': '#16a34a', // Forest Green
-        '--color-error': '#dc2626' // Dark Red
+        '--color-success': '#16a34a',
+        '--color-error': '#dc2626'
     },
     [ThemePreset.ROYAL]: {
         '--color-base': '#100c19',
         '--color-surface': '#1d162e',
         '--color-highlight': '#31254a',
-        '--color-primary': '#c084fc', // Purple
-        '--color-secondary': '#fbbf24', // Gold
+        '--color-primary': '#c084fc',
+        '--color-secondary': '#fbbf24',
         '--color-accent': '#e879f9',
         '--color-text': '#f3e8ff',
         '--color-dim': '#6b21a8',
-        '--color-success': '#a1f65cff', // Violet
-        '--color-error': '#dc2626' // Dark Red
+        '--color-success': '#a1f65c',
+        '--color-error': '#dc2626'
     },
     [ThemePreset.INDUSTRIAL]: {
         '--color-base': '#e5e5e5',
         '--color-surface': '#d4d4d4',
         '--color-highlight': '#a3a3a3',
-        '--color-primary': '#f97316', // Safety Orange
-        '--color-secondary': '#eab308', // Caution Yellow
-        '--color-accent': '#262626', // Dark Grey
+        '--color-primary': '#f97316',
+        '--color-secondary': '#eab308',
+        '--color-accent': '#262626',
         '--color-text': '#171717',
         '--color-dim': '#737373',
-        '--color-success': '#16a34a', // Forest Green
-        '--color-error': '#dc2626' // Dark Red
+        '--color-success': '#16a34a',
+        '--color-error': '#dc2626'
     },
     [ThemePreset.LABORATORY]: {
         '--color-base': '#f8fafc',
-        '--color-surface': '#edeff0ff',
-        '--color-highlight': '#cbced1ff',
-        '--color-primary': '#0ea5e9', // Sky Blue
-        '--color-secondary': '#64748b', // Slate
-        '--color-accent': '#ec4899', // Pink
+        '--color-surface': '#edeff0',
+        '--color-highlight': '#cbced1',
+        '--color-primary': '#0ea5e9',
+        '--color-secondary': '#64748b',
+        '--color-accent': '#ec4899',
         '--color-text': '#0f172a',
         '--color-dim': '#94a3b8',
-        '--color-success': '#059669', // Emerald
-        '--color-error': '#dc2626' // Dark Red
+        '--color-success': '#059669',
+        '--color-error': '#dc2626'
     }
 };
 
