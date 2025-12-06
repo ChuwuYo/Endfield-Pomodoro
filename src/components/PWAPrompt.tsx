@@ -42,7 +42,7 @@ export function PWAPrompt({ t }: PWAPromptProps) {
         },
     });
 
-    // 处理“可见性变化”的 Effect
+    // 处理可见性变化监听与组件卸载清理
     useEffect(() => {
         const handleVisibilityChange = () => {
             // 只有当页面可见，且我们手里已经拿到了 SW 注册实例时，才去检查
@@ -54,20 +54,14 @@ export function PWAPrompt({ t }: PWAPromptProps) {
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
-        // 清理逻辑
+        // 返回一个清理函数，在组件卸载时执行
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []); // 这里的依赖项为空是安全的，因为要的是 ref.current 的实时值
-
-    // 组件卸载时的清理
-    useEffect(() => {
-        return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
         };
-    }, []);
+    }, []); // 这里的依赖项为空是安全的，因为要的是 ref.current 的实时值
 
     // 如果不需要刷新，不渲染任何 DOM
     if (!needRefresh) return null;
