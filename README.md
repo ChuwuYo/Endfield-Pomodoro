@@ -113,14 +113,11 @@ endfield-pomodoro/
 │   └── index.css               # 全局样式与 Tailwind 引入
 ├── index.html                  # HTML 入口文件
 ├── package.json                # 项目依赖配置
-├── pnpm-lock.yaml              # pnpm 依赖锁定文件
 ├── tsconfig.json               # TypeScript 配置
 ├── tsconfig.app.json           # TypeScript 应用配置
 ├── tsconfig.node.json          # TypeScript Node 配置
 ├── vite.config.ts              # Vite 构建配置
 ├── eslint.config.js            # ESLint 配置
-├── LICENSE                     # 项目许可证
-├── .gitignore                  # Git 忽略文件
 └── README.md                   # 项目文档
 ```
 
