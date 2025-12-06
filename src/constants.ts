@@ -39,3 +39,11 @@ export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳
 export const TOAST_DURATION_MS = 4000; // 提示消息显示时长（毫秒）
 export const AUDIO_LOADING_TIMEOUT_MS = 5000; // 音频加载超时时间（毫秒）
 export const TIME_UPDATE_THROTTLE_SECONDS = 0.25; // 时间更新节流阈值（秒），减少频繁重渲染
+
+/**
+ * 时间转换常量
+ * 
+ * 使用位置：
+ * - App.tsx
+ */
+export const MS_PER_SECOND = 1000; // 毫秒转秒的转换系数

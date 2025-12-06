@@ -9,7 +9,7 @@ import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { PWAPrompt } from './components/PWAPrompt';
 import { useTranslation } from './utils/i18n';
-import { STORAGE_KEYS } from './constants';
+import { STORAGE_KEYS, MS_PER_SECOND } from './constants';
 import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: Settings = {
     autoStartWork: true,
     soundEnabled: true,
     soundVolume: 0.5,
+    notificationsEnabled: false,
     language: ((() => {
         const browserLangs = navigator.languages || [navigator.language];
         return browserLangs.some(lang => lang?.toLowerCase().startsWith('zh')) ? Language.CN : Language.EN;
@@ -160,7 +161,12 @@ const App: React.FC = () => {
             try {
                 const parsed = JSON.parse(saved);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                    return { ...DEFAULT_SETTINGS, ...parsed };
+                    const loadedSettings = { ...DEFAULT_SETTINGS, ...parsed };
+                    // 检测通知权限被撤销时自动取消勾选
+                    if (loadedSettings.notificationsEnabled && 'Notification' in window && Notification.permission === 'denied') {
+                        loadedSettings.notificationsEnabled = false;
+                    }
+                    return loadedSettings;
                 }
             } catch (e) {
                 console.error('Failed to load settings', e);
@@ -311,7 +317,7 @@ const App: React.FC = () => {
     // - 当前会话：优先使用 currentSessionStart（如果存在并且浏览器刷新后仍可计算），否则使用内存中的 elapsedSeconds
     // 使用外部的 now 状态以避免在渲染中调用 impure Date.now()
     const currentSessionElapsed = currentSessionStart
-        ? Math.floor((now.getTime() - currentSessionStart) / 1000)
+        ? Math.floor((now.getTime() - currentSessionStart) / MS_PER_SECOND)
         : elapsedSeconds;
     const totalSeconds = persistedTotalSeconds + currentSessionElapsed;
     const hours = Math.floor(totalSeconds / 3600);
@@ -326,10 +332,10 @@ const App: React.FC = () => {
             {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
             <ForegroundLayer theme={settings.theme} />
 
-            {/* 头部栏 (Z-40) - 最佳实践：顶级UI，在指针效果下方如果它们是'屏幕'，但可访问 */}
+            {/* 头部栏 (Z-40) - 顶部UI，在指针效果下方如果它们是'屏幕'，但可访问 */}
             <header className="fixed top-0 left-0 right-0 z-40 select-none border-b border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md shadow-lg">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 max-w-[1920px] mx-auto">
-                    {/* 品牌/Logo - 终末地风格 */}
+                    {/* Logo */}
                     <div className="flex items-center gap-4">
                         {/* 左侧黄色条带装饰 */}
                         <div className="relative hidden md:flex items-center">
@@ -372,13 +378,17 @@ const App: React.FC = () => {
                                 onClick={() => setCurrentView(View.DASHBOARD)}
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.DASHBOARD ? '' : 'text-theme-dim'}`}
                                 title={t('DASHBOARD')}
+                                aria-label={t('DASHBOARD')}
                             >
                                 {/* 移动端图标 */}
-                                <span className="md:hidden">
-                                    <i className="ri-dashboard-line text-lg"></i>
+                                <span className="md:hidden" aria-hidden="true">
+                                    <i className="ri-dashboard-line text-lg font-normal"></i>
                                 </span>
-                                {/* 桌面端文本 */}
-                                <span className="hidden md:inline">{t('DASHBOARD')}</span>
+                                {/* 桌面端图标和文本 */}
+                                <span className="hidden md:flex items-center gap-1">
+                                    <i className="ri-dashboard-line text-lg leading-none font-normal"></i>
+                                    <span className="leading-none">{t('DASHBOARD')}</span>
+                                </span>
                             </Button>
                             <div className="w-[1px] h-4 bg-theme-highlight/30 mx-1"></div>
                             <Button
@@ -386,13 +396,17 @@ const App: React.FC = () => {
                                 onClick={() => setCurrentView(View.SETTINGS)}
                                 className={`text-xs h-8 px-3 md:px-4 py-0 rounded-sm ${currentView === View.SETTINGS ? '' : 'text-theme-dim'}`}
                                 title={t('SYSTEM_CONFIG')}
+                                aria-label={t('SYSTEM_CONFIG')}
                             >
                                 {/* 移动端图标 */}
-                                <span className="md:hidden">
-                                    <i className="ri-settings-3-line text-lg"></i>
+                                <span className="md:hidden" aria-hidden="true">
+                                    <i className="ri-settings-3-line text-lg font-normal"></i>
                                 </span>
-                                {/* 桌面端文本 */}
-                                <span className="hidden md:inline">{t('SYSTEM_CONFIG')}</span>
+                                {/* 桌面端图标和文本 */}
+                                <span className="hidden md:flex items-center gap-1">
+                                    <i className="ri-settings-3-line text-lg leading-none font-normal"></i>
+                                    <span className="leading-none">{t('SYSTEM_CONFIG')}</span>
+                                </span>
                             </Button>
                         </div>
 
@@ -504,6 +518,33 @@ const App: React.FC = () => {
                                             onChange={(checked) => setSettings({ ...settings, soundEnabled: checked })}
                                             label={t('AUDIO_FEEDBACK')}
                                         />
+                                        <Checkbox
+                                            checked={settings.notificationsEnabled}
+                                            onChange={async (checked) => {
+                                                if (!checked || !('Notification' in window)) {
+                                                    setSettings(prev => ({ ...prev, notificationsEnabled: false }));
+                                                    return;
+                                                }
+
+                                                let permission = Notification.permission;
+                                                if (permission === 'default') {
+                                                    try {
+                                                        permission = await Notification.requestPermission();
+                                                    } catch (err) {
+                                                        console.error('Failed to request notification permission', err);
+                                                        permission = 'denied';
+                                                    }
+                                                }
+
+                                                if (permission === 'denied') {
+                                                    // TODO: 使用 alert 会阻塞 UI，未来可替换为非阻塞的 Toast/Message 组件
+                                                    alert(t('NOTIFICATION_PERMISSION_DENIED'));
+                                                }
+
+                                                setSettings(prev => ({ ...prev, notificationsEnabled: permission === 'granted' }));
+                                            }}
+                                            label={t('NOTIFICATIONS_ENABLED')}
+                                        />
                                     </div>
                                 </div>
 
@@ -560,7 +601,7 @@ const App: React.FC = () => {
                 {/* 仪表板 - 始终渲染但在设置时隐藏 */}
                 <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto max-w-7xl mx-auto w-full ${currentView === View.SETTINGS ? 'hidden' : ''}`}>
                     {/* 左侧：番茄钟（较大） */}
-                    <div className="lg:col-span-7 flex flex-col h-auto min-h-[450px] md:h-[500px]">
+                    <div className="lg:col-span-7 flex flex-col h-auto min-h-[420px] md:h-[500px]">
                         <Pomodoro
                             settings={settings}
                             sessionCount={sessionCount}
@@ -568,7 +609,7 @@ const App: React.FC = () => {
                                 setSessionCount(newCount);
                                 // 会话完成：把当前会话的 elapsedSeconds（或基于 start 的值）累加到持久化总时长
                                 const finishedElapsed = currentSessionStart
-                                    ? Math.floor((now.getTime() - currentSessionStart) / 1000)
+                                    ? Math.floor((now.getTime() - currentSessionStart) / MS_PER_SECOND)
                                     : elapsedSeconds;
                                 setPersistedTotalSeconds(prev => {
                                     const next = prev + finishedElapsed;
@@ -584,41 +625,39 @@ const App: React.FC = () => {
                                 clearCurrentSessionStart();
                             }}
                             onTick={(timeLeft, mode, isActive) => {
-                                const running = Boolean(isActive && timeLeft > 0);
-                                setIsTimerRunning(running);
-                                setRemainingSeconds(timeLeft);
-                                setRemainingMode(mode);
+                                queueMicrotask(() => {
+                                    const running = Boolean(isActive && timeLeft > 0);
+                                    setIsTimerRunning(running);
+                                    setRemainingSeconds(timeLeft);
+                                    setRemainingMode(mode);
 
-                                if (mode === TimerMode.WORK) {
-                                    const totalWorkSeconds = settings.workDuration * 60;
-                                    const newElapsed = totalWorkSeconds - timeLeft;
-                                    setElapsedSeconds(newElapsed);
+                                    if (mode === TimerMode.WORK) {
+                                        const totalWorkSeconds = settings.workDuration * 60;
+                                        const newElapsed = totalWorkSeconds - timeLeft;
+                                        setElapsedSeconds(newElapsed);
 
-                                    if (isActive) {
-                                        // 如果当前会话还没有记录开始时间，则以当前时间减去已经经过秒数来计算开始时间，
-                                        // 这样页面刷新后仍能基于时间戳继续计算当前会话的经过时间。
-                                        if (!currentSessionStart && newElapsed > 0) {
-                                            const startTs = Date.now() - newElapsed * 1000;
-                                            setCurrentSessionStart(startTs);
-                                            try {
-                                                localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION_START, String(startTs));
-                                            } catch (e) {
-                                                console.error('Failed to persist current session start', e);
+                                        if (isActive) {
+                                            if (!currentSessionStart && newElapsed > 0) {
+                                                const startTs = Date.now() - newElapsed * MS_PER_SECOND;
+                                                setCurrentSessionStart(startTs);
+                                                try {
+                                                    localStorage.setItem(STORAGE_KEYS.CURRENT_SESSION_START, String(startTs));
+                                                } catch (e) {
+                                                    console.error('Failed to persist current session start', e);
+                                                }
+                                            }
+                                        } else {
+                                            if (currentSessionStart) {
+                                                clearCurrentSessionStart();
                                             }
                                         }
                                     } else {
-                                        // 已暂停：清理 currentSessionStart，避免 footer 继续基于时间戳累加
+                                        setElapsedSeconds(0);
                                         if (currentSessionStart) {
                                             clearCurrentSessionStart();
                                         }
                                     }
-                                } else {
-                                    // 休息时间不计入学习时长，确保 currentSessionStart 被清理
-                                    setElapsedSeconds(0);
-                                    if (currentSessionStart) {
-                                        clearCurrentSessionStart();
-                                    }
-                                }
+                                });
                             }}
                         />
                     </div>
@@ -626,11 +665,11 @@ const App: React.FC = () => {
                     {/* 右侧列 */}
                     <div className="lg:col-span-5 flex flex-col gap-6 h-auto">
                         {/* 任务 */}
-                        <div className="h-auto min-h-[200px]">
+                        <div className="h-auto min-h-[220px]">
                             <TaskManager language={settings.language} />
                         </div>
                         {/* 音频 */}
-                        <div className="h-auto min-h-[160px] md:h-48 shrink-0">
+                        <div className="h-auto min-h-[180px] md:h-48 shrink-0">
                             <AudioPlayer language={settings.language} musicConfig={settings.musicConfig} isOnline={isOnline} />
                         </div>
                     </div>

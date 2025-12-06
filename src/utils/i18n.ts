@@ -16,6 +16,7 @@ export const translations = {
     AUTO_START_BREAK: 'AUTO-START BREAKS',
     AUTO_START_WORK: 'AUTO-START WORK',
     AUDIO_FEEDBACK: 'SFX SYSTEM',
+    NOTIFICATIONS_ENABLED: 'DESKTOP NOTIFICATIONS',
     LANGUAGE: 'LANGUAGE',
     THEME: 'UI THEME',
     CYCLE_PARAMETERS: 'CYCLE PARAMETERS',
@@ -64,6 +65,11 @@ export const translations = {
     MODE_LONG: 'HIBERNATION',
     STANDBY: 'STANDBY',
     PAUSED_STATUS: 'PAUSED',
+    NOTIFICATION_WORK_COMPLETE_TITLE: 'WORK CYCLE COMPLETE',
+    NOTIFICATION_WORK_COMPLETE_BODY: 'Time to take a break.',
+    NOTIFICATION_BREAK_COMPLETE_TITLE: 'BREAK CYCLE COMPLETE',
+    NOTIFICATION_BREAK_COMPLETE_BODY: 'Time to get back to work.',
+    NOTIFICATION_PERMISSION_DENIED: 'Notification permission denied. Please enable it in browser settings.',
 
     // Task Manager
     TASK_MODULE: 'MISSION PROTOCOLS',
@@ -136,6 +142,7 @@ export const translations = {
     AUTO_START_BREAK: '自动开始休息',
     AUTO_START_WORK: '自动开始工作',
     AUDIO_FEEDBACK: '提示音效',
+    NOTIFICATIONS_ENABLED: '桌面通知',
     LANGUAGE: '语言选项',
     THEME: '视觉主题',
     CYCLE_PARAMETERS: '循环参数',
@@ -184,6 +191,11 @@ export const translations = {
     MODE_LONG: '深度休眠',
     STANDBY: '待机中',
     PAUSED_STATUS: '已暂停',
+    NOTIFICATION_WORK_COMPLETE_TITLE: '作业周期结束',
+    NOTIFICATION_WORK_COMPLETE_BODY: '休息时间到了。',
+    NOTIFICATION_BREAK_COMPLETE_TITLE: '休息周期结束',
+    NOTIFICATION_BREAK_COMPLETE_BODY: '准备开始工作。',
+    NOTIFICATION_PERMISSION_DENIED: '通知权限已被拒绝，请在浏览器设置中手动允许。',
 
     // Task Manager
     TASK_MODULE: '任务协议',
