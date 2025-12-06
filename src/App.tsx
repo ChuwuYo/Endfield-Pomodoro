@@ -144,8 +144,8 @@ const getMusicPlatformOptions = (t: ReturnType<typeof useTranslation>) => [
     { value: 'netease', label: t('PLATFORM_NETEASE') },
     { value: 'tencent', label: t('PLATFORM_TENCENT') },
     { value: 'kugou', label: t('PLATFORM_KUGOU') },
-    { value: 'xiami', label: t('PLATFORM_XIAMI') },
-    { value: 'baidu', label: t('PLATFORM_BAIDU') }
+    { value: 'baidu', label: t('PLATFORM_BAIDU') },
+    { value: 'kuwo', label: t('PLATFORM_KUWO') }
 ];
 
 // 音乐类型选项配置
