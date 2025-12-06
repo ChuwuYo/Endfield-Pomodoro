@@ -4,6 +4,7 @@ import type { Settings } from '../types';
 import { useSound } from './SoundManager';
 import { Button, Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
+import { SECONDS_PER_MINUTE, MS_PER_SECOND } from '../constants';
 
 interface PomodoroProps {
   settings: Settings;
@@ -36,7 +37,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   // 本地状态：模式、剩余时间、是否激活
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
-  const [timeLeft, setTimeLeft] = useState<number>(() => settings.workDuration * 60);
+  const [timeLeft, setTimeLeft] = useState<number>(() => settings.workDuration * SECONDS_PER_MINUTE);
   const [isActive, setIsActive] = useState<boolean>(false);
 
   // 从 localStorage 恢复计时器（仅在挂载时执行）
@@ -62,7 +63,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
       if (candidateTime != null) {
         let restored = candidateTime;
         if (candidateActive && candidateStart) {
-          const elapsed = Math.floor((Date.now() - candidateStart) / 1000);
+          const elapsed = Math.floor((Date.now() - candidateStart) / MS_PER_SECOND);
           restored = Math.max(0, candidateTime - elapsed);
           restoredStart = candidateStart;
         }
@@ -99,7 +100,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         // 计算当前会话的起始时间戳，便于刷新后继续计时
         const total = getTotalTime();
         const elapsed = total - timeLeft;
-        payload.startTs = Date.now() - elapsed * 1000;
+        payload.startTs = Date.now() - elapsed * MS_PER_SECOND;
       }
       localStorage.setItem(TIMER_STORAGE, JSON.stringify(payload));
     } catch (err) {
@@ -125,13 +126,13 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     let newTime = 0;
     switch (mode) {
       case TimerMode.WORK:
-        newTime = settingsRef.current.workDuration * 60;
+        newTime = settingsRef.current.workDuration * SECONDS_PER_MINUTE;
         break;
       case TimerMode.SHORT_BREAK:
-        newTime = settingsRef.current.shortBreakDuration * 60;
+        newTime = settingsRef.current.shortBreakDuration * SECONDS_PER_MINUTE;
         break;
       case TimerMode.LONG_BREAK:
-        newTime = settingsRef.current.longBreakDuration * 60;
+        newTime = settingsRef.current.longBreakDuration * SECONDS_PER_MINUTE;
         break;
     }
     setTimeLeft(newTime);
@@ -150,7 +151,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
           if (onTick) onTick(newTime, mode, true);
           return newTime;
         });
-      }, 1000);
+      }, MS_PER_SECOND);
     } else if (timeLeft === 0) {
       handleComplete();
     }
@@ -209,15 +210,15 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   };
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+    const m = Math.floor(seconds / SECONDS_PER_MINUTE);
+    const s = seconds % SECONDS_PER_MINUTE;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const getTotalTime = () => {
-    return mode === TimerMode.WORK ? settings.workDuration * 60
-      : mode === TimerMode.SHORT_BREAK ? settings.shortBreakDuration * 60
-        : settings.longBreakDuration * 60;
+    return mode === TimerMode.WORK ? settings.workDuration * SECONDS_PER_MINUTE
+      : mode === TimerMode.SHORT_BREAK ? settings.shortBreakDuration * SECONDS_PER_MINUTE
+        : settings.longBreakDuration * SECONDS_PER_MINUTE;
   };
 
   const progress = (() => {

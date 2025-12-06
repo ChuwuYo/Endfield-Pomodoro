@@ -2,6 +2,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useEffect, useRef } from 'react';
 import { Button } from './TerminalUI';
 import type { useTranslation } from '../utils/i18n';
+import { HOURLY_CHECK_INTERVAL_MS } from '../constants';
 
 interface PWAPromptProps {
     t: ReturnType<typeof useTranslation>;
@@ -33,7 +34,7 @@ export function PWAPrompt({ t }: PWAPromptProps) {
                     // 闭包直接使用 r
                     console.log('[PWA] Hourly check fired');
                     r.update();
-                }, 60 * 60 * 1000);
+                }, HOURLY_CHECK_INTERVAL_MS);
             }
         },
         onRegisterError(error) {
