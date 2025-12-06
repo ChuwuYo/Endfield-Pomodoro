@@ -23,15 +23,44 @@ export function PWAPrompt({ t }: PWAPromptProps) {
             }
         };
     }, []);
+
+    // 监听 visibilitychange 事件来触发检查
+    useEffect(() => {
+        const updateSW = async () => {
+            // 获取 Service Worker 注册实例
+            if ('serviceWorker' in navigator) {
+                const r = await navigator.serviceWorker.getRegistration();
+                if (r) {
+                    r.update(); // 切回前台时，强制查更新
+                    console.log('App visible, checking for updates...');
+                }
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                updateSW();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
     
     const {
         needRefresh: [needRefresh, setNeedRefresh],
         updateServiceWorker,
     } = useRegisterSW({
         onRegistered(r: ServiceWorkerRegistration | undefined) {
-            // 每小时检查一次更新
             if (r) {
-                // 清除之前的定时器（如果有）
+                // 注册成功后，立刻强制检查一次更新
+                r.update();
+                console.log('PWA 注册成功，已立即检查更新');
+                
+                // 保持每小时轮询检查更新
                 if (intervalRef.current !== null) {
                     clearInterval(intervalRef.current);
                 }
