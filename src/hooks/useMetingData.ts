@@ -32,17 +32,13 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
             try {
                 // 使用 Meting API
                 const apiUrl = `${METING_API_BASE_URL}?server=${server}&type=${type}&id=${id}`;
-                console.log('[Meting] Fetching:', apiUrl);
-
                 const response = await fetch(apiUrl);
-                console.log('[Meting] Response status:', response.status);
-                
+
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch music data: ${response.status} ${response.statusText}`);
+                    throw new Error(`Failed to fetch music data: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('[Meting] Data received:', data.length, 'tracks');
 
                 if (!Array.isArray(data) || data.length === 0) {
                     throw new Error('No tracks found in playlist');
@@ -57,12 +53,10 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
                     theme: item.theme,
                 }));
 
-                console.log('[Meting] Formatted tracks:', formattedAudioList.length);
                 setAudioList(formattedAudioList);
             } catch (err) {
-                const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-                setError(errorMsg);
-                console.error('[Meting] API Error:', errorMsg, err);
+                setError(err instanceof Error ? err.message : 'Unknown error');
+                console.error('Meting API Error:', err);
             } finally {
                 setLoading(false);
             }
@@ -75,6 +69,8 @@ export const useMetingData = ({ server, type, id }: UseMetingDataProps) => {
             }, API_FETCH_DELAY_MS);
 
             return () => clearTimeout(timeoutId);
+        } else {
+            setLoading(false);
         }
     }, [server, type, id]);
 

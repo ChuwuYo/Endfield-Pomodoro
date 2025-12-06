@@ -55,22 +55,14 @@ export default defineConfig({
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [
           /^\/api/,
-          /^https:\/\/api\.injahow\.cn/,
           /\.mp3$/,
           /\.m4a$/
         ],
+        ignoreURLParametersMatching: [/.*/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\.injahow\.cn\/meting\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'meting-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24
-              },
-              networkTimeoutSeconds: 5
-            }
+            handler: 'NetworkOnly'
           },
           {
             urlPattern: ({ request }) => {
