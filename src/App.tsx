@@ -381,10 +381,13 @@ const App: React.FC = () => {
                             >
                                 {/* 移动端图标 */}
                                 <span className="md:hidden">
-                                    <i className="ri-dashboard-line text-lg"></i>
+                                    <i className="ri-dashboard-line text-lg font-normal"></i>
                                 </span>
-                                {/* 桌面端文本 */}
-                                <span className="hidden md:inline">{t('DASHBOARD')}</span>
+                                {/* 桌面端图标和文本 */}
+                                <span className="hidden md:flex items-center gap-1">
+                                    <i className="ri-dashboard-line text-lg leading-none font-normal"></i>
+                                    <span className="leading-none">{t('DASHBOARD')}</span>
+                                </span>
                             </Button>
                             <div className="w-[1px] h-4 bg-theme-highlight/30 mx-1"></div>
                             <Button
@@ -395,10 +398,13 @@ const App: React.FC = () => {
                             >
                                 {/* 移动端图标 */}
                                 <span className="md:hidden">
-                                    <i className="ri-settings-3-line text-lg"></i>
+                                    <i className="ri-settings-3-line text-lg font-normal"></i>
                                 </span>
-                                {/* 桌面端文本 */}
-                                <span className="hidden md:inline">{t('SYSTEM_CONFIG')}</span>
+                                {/* 桌面端图标和文本 */}
+                                <span className="hidden md:flex items-center gap-1">
+                                    <i className="ri-settings-3-line text-lg leading-none font-normal"></i>
+                                    <span className="leading-none">{t('SYSTEM_CONFIG')}</span>
+                                </span>
                             </Button>
                         </div>
 
