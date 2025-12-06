@@ -85,7 +85,12 @@ export function PWAPrompt({ t }: PWAPromptProps) {
     const handleUpdate = async () => {
         setUpdating(true);
         console.log('[PWA] User clicked update, sending skipWaiting...');
-        await updateServiceWorker(true);
+        try {
+            await updateServiceWorker(true);
+        } catch (error) {
+            console.error('[PWA] Update failed:', error);
+            setUpdating(false);
+        }
     };
 
     // 如果不需要刷新，不渲染任何 DOM
