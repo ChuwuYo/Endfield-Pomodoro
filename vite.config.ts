@@ -55,8 +55,7 @@ export default defineConfig({
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [
           /^\/api/,
-          /\.mp3$/,
-          /\.m4a$/
+          /\.(mp3|m4a|flac)$/i
         ],
         ignoreURLParametersMatching: [/.*/],
         runtimeCaching: [
