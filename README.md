@@ -21,14 +21,11 @@
 - **双模式播放**:
   - **本地模式**: 支持导入现代浏览器支持的所有音频类型，具备进度与播放列表管理
   - **在线模式**: 集成 MetingJS，支持网易云/QQ音乐/酷狗等平台的歌单解析
-- **终端交互**: 极简终端风格界面，支持封面展示及后台播放
+- **终端交互**: 支持基本信息、播放控制、封面展示及后台播放等功能
 
 ### 📋 任务与配置 (Mission & Config)
 - **任务协议**: 存储限制（Max 6），聚焦当前目标
-- **系统个性化**:
-  - **8种主题**: 从工业黑橙到赛博霓虹，每种主题包含独特的动态背景粒子
-  - **国际化**: 中/英双语切换
-  - **完全自定义**: 计时参数、音效开关、音量及背景音乐源均可配置
+- **完全自定义**: 计时参数、音效开关、音量及背景音乐源均可配置
 
 ## 🛠️ 技术栈 (Tech Stack)
 
@@ -83,9 +80,11 @@
 
 ```text
 endfield-pomodoro/
+├── public/                     # 公共静态资源目录
 ├── src/                        # 源代码目录
 │   ├── assets/                 # 静态资源文件
 │   ├── components/             # UI 组件库
+│   │   ├── PWAPrompt.tsx       # PWA 提示组件
 │   │   ├── AudioPlayer.tsx     # 本地音频播放器组件
 │   │   ├── MessageDisplay.tsx  # 消息显示组件
 │   │   ├── MusicPlayer.tsx     # 在线音乐播放器组件
@@ -99,6 +98,7 @@ endfield-pomodoro/
 │   ├── config/                 # 配置文件
 │   │   └── musicConfig.ts      # 音乐播放器默认配置
 │   ├── hooks/                  # 自定义 Hooks
+│   │   ├── useLocalPlayer.ts   # 本地播放器逻辑 Hook
 │   │   ├── useMetingData.ts    # MetingJS API 数据获取 Hook
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
@@ -107,14 +107,18 @@ endfield-pomodoro/
 │   ├── types.ts                # TypeScript 核心类型定义
 │   ├── App.tsx                 # 主应用组件与布局
 │   ├── main.tsx                # 渲染入口
+│   ├── vite-env.d.ts           # Vite 环境类型定义
 │   └── index.css               # 全局样式与 Tailwind 引入
 ├── index.html                  # HTML 入口文件
 ├── package.json                # 项目依赖配置
+├── pnpm-lock.yaml              # pnpm 依赖锁定文件
 ├── tsconfig.json               # TypeScript 配置
 ├── tsconfig.app.json           # TypeScript 应用配置
 ├── tsconfig.node.json          # TypeScript Node 配置
 ├── vite.config.ts              # Vite 构建配置
 ├── eslint.config.js            # ESLint 配置
+├── LICENSE                     # 项目许可证
+├── .gitignore                  # Git 忽略文件
 └── README.md                   # 项目文档
 ```
 
@@ -170,13 +174,6 @@ export const translations = {
 
 ### 修改默认音乐配置
 编辑 `src/config/musicConfig.ts` 中的 `defaultMetingConfig`。
-
-### 修改全局常量
-编辑 `src/constants.ts` 统一管理所有常量：
-- **STORAGE_KEYS**: LocalStorage 存储键
-- **METING_API_BASE_URL**: 在线音乐 API 地址
-- **NEXT_TRACK_RETRY_DELAY_MS**: 音频重试延迟时间
-- **TOAST_DURATION_MS**: 提示消息显示时长（毫秒）
 
 ### 代码组织原则
 - **组件文件**: 只导出 React 组件，支持 Fast Refresh
