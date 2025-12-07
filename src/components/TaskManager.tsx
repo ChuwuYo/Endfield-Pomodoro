@@ -110,6 +110,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                     onClick={() => toggleTask(task.id)}
                     className={`w-4 h-4 flex-shrink-0 border flex items-center justify-center transition-colors ${task.completed ? 'bg-theme-primary border-theme-primary text-black' : 'border-theme-dim hover:border-theme-primary'}`}
                     title={t('TOGGLE_TASK')}
+                    aria-label={t('TOGGLE_TASK')}
                   >
                     {task.completed && (
                       <i className="ri-check-line text-xs font-bold"></i>
@@ -123,6 +124,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                   onClick={() => deleteTask(task.id)}
                   className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0"
                   title={t('DELETE_TASK')}
+                  aria-label={t('DELETE_TASK')}
                 >
                   <i className="ri-close-line text-lg"></i>
                 </button>
@@ -133,7 +135,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
 
         {tasks.some(t => t.completed) && (
           <div className="mt-4 pt-2 border-t border-theme-highlight flex justify-end shrink-0">
-            <button onClick={clearCompleted} className="text-[10px] font-mono uppercase tracking-widest text-theme-dim hover:text-theme-primary transition-colors flex items-center gap-1" title={t('CLEAR_ALL_TASKS')}>
+            <button onClick={clearCompleted} className="text-[10px] font-mono uppercase tracking-widest text-theme-dim hover:text-theme-primary transition-colors flex items-center gap-1" title={t('CLEAR_ALL_TASKS')} aria-label={t('CLEAR_ALL_TASKS')}>
               [{t('CLEAR_COMPLETED')}]
             </button>
           </div>
