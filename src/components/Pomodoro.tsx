@@ -29,8 +29,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
 
-  // 在恢复流程期间阻止 resetTimer 覆盖恢复的计时状态
-  const restoredRef = useRef(false);
+  // 在恢复流程期间阻止 resetTimer 覆盖刚从存储中恢复的计时状态（记录本次恢复到的 mode）
+  const restoredModeRef = useRef<TimerMode | null>(null);
   // 标记是否应该在 resetTimer 后自动开始
   const shouldAutoStartRef = useRef(false);
 
@@ -75,7 +75,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
       // 将多个 state 更新合并并标记为已恢复，避免随后 resetTimer 覆盖
       if (restoredMode !== undefined || restoredTime !== null || restoredActive || restoredStart !== null) {
-        restoredRef.current = true;
+        // 记录本次从存储中恢复使用的模式，用于跳过随后对应 mode 的首次 reset
+        restoredModeRef.current = restoredMode ?? mode;
         if (restoredMode !== undefined) setMode(restoredMode);
         if (restoredTime !== null) setTimeLeft(restoredTime);
         setIsActive(restoredActive);
@@ -114,9 +115,9 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   }, [mode, timeLeft, isActive, settings.workDuration, settings.shortBreakDuration, settings.longBreakDuration]);
 
   useEffect(() => {
-    // 如果刚刚从 localStorage 恢复过来，跳过本次 reset（避免覆盖恢复的剩余时间/运行状态）
-    if (restoredRef.current) {
-      restoredRef.current = false;
+    // 如果刚刚从 localStorage 恢复到当前 mode，跳过本次 reset（避免覆盖恢复的剩余时间/运行状态）
+    if (restoredModeRef.current && restoredModeRef.current === mode) {
+      restoredModeRef.current = null;
       return;
     }
     resetTimer();
