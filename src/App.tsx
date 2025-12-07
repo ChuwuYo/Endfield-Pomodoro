@@ -581,7 +581,15 @@ const App: React.FC = () => {
                                             />
                                         </div>
                                     </div>
-                                    <div className="flex justify-end pt-2">
+                                    <div className="flex justify-end gap-3 pt-2">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setTempMusicConfig(DEFAULT_SETTINGS.musicConfig)}
+                                            className="px-4 py-1.5 text-xs font-mono tracking-wider"
+                                            title={t('RESET_MUSIC_CONFIG')}
+                                        >
+                                            <i className="ri-refresh-line text-base"></i>
+                                        </Button>
                                         <Button
                                             variant="primary"
                                             onClick={applyMusicConfig}
