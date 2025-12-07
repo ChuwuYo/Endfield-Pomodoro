@@ -31,6 +31,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   // 在恢复流程期间阻止 resetTimer 覆盖恢复的计时状态
   const restoredRef = useRef(false);
+  // 标记是否应该在 resetTimer 后自动开始
+  const shouldAutoStartRef = useRef(false);
 
   // 本地持久化键（用于在刷新后恢复计时器状态）
   const TIMER_STORAGE = 'origin_terminal_timer';
@@ -122,7 +124,9 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   }, [mode, settings.workDuration, settings.shortBreakDuration, settings.longBreakDuration]);
 
   const resetTimer = () => {
-    setIsActive(false);
+    const shouldAutoStart = shouldAutoStartRef.current;
+    shouldAutoStartRef.current = false;
+    
     let newTime = 0;
     switch (mode) {
       case TimerMode.WORK:
@@ -136,8 +140,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         break;
     }
     setTimeLeft(newTime);
-    // reset 时明确告诉父组件已停止（isActive = false）
-    if (onTick) onTick(newTime, mode, false);
+    setIsActive(shouldAutoStart);
+    if (onTick) onTick(newTime, mode, shouldAutoStart);
   };
 
   useEffect(() => {
@@ -180,24 +184,22 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   const handleComplete = () => {
     playSound('end');
-    setIsActive(false);
 
     if (mode === TimerMode.WORK) {
       sendNotification(t('NOTIFICATION_WORK_COMPLETE_TITLE'), t('NOTIFICATION_WORK_COMPLETE_BODY'));
       const newCount = sessionCount + 1;
       onSessionsUpdate(newCount);
 
+      shouldAutoStartRef.current = settingsRef.current.autoStartBreaks;
       if (newCount % 4 === 0) {
         setMode(TimerMode.LONG_BREAK);
-        if (settingsRef.current.autoStartBreaks) setIsActive(true);
       } else {
         setMode(TimerMode.SHORT_BREAK);
-        if (settingsRef.current.autoStartBreaks) setIsActive(true);
       }
     } else {
       sendNotification(t('NOTIFICATION_BREAK_COMPLETE_TITLE'), t('NOTIFICATION_BREAK_COMPLETE_BODY'));
+      shouldAutoStartRef.current = settingsRef.current.autoStartWork;
       setMode(TimerMode.WORK);
-      if (settingsRef.current.autoStartWork) setIsActive(true);
     }
   };
 
