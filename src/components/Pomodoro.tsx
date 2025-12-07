@@ -346,10 +346,10 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
           <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="col-span-2 h-14 text-lg" title={isActive ? t('PAUSE') : t('INITIALIZE')}>
             {isActive ? t('PAUSE') : t('INITIALIZE')}
           </Button>
-          <Button onClick={resetTimer} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('RESET_TIMER')}>
+          <Button onClick={resetTimer} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('RESET_TIMER')} aria-label={t('RESET_TIMER')}>
             <i className="ri-restart-line text-2xl"></i>
           </Button>
-          <Button onClick={handleComplete} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('SKIP_TIMER')}>
+          <Button onClick={handleComplete} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('SKIP_TIMER')} aria-label={t('SKIP_TIMER')}>
             <i className="ri-skip-forward-line text-2xl"></i>
           </Button>
         </div>

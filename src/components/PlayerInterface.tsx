@@ -231,6 +231,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         onClick={onPlaylistToggle}
                         className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm"
                         title={t('PLAYLIST_BUTTON')}
+                        aria-label={t('PLAYLIST_BUTTON')}
                     >
                         <i className="ri-play-list-line text-base"></i>
                     </button>
@@ -240,6 +241,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         onClick={onModeToggle}
                         className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-secondary hover:border-theme-secondary transition-colors rounded-sm flex items-center gap-1"
                         title={playMode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : playMode === AudioMode.REPEAT_ONE ? t('MODE_REPEAT_ONE') : t('MODE_SHUFFLE')}
+                        aria-label={t('TOGGLE_MODE')}
                     >
                         {playMode === AudioMode.SEQUENTIAL ? (
                             <i className="ri-repeat-line text-base"></i>
@@ -260,6 +262,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     disabled={playlistCount === 0}
                     className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t('PREVIOUS_TRACK_TOOLTIP')}
+                    aria-label={t('PREVIOUS_TRACK_TOOLTIP')}
                 >
                     <i className="ri-skip-back-line text-xl"></i>
                 </button>
@@ -270,6 +273,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     disabled={playlistCount === 0}
                     className={`w-14 h-9 flex items-center justify-center border transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed ${isPlaying ? 'bg-theme-primary text-black border-theme-primary' : 'border-theme-highlight text-theme-text hover:border-theme-primary'}`}
                     title={t('PLAY_PAUSE')}
+                    aria-label={t('PLAY_PAUSE')}
                 >
                     {isPlaying ? (
                         <i className="ri-pause-line text-2xl"></i>
@@ -284,6 +288,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     disabled={playlistCount === 0}
                     className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t('NEXT_TRACK')}
+                    aria-label={t('NEXT_TRACK')}
                 >
                     <i className="ri-skip-forward-line text-xl"></i>
                 </button>
@@ -292,6 +297,9 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
                     <i
                         className={`${displayVolume === 0 ? 'ri-volume-mute-line' : 'ri-volume-up-line'} text-theme-dim hover:text-theme-primary text-base shrink-0 cursor-pointer transition-colors`}
+                        role="button"
+                        aria-label={displayVolume === 0 ? 'Unmute' : 'Mute'}
+                        tabIndex={0}
                         onClick={() => {
                             if (displayVolume === 0) {
                                 onVolumeChange(previousVolumeRef.current || 0.5);

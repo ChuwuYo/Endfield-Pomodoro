@@ -587,6 +587,7 @@ const App: React.FC = () => {
                                             onClick={() => setTempMusicConfig(DEFAULT_SETTINGS.musicConfig)}
                                             className="px-4 py-1.5 text-xs font-mono tracking-wider"
                                             title={t('RESET_MUSIC_CONFIG')}
+                                            aria-label={t('RESET_MUSIC_CONFIG')}
                                         >
                                             <i className="ri-refresh-line text-base"></i>
                                         </Button>
