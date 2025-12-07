@@ -141,6 +141,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     }
     setTimeLeft(newTime);
     setIsActive(shouldAutoStart);
+    if (shouldAutoStart) playSound('start');
     if (onTick) onTick(newTime, mode, shouldAutoStart);
   };
 
