@@ -16,7 +16,9 @@ export const STORAGE_KEYS = {
     /** 当前会话开始时间戳 */
     CURRENT_SESSION_START: 'origin_terminal_current_session_start',
     /** 音频源模式（local/online） */
-    AUDIO_SOURCE: 'origin_terminal_audio_source'
+    AUDIO_SOURCE: 'origin_terminal_audio_source',
+    /** 计时器状态（用于刷新后恢复） */
+    TIMER: 'origin_terminal_timer'
 } as const;
 
 /**
@@ -55,6 +57,15 @@ export const SECONDS_PER_MINUTE = 60; // 秒转分钟的转换系数
 export const SECONDS_PER_HOUR = 3600; // 秒转小时的转换系数
 export const MINUTES_PER_HOUR = 60; // 分钟转小时的转换系数
 export const HOURLY_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 每小时检查间隔（毫秒）
+
+/**
+ * 番茄钟计时器常量
+ * 
+ * 使用位置：
+ * - Pomodoro.tsx
+ */
+export const TIMER_CHECK_INTERVAL_MS = 100; // 计时器精度检查间隔（毫秒）
+export const LONG_BREAK_INTERVAL = 4; // 每完成多少个工作会话后进入长休息
 
 /**
  * 音效时长常量（秒）

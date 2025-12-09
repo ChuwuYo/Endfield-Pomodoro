@@ -327,11 +327,13 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         </div>
                         {/* 可拖拽的圆球滑块 */}
                         <div
-                            className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform hover:scale-125"
+                            className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform group/slider"
                             style={{
                                 left: `${displayVolume * 100}%`,
-                                transform: 'translateX(-50%)'
+                                transform: 'translateX(-50%) scale(1)'
                             }}
+                            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateX(-50%) scale(1.25)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateX(-50%) scale(1)'; }}
                             onMouseDown={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();

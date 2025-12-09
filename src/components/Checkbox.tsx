@@ -38,11 +38,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({ checked, onChange, label, cl
       >
         {/* 勾选图标 */}
         <i
-          className={`
-            ri-check-line text-xs font-bold text-theme-base
-            transition-all duration-150
-            ${checked ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}
-          `}
+          className="ri-check-line text-xs font-bold text-theme-base transition-all duration-150"
+          style={{ 
+            opacity: checked ? 1 : 0, 
+            transform: checked ? 'scale(1)' : 'scale(0.5)' 
+          }}
         />
 
         {/* 选中时的外发光 */}

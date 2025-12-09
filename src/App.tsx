@@ -419,7 +419,7 @@ const App: React.FC = () => {
             </header>
 
             {/* 主要内容区域 (Z-10) */}
-            <main className="flex-1 pt-24 md:pt-28 pb-8 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar">
+            <main className="flex-1 pt-24 md:pt-28 pb-8 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar" style={{ scrollbarGutter: 'stable' }}>
                 {currentView === View.SETTINGS ? (
                     <div className="max-w-4xl mx-auto w-full h-full pb-20 pt-6 px-2">
                         <Panel title={t('SYSTEM_CONFIG')} className="p-4 md:p-8 backdrop-blur-xl bg-theme-surface/80 mt-2">
