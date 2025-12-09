@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
@@ -51,6 +51,18 @@ const AudioPlayer: React.FC<{
 
     const [showPlaylist, setShowPlaylist] = useState(false);
 
+    // 网络恢复按钮回调
+    const handleSwitchToOnline = useCallback(() => {
+        setShowOnlineToast(false);
+        setAudioSource('online');
+    }, []);
+
+    // 网络恢复提示的 actionButton
+    const onlineToastActionButton = useMemo(() => ({
+        textKey: "SWITCH_TO_ONLINE" as const,
+        onClick: handleSwitchToOnline
+    }), [handleSwitchToOnline]);
+
     // 映射 PlayMode 到 AudioMode
     const mapPlayMode = (mode: PlayMode): AudioMode => {
         switch (mode) {
@@ -100,10 +112,7 @@ const AudioPlayer: React.FC<{
                     <MessageDisplay
                         messageKey="NETWORK_RESTORED"
                         language={language}
-                        actionButton={{
-                            textKey: "SWITCH_TO_ONLINE",
-                            onClick: () => { setShowOnlineToast(false); setAudioSource('online'); }
-                        }}
+                        actionButton={onlineToastActionButton}
                     />
                 </div>
             )}

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useTranslation } from '../utils/i18n';
 import { Language } from '../types';
 
@@ -14,7 +14,7 @@ interface MessageDisplayProps {
     };
 }
 
-const MessageDisplay: React.FC<MessageDisplayProps> = memo(({ messageKey, language, actionButton }) => {
+const MessageDisplay: React.FC<MessageDisplayProps> = ({ messageKey, language, actionButton }) => {
     const t = useTranslation(language);
 
     return (
@@ -33,8 +33,6 @@ const MessageDisplay: React.FC<MessageDisplayProps> = memo(({ messageKey, langua
             )}
         </div>
     );
-});
-
-MessageDisplay.displayName = 'MessageDisplay';
+};
 
 export default MessageDisplay;
