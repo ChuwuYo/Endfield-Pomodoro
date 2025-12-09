@@ -159,7 +159,7 @@ const AudioPlayer: React.FC<{
                                     </button>
                                 </div>
 
-                                <div className="overflow-y-auto p-2 custom-scrollbar flex-1 bg-black/20">
+                                <div className="overflow-y-auto p-2 custom-scrollbar flex-1 bg-black/20" style={{ scrollbarGutter: 'stable' }}>
                                     {localPlayer.playlist.length === 0 ? (
                                         <div className="text-center p-8 text-theme-dim font-mono text-xs">{t('NO_TRACK')}</div>
                                     ) : (

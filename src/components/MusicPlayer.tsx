@@ -101,12 +101,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language, enabled = t
 
             {/* 播放列表 (绝对定位覆盖) */}
             {isListOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-theme-surface/95 backdrop-blur-md border border-theme-primary/30 rounded-md z-50 max-h-60 overflow-y-auto custom-scrollbar shadow-xl">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-theme-surface/95 backdrop-blur-md border border-theme-primary/30 rounded-md z-50 max-h-60 overflow-hidden shadow-xl">
                     <div className="sticky top-0 bg-theme-surface/95 border-b border-theme-highlight/20 p-2 flex justify-between items-center text-xs text-theme-dim">
                         <span>{t('PLAYLIST_TITLE')} [{playlist.length}]</span>
                         <button onClick={() => setIsListOpen(false)} className="hover:text-theme-primary"><i className="ri-close-line"></i></button>
                     </div>
-                    <ul className="p-1">
+                    <ul className="p-1 overflow-y-auto max-h-[calc(15rem-2.5rem)]" style={{ scrollbarGutter: 'stable' }}>
                         {playlist.map((song, index) => (
                             <li key={index}
                                 className={`flex items-center p-2 hover:bg-theme-highlight/10 cursor-pointer text-xs border-b border-theme-highlight/5 last:border-0 ${index === player.currentIndex ? 'text-theme-primary bg-theme-primary/5' : 'text-theme-text'}`}
