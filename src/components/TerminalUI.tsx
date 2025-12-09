@@ -42,7 +42,7 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
         primary: "bg-theme-primary text-theme-base hover:bg-theme-primary/90 hover:shadow-[0_0_15px_rgba(var(--color-primary),0.4)] clip-path-slant font-bold",
         secondary: "bg-transparent text-theme-primary border border-theme-primary hover:bg-theme-primary/10",
         danger: "bg-red-900/20 text-red-500 border border-red-900 hover:bg-red-900/40",
-        ghost: "bg-transparent text-theme-dim hover:text-theme-text hover:bg-theme-highlight"
+        ghost: "bg-transparent text-theme-text hover:text-theme-primary hover:bg-theme-highlight/10"
     };
 
     return (
