@@ -33,8 +33,10 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
     className = '',
     ...props
 }) => {
+    const [isPressed, setIsPressed] = useState(false);
+    
     // 调整内边距：px-3用于移动端友好，md:px-6用于桌面端
-    const baseStyle = "font-mono uppercase tracking-wider text-sm py-2 px-3 md:px-6 transition-all duration-200 flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden active:scale-95";
+    const baseStyle = "font-mono uppercase tracking-wider text-sm py-2 px-3 md:px-6 transition-all duration-200 flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden";
 
     const variants = {
         primary: "bg-theme-primary text-theme-base hover:bg-theme-primary/90 hover:shadow-[0_0_15px_rgba(var(--color-primary),0.4)] clip-path-slant font-bold",
@@ -44,7 +46,14 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
     };
 
     return (
-        <button className={`${baseStyle} ${variants[variant]} ${className}`} {...props}>
+        <button 
+            className={`${baseStyle} ${variants[variant]} ${className}`}
+            style={{ transform: isPressed ? 'scale(0.95)' : 'scale(1)' }}
+            onMouseDown={() => setIsPressed(true)}
+            onMouseUp={() => setIsPressed(false)}
+            onMouseLeave={() => setIsPressed(false)}
+            {...props}
+        >
             <span className="relative z-10 flex items-center gap-2">{children}</span>
             {/* 扫描线悬停效果 */}
             <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
