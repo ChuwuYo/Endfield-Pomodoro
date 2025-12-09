@@ -57,6 +57,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const previousVolumeRef = useRef<number>(0.5);
     const [dragTime, setDragTime] = useState<number | null>(null);
     const [dragVolume, setDragVolume] = useState<number | null>(null);
+    const [isHandleHovered, setIsHandleHovered] = useState(false);
 
     // 用 ref 保存回调和 duration，避免事件监听器频繁重建
     const onSeekRef = useRef(onSeek);
@@ -330,10 +331,10 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                             className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform group/slider"
                             style={{
                                 left: `${displayVolume * 100}%`,
-                                transform: 'translateX(-50%) scale(1)'
+                                transform: `translateX(-50%) scale(${isHandleHovered ? 1.25 : 1})`
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateX(-50%) scale(1.25)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateX(-50%) scale(1)'; }}
+                            onMouseEnter={() => setIsHandleHovered(true)}
+                            onMouseLeave={() => setIsHandleHovered(false)}
                             onMouseDown={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
