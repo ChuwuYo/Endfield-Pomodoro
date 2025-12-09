@@ -194,7 +194,13 @@ export const translations = {
 - 自动优化回调函数，无需使用 `useCallback`
 - 编译器配置位于 [vite.config.ts](./vite.config.ts) 中
 - 使用 React DevTools 可查看哪些组件被编译器优化
-- 由于编译器仍处于实验阶段，我保留了一些 hooks 调用，以确保兼容性
+
+**注意：** 虽然 React Compiler 提供了自动优化，但在以下场景中仍然保留了显式的 hooks 调用：
+- 当需要确保对象/函数引用稳定性时（如传递给子组件的 props）
+- 当涉及复杂的依赖关系时
+- 为了提高代码可读性和显式意图
+
+这样做既能利用 Compiler 的优化，又能在关键位置保持代码的清晰性和可维护性。
 
 ## 🤝 贡献 (Contributing)
 
