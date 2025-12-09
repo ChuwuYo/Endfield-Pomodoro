@@ -345,7 +345,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
             {/* 时间文本 */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
               <span 
-                className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform ${isActive ? 'scale-105' : 'scale-100'}`}
+                className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}
+                style={{ transform: isActive ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'center' }}
                 aria-live="polite"
                 aria-atomic="true"
               >
