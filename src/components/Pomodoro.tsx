@@ -4,7 +4,7 @@ import type { Settings } from '../types';
 import { useSound } from './SoundManager';
 import { Button, Panel } from './TerminalUI';
 import { useTranslation } from '../utils/i18n';
-import { SECONDS_PER_MINUTE, MS_PER_SECOND } from '../constants';
+import { SECONDS_PER_MINUTE, MS_PER_SECOND, STORAGE_KEYS, TIMER_CHECK_INTERVAL_MS, LONG_BREAK_INTERVAL } from '../constants';
 
 interface PomodoroProps {
   settings: Settings;
@@ -25,6 +25,7 @@ type TimerPayload = {
 const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsUpdate, onTick }) => {
   const t = useTranslation(settings.language);
   const playSound = useSound(settings.soundEnabled, settings.soundVolume);
+  const gradientId = useRef(`progress-gradient-${Math.random().toString(36).substring(2, 11)}`).current;
 
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
@@ -34,9 +35,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   // 标记是否应该在 resetTimer 后自动开始
   const shouldAutoStartRef = useRef(false);
 
-  // 本地持久化键（用于在刷新后恢复计时器状态）
-  const TIMER_STORAGE = 'origin_terminal_timer';
-
   // 本地状态：模式、剩余时间、是否激活
   const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
   const [timeLeft, setTimeLeft] = useState<number>(() => settings.workDuration * SECONDS_PER_MINUTE);
@@ -45,7 +43,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   // 从 localStorage 恢复计时器（仅在挂载时执行）
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(TIMER_STORAGE);
+      const raw = localStorage.getItem(STORAGE_KEYS.TIMER);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return;
@@ -105,10 +103,14 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
         const elapsed = total - timeLeft;
         payload.startTs = Date.now() - elapsed * MS_PER_SECOND;
       }
-      localStorage.setItem(TIMER_STORAGE, JSON.stringify(payload));
+      localStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(payload));
     } catch (err) {
       // 持久化失败时记录错误但不影响运行
-      console.error('Failed to persist timer payload to localStorage', err);
+      if (err instanceof Error && err.name === 'QuotaExceededError') {
+        console.warn('localStorage quota exceeded, timer state will not persist');
+      } else {
+        console.error('Failed to persist timer payload to localStorage', err);
+      }
     }
     // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,20 +149,28 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   };
 
   useEffect(() => {
-    let interval: number | undefined;
-
-    if (isActive && timeLeft > 0) {
-      interval = window.setInterval(() => {
-        setTimeLeft((prev) => {
-          const newTime = prev - 1;
-          // tick 时明确传递当前运行状态（isActive = true）
-          if (onTick) onTick(newTime, mode, true);
-          return newTime;
-        });
-      }, MS_PER_SECOND);
-    } else if (timeLeft === 0) {
-      handleComplete();
+    if (!isActive || timeLeft <= 0) {
+      if (timeLeft === 0 && isActive) {
+        handleComplete();
+      }
+      return;
     }
+
+    const startTime = Date.now();
+    const expectedEndTime = startTime + timeLeft * MS_PER_SECOND;
+
+    const interval = window.setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.ceil((expectedEndTime - now) / MS_PER_SECOND);
+      
+      if (remaining <= 0) {
+        setTimeLeft(0);
+        if (onTick) onTick(0, mode, true);
+      } else if (remaining !== timeLeft) {
+        setTimeLeft(remaining);
+        if (onTick) onTick(remaining, mode, true);
+      }
+    }, TIMER_CHECK_INTERVAL_MS);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,7 +203,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
       onSessionsUpdate(newCount);
 
       shouldAutoStartRef.current = settingsRef.current.autoStartBreaks;
-      if (newCount % 4 === 0) {
+      if (newCount % LONG_BREAK_INTERVAL === 0) {
         setMode(TimerMode.LONG_BREAK);
       } else {
         setMode(TimerMode.SHORT_BREAK);
@@ -227,7 +237,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   const progress = (() => {
     const total = getTotalTime();
-    return ((total - timeLeft) / total) * 100;
+    return total > 0 ? ((total - timeLeft) / total) * 100 : 0;
   })();
 
   const getStatusText = () => {
@@ -282,7 +292,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
             <svg className="absolute w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(var(--color-primary),0.2)]" viewBox="0 0 256 256">
               <defs>
-                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="var(--color-primary)" />
                   <stop offset="100%" stopColor="var(--color-secondary)" />
                 </linearGradient>
@@ -334,7 +344,11 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
             {/* 时间文本 */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <span className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform ${isActive ? 'scale-105' : 'scale-100'}`}>
+              <span 
+                className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform ${isActive ? 'scale-105' : 'scale-100'}`}
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {formatTime(timeLeft)}
               </span>
               <span className="text-xs text-theme-dim font-mono mt-2 tracking-[0.3em] uppercase animate-pulse">{t('TIME_REMAINING')}</span>
