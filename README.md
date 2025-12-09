@@ -206,7 +206,7 @@ export const translations = {
 
 ## 📝 鸣谢 (Acknowledgments)
 
-- [Gemini](https://gemini.google.com/) - 用于部分代码生成和优化、文档撰写
+- [Gemini](https://gemini.google.com/) - 用于初期界面代码生成和优化、文档撰写
 - [TailwindCSS](https://tailwindcss.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [pnpm](https://pnpm.io/)
