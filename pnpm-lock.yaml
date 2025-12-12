@@ -34,7 +34,7 @@ importers:
         version: 4.7.0
       tailwindcss:
         specifier: ^4.1.17
-        version: 4.1.17
+        version: 4.1.18
       workbox-window:
         specifier: ^7.4.0
         version: 7.4.0
