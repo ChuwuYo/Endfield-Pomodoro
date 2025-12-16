@@ -363,8 +363,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
             {!isActive && (
               <div className="absolute -inset-[3px] overflow-hidden clip-path-slant z-0 bg-theme-dim/10">
                 <div
-                  className="absolute top-1/2 left-1/2 w-[200%] h-[200%] glow-conic-secondary"
-                  style={{ animation: 'spin-slow-linear 4s linear infinite' }}
+                  className="absolute top-1/2 left-1/2 w-[200%] h-[200%] glow-conic-secondary animate-spin-slow-linear-4s"
                 ></div>
               </div>
             )}

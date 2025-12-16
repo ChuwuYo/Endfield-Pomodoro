@@ -173,6 +173,10 @@ body {
   background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--color-secondary) 180deg, transparent 300deg);
 }
 
+.animate-spin-slow-linear-4s {
+  animation: spin-slow-linear 4s linear infinite;
+}
+
 /* 文本悬停填充效果 */
 .text-hover-fill {
   position: relative;
