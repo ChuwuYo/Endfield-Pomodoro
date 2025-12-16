@@ -118,7 +118,7 @@ const THEMES = {
         '--color-surface': '#d4d4d4',
         '--color-highlight': '#a3a3a3',
         '--color-primary': '#f97316',
-        '--color-secondary': '#eab308',
+        '--color-secondary': '#eaff4a',
         '--color-accent': '#ffd1f6',
         '--color-text': '#171717',
         '--color-dim': '#737373',

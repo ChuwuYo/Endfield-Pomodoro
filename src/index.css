@@ -157,3 +157,17 @@ body {
   background-size: 200% 100%;
   animation: data-flow 3s linear infinite;
 }
+
+@keyframes spin-slow-linear {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.glow-conic-secondary {
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--color-secondary) 180deg, transparent 300deg);
+}
