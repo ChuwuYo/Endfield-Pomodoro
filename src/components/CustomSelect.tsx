@@ -54,9 +54,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 last:border-b-0 ${option.value === value
-                ? 'bg-theme-primary/20 text-theme-primary border-l-2 border-l-theme-primary'
-                : 'text-theme-text hover:bg-theme-highlight/20 hover:text-theme-primary hover:border-l-2 hover:border-l-theme-primary'
+              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 border-l-2 last:border-b-0 ${option.value === value
+                ? 'bg-theme-primary/20 text-theme-primary border-l-theme-primary'
+                : 'text-theme-text border-l-transparent hover:bg-theme-highlight/20 hover:text-theme-primary hover:border-l-theme-primary'
                 }`}
             >
               <div className="flex items-center justify-between">
