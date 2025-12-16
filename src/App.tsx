@@ -118,7 +118,7 @@ const THEMES = {
         '--color-surface': '#d4d4d4',
         '--color-highlight': '#a3a3a3',
         '--color-primary': '#f97316',
-        '--color-secondary': '#eaff4a',
+        '--color-secondary': '#f6ff00',
         '--color-accent': '#ffd1f6',
         '--color-text': '#171717',
         '--color-dim': '#737373',
@@ -336,7 +336,7 @@ const App: React.FC = () => {
             <header className="fixed top-0 left-0 right-0 z-40 select-none border-b border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md shadow-lg">
                 <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 max-w-[1920px] mx-auto">
                     {/* Logo */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 group cursor-default">
                         {/* 左侧黄色条带装饰 */}
                         <div className="relative hidden md:flex items-center">
                             <div className="w-1 h-10 bg-theme-primary" />
@@ -350,14 +350,14 @@ const App: React.FC = () => {
                                 <div className="w-1 h-6 bg-theme-primary md:hidden" />
                                 <h1 className="text-lg md:text-xl font-bold font-sans tracking-tight leading-none text-theme-text uppercase flex items-center">
                                     <span className="text-theme-dim font-normal mr-1">[</span>
-                                    ENDFIELD
+                                    <span className="text-hover-fill" data-text="ENDFIELD">ENDFIELD</span>
                                     <span className="text-theme-dim font-normal ml-1">]</span>
                                 </h1>
                             </div>
 
                             {/* 副标题 - 桌面端 */}
                             <div className="hidden md:flex items-center gap-2 mt-1">
-                                <span className="text-[10px] font-mono text-theme-primary tracking-widest">PROTOCOL</span>
+                                <span className="text-[10px] font-mono tracking-widest text-hover-fill" data-text="PROTOCOL">PROTOCOL</span>
                                 <span className="text-theme-dim text-[10px]">•</span>
                                 <span className="text-[10px] font-mono text-theme-dim tracking-wider">
                                     V{pkg.version}
