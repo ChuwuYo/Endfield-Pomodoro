@@ -129,7 +129,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
   const resetTimer = () => {
     const shouldAutoStart = shouldAutoStartRef.current;
     shouldAutoStartRef.current = false;
-    
+
     let newTime = 0;
     switch (mode) {
       case TimerMode.WORK:
@@ -162,7 +162,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
     const interval = window.setInterval(() => {
       const now = Date.now();
       const remaining = Math.ceil((expectedEndTime - now) / MS_PER_SECOND);
-      
+
       if (remaining <= 0) {
         setTimeLeft(0);
         if (onTick) onTick(0, mode, true);
@@ -178,7 +178,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
   const sendNotification = (title: string, body: string) => {
     if (!settingsRef.current.notificationsEnabled) return;
-    
+
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
         const n = new Notification(title, {
@@ -344,7 +344,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
             {/* 时间文本 */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <span 
+              <span
                 className={`text-5xl md:text-7xl font-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}
                 style={{ transform: isActive ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'center' }}
                 aria-live="polite"
@@ -359,9 +359,18 @@ const Pomodoro: React.FC<PomodoroProps> = ({ settings, sessionCount, onSessionsU
 
         {/* 控制 */}
         <div className="w-full grid grid-cols-4 gap-4 mt-4 shrink-0">
-          <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="col-span-2 h-14 text-lg" title={isActive ? t('PAUSE') : t('INITIALIZE')}>
-            {isActive ? t('PAUSE') : t('INITIALIZE')}
-          </Button>
+          <div className={`col-span-2 h-14 relative ${!isActive ? 'group' : ''}`}>
+            {!isActive && (
+              <div className="absolute -inset-[3px] overflow-hidden clip-path-slant z-0 bg-theme-dim/10">
+                <div
+                  className="absolute top-1/2 left-1/2 w-[200%] h-[200%] glow-conic-secondary animate-spin-slow-linear-4s"
+                ></div>
+              </div>
+            )}
+            <Button onClick={toggleTimer} variant={isActive ? "secondary" : "primary"} className="w-full h-full text-lg relative z-10" title={isActive ? t('PAUSE') : t('INITIALIZE')}>
+              {isActive ? t('PAUSE') : t('INITIALIZE')}
+            </Button>
+          </div>
           <Button onClick={resetTimer} variant="ghost" className="col-span-1 h-14 border border-theme-highlight/30 hover:border-theme-primary" title={t('RESET_TIMER')} aria-label={t('RESET_TIMER')}>
             <i className="ri-restart-line text-2xl"></i>
           </Button>

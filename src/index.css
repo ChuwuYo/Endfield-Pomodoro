@@ -157,3 +157,48 @@ body {
   background-size: 200% 100%;
   animation: data-flow 3s linear infinite;
 }
+
+@keyframes spin-slow-linear {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* 流光效果 */
+.glow-conic-secondary {
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--color-secondary) 180deg, transparent 300deg);
+}
+
+.animate-spin-slow-linear-4s {
+  animation: spin-slow-linear 4s linear infinite;
+}
+
+/* 文本悬停填充效果 */
+.text-hover-fill {
+  position: relative;
+  text-decoration: none;
+  /* 基础颜色由父级决定，这里继承 */
+}
+
+.text-hover-fill::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  color: var(--color-primary);
+  overflow: hidden;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.text-hover-fill:hover::before,
+.group:hover .text-hover-fill::before {
+  width: 100%;
+  filter: drop-shadow(0 0 5px var(--color-primary));
+}

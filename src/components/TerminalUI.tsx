@@ -34,7 +34,7 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
     ...props
 }) => {
     const [isPressed, setIsPressed] = useState(false);
-    
+
     // 调整内边距：px-3用于移动端友好，md:px-6用于桌面端
     const baseStyle = "font-mono uppercase tracking-wider text-sm py-2 px-3 md:px-6 transition-all duration-200 flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden";
 
@@ -46,7 +46,7 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
     };
 
     return (
-        <button 
+        <button
             className={`${baseStyle} ${variants[variant]} ${className}`}
             style={{ transform: isPressed ? 'scale(0.95)' : 'scale(1)' }}
             onMouseDown={() => setIsPressed(true)}
@@ -67,7 +67,7 @@ export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (pro
             {...props}
             className={`bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 h-form-control focus:outline-none focus:border-theme-primary w-full min-w-0 placeholder-theme-dim/70 transition-all duration-300`}
         />
-        <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-theme-primary group-hover:w-full transition-all duration-500"></div>
+        <div className="absolute bottom-0 left-0 h-[1px] w-full bg-theme-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></div>
     </div>
 );
 
