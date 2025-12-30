@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { NEXT_TRACK_RETRY_DELAY_MS, AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
 import { PlayMode } from '../types';
+import { DEFAULT_MUSIC_VOLUME } from '../config/musicConfig';
 
 export interface Song {
     name: string;
@@ -19,7 +20,7 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
-    const [volume, setVolume] = useState<number>(0.7);
+    const [volume, setVolume] = useState<number>(DEFAULT_MUSIC_VOLUME);
     const [playMode, setPlayMode] = useState<PlayMode>(PlayMode.SEQUENCE);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);

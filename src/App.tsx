@@ -10,6 +10,7 @@ import { Checkbox } from './components/Checkbox';
 import { PWAPrompt } from './components/PWAPrompt';
 import { useTranslation } from './utils/i18n';
 import { STORAGE_KEYS, MS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from './constants';
+import { defaultMusicConfig } from './config/musicConfig';
 import pkg from '../package.json';
 
 const DEFAULT_SETTINGS: Settings = {
@@ -26,11 +27,7 @@ const DEFAULT_SETTINGS: Settings = {
         return browserLangs.some(lang => lang?.toLowerCase().startsWith('zh')) ? Language.CN : Language.EN;
     })()),
     theme: ThemePreset.INDUSTRIAL,
-    musicConfig: {
-        server: 'netease',
-        type: 'playlist',
-        id: '9094583817'
-    }
+    musicConfig: defaultMusicConfig
 };
 
 const View = {

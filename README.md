@@ -11,7 +11,7 @@
 
 > **TERMINAL_Version // SYSTEM_ONLINE**
 >
-> 一个融合 Cyber UI 和《终末地》风格的沉浸式 Web 番茄钟应用。
+> 一个受 Cyber UI 和 终末地 风格启发的沉浸式 Web 番茄钟应用。
 
 ## ✨ 核心特性 (Core Features)
 
@@ -23,7 +23,7 @@
 ### 🎵 音频控制终端 (Audio Terminal)
 - **双模式播放**:
   - **本地模式**: 支持导入现代浏览器支持的所有音频类型，具备进度与播放列表管理
-  - **在线模式**: 集成 MetingJS，支持网易云/QQ音乐/酷狗等平台的歌单解析
+  - **在线模式**: 集成 MetingAPI，支持网易云/QQ音乐/酷狗等平台的歌单解析
 - **终端交互**: 支持基本信息、播放控制、封面展示及后台播放等功能
 
 ### 📋 任务与配置 (Mission & Config)
@@ -44,7 +44,6 @@
 - **开发语言**: [TypeScript](https://www.typescriptlang.org/) - 强类型保障代码健壮性
 - **样式方案**: [TailwindCSS v4](https://tailwindcss.com/) - 原子化 CSS 引擎，配合 CSS Variables 实现动态主题切换
 - **图标库**: [Remixicon](https://remixicon.com/) + [Lucide React](https://lucide.dev/) - 风格统一的开源图标集
-- **音频处理**: Web Audio API - 原生实现振荡器音效，无额外音频资源依赖
 - **状态管理**: React Hooks (useState, useEffect, useRef)
 - **工具函数**: [react-use](https://github.com/streamich/react-use) - 实用的 React Hooks 集合
 
@@ -91,14 +90,14 @@ endfield-pomodoro/
 ├── src/                        # 源代码目录
 │   ├── assets/                 # 静态资源文件
 │   ├── components/             # UI 组件库
-│   │   ├── PWAPrompt.tsx       # PWA 提示组件
 │   │   ├── AudioPlayer.tsx     # 本地音频播放器组件
+│   │   ├── Checkbox.tsx        # 复选框组件
+│   │   ├── CustomSelect.tsx    # 自定义下拉选择组件
 │   │   ├── MessageDisplay.tsx  # 消息显示组件
 │   │   ├── MusicPlayer.tsx     # 在线音乐播放器组件
 │   │   ├── PlayerInterface.tsx # 播放器UI界面组件
-│   │   ├── Checkbox.tsx        # 复选框组件
-│   │   ├── CustomSelect.tsx    # 自定义下拉选择组件
 │   │   ├── Pomodoro.tsx        # 番茄钟核心组件
+│   │   ├── PWAPrompt.tsx       # PWA 提示组件
 │   │   ├── SoundManager.tsx    # 音效管理器 (Web Audio API)
 │   │   ├── TaskManager.tsx     # 任务管理组件
 │   │   └── TerminalUI.tsx      # 基础终端风格组件 (Panel, Button, Input)
@@ -106,21 +105,20 @@ endfield-pomodoro/
 │   │   └── musicConfig.ts      # 音乐播放器默认配置
 │   ├── hooks/                  # 自定义 Hooks
 │   │   ├── useLocalPlayer.ts   # 本地播放器逻辑 Hook
-│   │   ├── useMetingData.ts    # MetingJS API 数据获取 Hook
+│   │   ├── useMusicData.ts     # 音乐数据获取
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
 │   ├── utils/                  # 工具函数
-│   │   └── i18n.ts             # 国际化配置（中英双语）
-│   ├── constants.ts            # 全局常量定义
-│   ├── types.ts                # TypeScript 核心类型定义
+│   │   ├── i18n.ts             # 国际化配置（中英双语）
+│   │   └── musicApiAdapters.ts # 音乐 API 适配器
 │   ├── App.tsx                 # 主应用组件与布局
+│   ├── constants.ts            # 全局常量定义
+│   ├── index.css               # 全局样式与 Tailwind 引入
 │   ├── main.tsx                # 渲染入口
-│   ├── vite-env.d.ts           # Vite 环境类型定义
-│   └── index.css               # 全局样式与 Tailwind 引入
+│   ├── types.ts                # TypeScript 核心类型定义
+│   └── vite-env.d.ts           # Vite 环境类型定义
+├── docs/                       # 文档目录
 ├── index.html                  # HTML 入口文件
 ├── package.json                # 项目依赖配置
-├── tsconfig.json               # TypeScript 配置
-├── tsconfig.app.json           # TypeScript 应用配置
-├── tsconfig.node.json          # TypeScript Node 配置
 ├── vite.config.ts              # Vite 构建配置
 ├── eslint.config.js            # ESLint 配置
 └── README.md                   # 项目文档
@@ -159,10 +157,14 @@ endfield-pomodoro/
 [ThemePreset.YOUR_THEME]: {
   '--color-base': '#颜色值',
   '--color-surface': '#颜色值',
+  '--color-highlight': '#颜色值',
   '--color-primary': '#颜色值',
-  '--color-success': '#颜色值', // 成功状态颜色
-  '--color-error': '#颜色值', // 错误状态颜色
-  // ... 其他 CSS 变量
+  '--color-secondary': '#颜色值',
+  '--color-accent': '#颜色值',
+  '--color-text': '#颜色值',
+  '--color-dim': '#颜色值',
+  '--color-success': '#颜色值',
+  '--color-error': '#颜色值'
 }
 ```
 
@@ -177,7 +179,19 @@ export const translations = {
 ```
 
 ### 修改默认音乐配置
-编辑 `src/config/musicConfig.ts` 中的 `defaultMetingConfig`。
+编辑 `src/config/musicConfig.ts` 中的配置：
+
+```typescript
+// 默认歌单配置
+export const defaultMusicConfig: MusicConfig = {
+  server: 'netease',  // 音乐平台：'netease' | 'tencent' | 'kugou' | 'baidu' | 'kuwo'
+  type: 'playlist',   // 类型：目前仅支持 'playlist'
+  id: '9094583817'    // 歌单 ID
+};
+
+// 音乐播放器默认音量（0.0 - 1.0）
+export const DEFAULT_MUSIC_VOLUME = 0.5;
+```
 
 ### 代码组织原则
 - **组件文件**: 只导出 React 组件，支持 Fast Refresh

@@ -240,7 +240,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     {/* 模式切换 */}
                     <button
                         onClick={onModeToggle}
-                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-secondary hover:border-theme-secondary transition-colors rounded-sm flex items-center gap-1"
+                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm"
                         title={playMode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : playMode === AudioMode.REPEAT_ONE ? t('MODE_REPEAT_ONE') : t('MODE_SHUFFLE')}
                         aria-label={t('TOGGLE_MODE')}
                     >
