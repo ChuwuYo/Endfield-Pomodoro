@@ -61,14 +61,23 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
             for (const adapter of adapters) {
                 if (controller.signal.aborted) return;
 
-                const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+                let timeoutId: ReturnType<typeof setTimeout> | null = null;
                 try {
                     const url = adapter.buildUrl({ server, type, id });
-                    const response = await fetch(url, {
-                        signal: controller.signal,
-                        ...adapter.fetchOptions
-                    });
-                    clearTimeout(timeoutId);
+                    
+                    // 使用 Promise.race 来处理超时，并在完成后清理 setTimeout
+                    const response = await Promise.race([
+                        fetch(url, {
+                            signal: controller.signal,
+                            ...adapter.fetchOptions
+                        }),
+                        new Promise<never>((_, reject) => {
+                            timeoutId = setTimeout(() => reject(new Error('API request timed out')), API_TIMEOUT_MS);
+                        })
+                    ]);
+                    
+                    // 请求成功，清理超时计时器
+                    if (timeoutId) clearTimeout(timeoutId);
 
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -79,10 +88,15 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     setLoading(false);
                     return;
                 } catch (err) {
-                    clearTimeout(timeoutId);
-                    if (controller.signal.aborted) return;
-                    console.warn(`API adapter failed`, err);
-                    abortControllerRef.current = new AbortController();
+                    // 清理超时计时器
+                    if (timeoutId) clearTimeout(timeoutId);
+                    
+                    // 如果是外部中止（组件卸载），则直接返回
+                    if (controller.signal.aborted) {
+                        return;
+                    }
+                    // 其他错误（如超时、网络问题），记录并尝试下一个适配器
+                    console.warn(`API adapter failed:`, err);
                 }
             }
 
