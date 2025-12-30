@@ -22,13 +22,17 @@ export const STORAGE_KEYS = {
 } as const;
 
 /**
- * Meting API 基础 URL
+ * 音乐 API 基础 URL
  * 用于获取在线音乐数据
  * 
+ * 主 API: api.i-meto.com
+ * 备用 API: api.injahow.cn
+ * 
  * 使用位置：
- * - hooks/useMetingData.ts
+ * - hooks/useMusicData.ts
  */
-export const METING_API_BASE_URL = 'https://api.injahow.cn/meting/';
+export const MUSIC_API_BASE_URL = 'https://api.i-meto.com/meting/api';
+export const MUSIC_API_FALLBACK_URL = 'https://api.injahow.cn/meting/';
 
 /**
  * 音频播放器常量
@@ -36,13 +40,14 @@ export const METING_API_BASE_URL = 'https://api.injahow.cn/meting/';
  * 使用位置：
  * - hooks/useOnlinePlayer.ts
  * - hooks/useLocalPlayer.ts
- * - hooks/useMetingData.ts
+ * - hooks/useMusicData.ts
  */
 export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳转下一曲的延迟（毫秒）
 export const TOAST_DURATION_MS = 4000; // 提示消息显示时长（毫秒）
 export const AUDIO_LOADING_TIMEOUT_MS = 5000; // 音频加载超时时间（毫秒）
 export const TIME_UPDATE_THROTTLE_SECONDS = 0.25; // 时间更新节流阈值（秒），减少频繁重渲染
 export const API_FETCH_DELAY_MS = 100; // API 数据获取延迟（毫秒），减少初始加载卡顿
+export const API_TIMEOUT_MS = 5000; // API 请求超时时间（毫秒）
 
 /**
  * 时间转换常量
