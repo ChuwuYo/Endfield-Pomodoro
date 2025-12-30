@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useMetingData, type MetingAudio } from '../hooks/useMetingData';
+import { useMusicData, type MusicTrack } from '../hooks/useMusicData';
 import { useOnlinePlayer } from '../hooks/useOnlinePlayer';
 import { PlayMode } from '../types';
 import { useTranslation } from '../utils/i18n';
@@ -20,12 +20,12 @@ interface MusicPlayerProps {
 const MusicPlayer: React.FC<MusicPlayerProps> = ({ config, language, enabled = true }) => {
     const t = useTranslation(language);
 
-    const { audioList: metingData, loading: dataLoading, error: dataError } = useMetingData(config);
+    const { audioList: metingData, loading: dataLoading, error: dataError } = useMusicData(config);
     const [isListOpen, setIsListOpen] = useState(false);
 
     // 转换数据格式以适配 useOnlinePlayer
     const playlist = useMemo(() => {
-        return metingData.map((item: MetingAudio) => ({
+        return metingData.map((item: MusicTrack) => ({
             name: item.name,
             artist: item.artist,
             url: item.url,

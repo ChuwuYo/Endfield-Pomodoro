@@ -11,7 +11,7 @@ export interface AudioItem {
 }
 
 export interface MetingConfig {
-  server: 'netease' | 'tencent' | 'kugou' | 'xiami' | 'baidu';
+  server: 'netease' | 'tencent' | 'kugou' | 'baidu' | 'kuwo';
   type: 'playlist';
   id: string;
   fixed?: boolean;
