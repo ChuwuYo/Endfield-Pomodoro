@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { parseBlob } from 'music-metadata';
 import { AUDIO_LOADING_TIMEOUT_MS, TIME_UPDATE_THROTTLE_SECONDS } from '../constants';
 import { PlayMode } from '../types';
+import { DEFAULT_MUSIC_VOLUME } from '../config/musicConfig';
 
 export interface LocalTrack {
     id: string;
@@ -29,7 +30,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
-    const [volume, setVolume] = useState<number>(0.5);
+    const [volume, setVolume] = useState<number>(DEFAULT_MUSIC_VOLUME);
     const [playMode, setPlayMode] = useState<PlayMode>(PlayMode.SEQUENCE);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
