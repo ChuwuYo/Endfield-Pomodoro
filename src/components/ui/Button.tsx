@@ -8,7 +8,7 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
 }) => {
     const [isPressed, setIsPressed] = useState(false);
 
-    const baseStyle = "font-mono uppercase tracking-wider text-sm py-2 px-3 md:px-6 transition-all duration-200 flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden";
+    const baseStyle = "font-mono uppercase tracking-wider text-sm py-2 px-3 md:px-6 transition-all duration-200 flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden";
 
     const variants = {
         primary: "bg-theme-primary text-theme-base hover:bg-theme-primary/90 hover:shadow-[0_0_15px_rgba(var(--color-primary),0.4)] clip-path-slant font-bold",

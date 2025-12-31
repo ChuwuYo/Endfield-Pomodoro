@@ -37,7 +37,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 h-form-control focus:outline-none focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group"
+        className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-mono text-sm px-4 h-form-control focus:outline-none focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group cursor-pointer"
       >
         <span className="truncate">{selectedOption?.label || value}</span>
         <i className={`ri-arrow-down-s-line text-lg transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}></i>
@@ -54,7 +54,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, options, onCh
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 border-l-2 last:border-b-0 ${option.value === value
+              className={`w-full text-left px-4 py-3 font-mono text-sm transition-all duration-200 border-b border-theme-highlight/30 border-l-2 last:border-b-0 cursor-pointer ${option.value === value
                 ? 'bg-theme-primary/20 text-theme-primary border-l-theme-primary'
                 : 'text-theme-text border-l-transparent hover:bg-theme-highlight/20 hover:text-theme-primary hover:border-l-theme-primary'
                 }`}

@@ -96,7 +96,7 @@ const AudioPlayer: React.FC<{
                         }}
                         className={`px-2 py-0.5 text-[9px] font-mono border transition-colors rounded-sm uppercase tracking-wider ${!isOnline && audioSource === 'local'
                             ? 'border-theme-highlight/30 text-theme-dim/50 cursor-not-allowed'
-                            : 'border-theme-highlight/50 text-theme-dim hover:text-theme-primary hover:border-theme-primary'
+                            : 'border-theme-highlight/50 text-theme-dim hover:text-theme-primary hover:border-theme-primary cursor-pointer'
                             }`}
                         title={!isOnline && audioSource === 'local' ? t('OFFLINE_MODE_ONLY') : audioSource === 'local' ? t('SWITCH_TO_ONLINE') : t('SWITCH_TO_LOCAL')}
                         disabled={!isOnline && audioSource === 'local'}
@@ -162,7 +162,7 @@ const AudioPlayer: React.FC<{
                                     <h3 className="font-mono text-sm uppercase text-theme-primary tracking-widest">{t('PLAYLIST_COUNT')}</h3>
                                     <button
                                         onClick={() => setShowPlaylist(false)}
-                                        className="text-theme-dim hover:text-theme-primary p-1"
+                                        className="text-theme-dim hover:text-theme-primary p-1 cursor-pointer"
                                     >
                                         <i className="ri-close-line text-xl"></i>
                                     </button>
@@ -207,7 +207,7 @@ const AudioPlayer: React.FC<{
                                                             e.stopPropagation();
                                                             localPlayer.removeTrack(idx);
                                                         }}
-                                                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0 self-center"
+                                                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-theme-dim hover:text-red-500 transition-all px-2 flex-shrink-0 self-center cursor-pointer"
                                                         title={t('DELETE_TRACK')}
                                                     >
                                                         <i className="ri-close-line text-lg"></i>
@@ -225,14 +225,14 @@ const AudioPlayer: React.FC<{
                                     </div>
                                     <button
                                         onClick={localPlayer.clearPlaylist}
-                                        className="text-xs font-mono px-3 py-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                        className="text-xs font-mono px-3 py-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                                         disabled={localPlayer.playlist.length === 0}
                                     >
                                         {t('CLEAR')}
                                     </button>
                                     <button
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="text-xs font-mono border border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-black px-4 py-1 transition-all uppercase flex items-center gap-1"
+                                        className="text-xs font-mono border border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-black px-4 py-1 transition-all uppercase flex items-center gap-1 cursor-pointer"
                                     >
                                         <i className="ri-add-line text-base"></i>
                                         {t('ADD_TRACKS')}

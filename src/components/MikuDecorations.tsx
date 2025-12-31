@@ -24,7 +24,7 @@ const MikuHexPattern: React.FC<MikuHexPatternProps> = ({ mousePos }) => (
             <svg width="100%" height="100%" className="absolute inset-0" style={{ pointerEvents: 'none' }}>
                 <defs>
                     <pattern id="hex-grid-highlight" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-                        <path d="M20 0L40 11.54L40 34.64L20 46.18L0 34.64L0 11.54Z" fill="none" stroke="var(--color-secondary)" strokeWidth="2" />
+                        <path d="M20 0L40 11.54L40 34.64L20 46.18L0 34.64L0 11.54Z" fill="none" stroke="var(--color-highlight)" strokeWidth="2" />
                     </pattern>
                     <radialGradient id="mouse-glow" cx={mousePos.x} cy={mousePos.y} r="180" gradientUnits="userSpaceOnUse">
                         <stop offset="0%" stopColor="white" stopOpacity="1" />
@@ -37,9 +37,9 @@ const MikuHexPattern: React.FC<MikuHexPatternProps> = ({ mousePos }) => (
                     </mask>
                     {/* 线条发光滤镜 */}
                     <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="var(--color-secondary)" floodOpacity="0.8"/>
-                        <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="var(--color-secondary)" floodOpacity="0.4"/>
-                        <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="var(--color-secondary)" floodOpacity="0.2"/>
+                        <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="var(--color-highlight)" floodOpacity="0.8"/>
+                        <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="var(--color-highlight)" floodOpacity="0.4"/>
+                        <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="var(--color-highlight)" floodOpacity="0.2"/>
                     </filter>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#hex-grid-highlight)" mask="url(#mouse-mask)" filter="url(#line-glow)" />
