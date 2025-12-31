@@ -117,7 +117,8 @@ endfield-pomodoro/
 │   │   ├── musicConfig.ts      # 音乐播放器默认配置
 │   │   └── themes.ts           # 主题颜色配置
 │   ├── hooks/                  # 自定义 Hooks
-│   │   ├── useFooterHeight.ts  # Footer 高度监听与 Miku 间距管理
+│   │   ├── useFooterHeight.ts  # Footer 高度监听 Hook
+│   │   ├── useIsMobile.ts      # 移动设备检测 Hook
 │   │   ├── useLocalPlayer.ts   # 本地播放器逻辑 Hook
 │   │   ├── useMusicData.ts     # 音乐数据获取
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
