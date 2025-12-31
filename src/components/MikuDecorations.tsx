@@ -1,18 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemePreset } from '../types';
 
 // ========== 背景效果组件 ==========
 
-// Miku 六边形网格背景
-const MikuHexPattern = () => (
-    <svg width="100%" height="100%" className="absolute inset-0 opacity-[0.08]">
-        <defs>
-            <pattern id="hex-grid" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-                <path d="M20 0L40 11.54L40 34.64L20 46.18L0 34.64L0 11.54Z" fill="none" stroke="currentColor" strokeWidth="1" />
-            </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#hex-grid)" style={{ color: 'var(--color-primary)' }} />
-    </svg>
+interface MikuHexPatternProps {
+    mousePos?: { x: number; y: number };
+}
+
+// Miku 六边形网格背景 - 支持鼠标位置高亮
+const MikuHexPattern: React.FC<MikuHexPatternProps> = ({ mousePos }) => (
+    <div className="absolute inset-0">
+        {/* 基础六角形网格 - primary color */}
+        <svg width="100%" height="100%" className="absolute inset-0 opacity-[0.15]">
+            <defs>
+                <pattern id="hex-grid-base" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+                    <path d="M20 0L40 11.54L40 34.64L20 46.18L0 34.64L0 11.54Z" fill="none" stroke="currentColor" strokeWidth="1" />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hex-grid-base)" style={{ color: 'var(--color-primary)' }} />
+        </svg>
+        {/* 鼠标位置高亮六角形 - secondary color 荧光效果 */}
+        {mousePos && (
+            <svg width="100%" height="100%" className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+                <defs>
+                    <pattern id="hex-grid-highlight" width="40" height="69.28" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+                        <path d="M20 0L40 11.54L40 34.64L20 46.18L0 34.64L0 11.54Z" fill="none" stroke="var(--color-secondary)" strokeWidth="2" />
+                    </pattern>
+                    <radialGradient id="mouse-glow" cx={mousePos.x} cy={mousePos.y} r="180" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="white" stopOpacity="1" />
+                        <stop offset="40%" stopColor="white" stopOpacity="0.6" />
+                        <stop offset="70%" stopColor="white" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="white" stopOpacity="0" />
+                    </radialGradient>
+                    <mask id="mouse-mask">
+                        <rect width="100%" height="100%" fill="url(#mouse-glow)" />
+                    </mask>
+                    {/* 线条发光滤镜 */}
+                    <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="var(--color-secondary)" floodOpacity="0.8"/>
+                        <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="var(--color-secondary)" floodOpacity="0.4"/>
+                        <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="var(--color-secondary)" floodOpacity="0.2"/>
+                    </filter>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#hex-grid-highlight)" mask="url(#mouse-mask)" filter="url(#line-glow)" />
+            </svg>
+        )}
+    </div>
 );
 
 // Miku 频谱条动画
@@ -49,17 +82,50 @@ const MikuEqualizerBars = () => {
     );
 };
 
-// Miku 背景层容器
-export const MikuBackgroundLayer = () => (
-    <>
-        <MikuHexPattern />
-        <div 
-            className="absolute -top-20 -right-20 w-96 h-96 border border-theme-highlight rounded-full opacity-20 animate-spin-slow" 
-            style={{ borderStyle: 'dashed', animationDuration: '60s' }}
-        />
-        <MikuEqualizerBars />
-    </>
-);
+// Miku 背景层容器 - 自带鼠标跟踪
+export const MikuBackgroundLayer: React.FC = () => {
+    const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+    const [isMobile, setIsMobile] = useState<boolean>(() => 
+        (typeof window !== 'undefined' && typeof window.matchMedia === 'function') 
+            ? window.matchMedia('(max-width: 768px)').matches 
+            : false
+    );
+
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 768px)');
+        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+    }, []);
+
+    useEffect(() => {
+        if (isMobile) return;
+
+        let animationFrameId: number;
+        const handleMouseMove = (e: MouseEvent) => {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(() => {
+                setMousePos({ x: e.clientX, y: e.clientY });
+            });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [isMobile]);
+
+    return (
+        <>
+            <MikuHexPattern mousePos={isMobile ? undefined : mousePos ?? undefined} />
+            <div 
+                className="absolute -top-20 -right-20 w-96 h-96 border border-theme-highlight rounded-full opacity-20 animate-spin-slow" 
+                style={{ borderStyle: 'dashed', animationDuration: '60s' }}
+            />
+            <MikuEqualizerBars />
+        </>
+    );
+};
 
 // ========== 前景效果组件 ==========
 
@@ -68,26 +134,10 @@ interface MikuForegroundProps {
 }
 
 // Miku 前景层效果
-export const MikuForegroundLayer: React.FC<MikuForegroundProps> = ({ mousePos }) => {
+export const MikuForegroundLayer: React.FC<MikuForegroundProps> = () => {
     return (
         <div className="fixed inset-0 pointer-events-none z-50">
-            {/* 跟随鼠标的主光环 */}
-            <div className="absolute w-64 h-64 rounded-full transition-transform duration-75 ease-out"
-                style={{
-                    left: mousePos.x,
-                    top: mousePos.y,
-                    transform: 'translate(-50%, -50%)',
-                    background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 60%)',
-                    opacity: 0.2,
-                    mixBlendMode: 'screen'
-                }}></div>
-            {/* 垂直扫描线 */}
-            <div className="absolute inset-0 w-full h-[200%] opacity-[0.08] animate-[miku-scan_5s_linear_infinite]"
-                style={{
-                    background: 'linear-gradient(to bottom, transparent 0%, var(--color-primary) 50%, transparent 100%)',
-                    backgroundSize: '100% 4px'
-                }}></div>
-            <style>{`@keyframes miku-scan { 0% { transform: translateY(-50%); } 100% { transform: translateY(0%); } }`}</style>
+            {/* 前景层现在为空 */}
         </div>
     );
 };
