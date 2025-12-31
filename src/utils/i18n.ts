@@ -118,10 +118,7 @@ export const translations = {
     RESET_SESSIONS: 'RESET CYCLES',
 
     // PWA
-    pwa_update_available: 'New version available!',
-    pwa_update_now: 'UPDATE',
-    pwa_update_later: 'LATER',
-    pwa_updating: 'UPDATING...',
+    pwa_updated: 'Updated successfully!',
     pwa_offline: 'OFFLINE MODE',
 
     // Footer
@@ -247,10 +244,7 @@ export const translations = {
     RESET_SESSIONS: '重置完成周期',
 
     // PWA
-    pwa_update_available: '发现新版本！',
-    pwa_update_now: '立即更新',
-    pwa_update_later: '稍后',
-    pwa_updating: '更新中...',
+    pwa_updated: '已更新成功！',
     pwa_offline: '离线模式',
 
     // Footer
