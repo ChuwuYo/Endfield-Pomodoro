@@ -230,7 +230,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     {/* 显示播放列表按钮 */}
                     <button
                         onClick={onPlaylistToggle}
-                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm"
+                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm cursor-pointer"
                         title={t('PLAYLIST_BUTTON')}
                         aria-label={t('PLAYLIST_BUTTON')}
                     >
@@ -240,7 +240,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     {/* 模式切换 */}
                     <button
                         onClick={onModeToggle}
-                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm"
+                        className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm cursor-pointer"
                         title={playMode === AudioMode.SEQUENTIAL ? t('MODE_SEQ') : playMode === AudioMode.REPEAT_ONE ? t('MODE_REPEAT_ONE') : t('MODE_SHUFFLE')}
                         aria-label={t('TOGGLE_MODE')}
                     >
@@ -261,7 +261,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 <button
                     onClick={onPrev}
                     disabled={playlistCount === 0}
-                    className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title={t('PREVIOUS_TRACK_TOOLTIP')}
                     aria-label={t('PREVIOUS_TRACK_TOOLTIP')}
                 >
@@ -272,7 +272,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 <button
                     onClick={onPlayPause}
                     disabled={playlistCount === 0}
-                    className={`w-14 h-9 flex items-center justify-center border transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed ${isPlaying ? 'bg-theme-primary text-black border-theme-primary' : 'border-theme-highlight text-theme-text hover:border-theme-primary'}`}
+                    className={`w-14 h-9 flex items-center justify-center border transition-colors rounded-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${isPlaying ? 'bg-theme-primary text-black border-theme-primary' : 'border-theme-highlight text-theme-text hover:border-theme-primary'}`}
                     title={t('PLAY_PAUSE')}
                     aria-label={t('PLAY_PAUSE')}
                 >
@@ -287,7 +287,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 <button
                     onClick={onNext}
                     disabled={playlistCount === 0}
-                    className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 border border-theme-highlight hover:border-theme-primary text-theme-dim hover:text-theme-primary transition-colors rounded-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title={t('NEXT_TRACK')}
                     aria-label={t('NEXT_TRACK')}
                 >

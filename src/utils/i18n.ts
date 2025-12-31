@@ -53,6 +53,7 @@ export const translations = {
     THEME_ROYAL: 'PRESET_06: ROYAL_VIOLET',
     THEME_INDUSTRIAL: 'PRESET_07: HEAVY_INDUSTRY (LIGHT)',
     THEME_LABORATORY: 'PRESET_08: SCIENCE_LAB (LIGHT)',
+    THEME_MIKU: 'PRESET_09: MIKU',
 
     // Pomodoro
     CHRONO_MODULE: 'CHRONO MODULE',
@@ -181,6 +182,7 @@ export const translations = {
     THEME_ROYAL: '预设_06: 皇家紫罗兰',
     THEME_INDUSTRIAL: '预设_07: 重工灰烬 (亮色)',
     THEME_LABORATORY: '预设_08: 科学实验 (亮色)',
+    THEME_MIKU: '预设_09: MIKU',
 
     // Pomodoro
     CHRONO_MODULE: '计时模块',
