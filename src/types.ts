@@ -27,7 +27,8 @@ export const ThemePreset = {
   TACTICAL: 'TACTICAL',
   ROYAL: 'ROYAL',
   INDUSTRIAL: 'INDUSTRIAL',
-  LABORATORY: 'LABORATORY'
+  LABORATORY: 'LABORATORY',
+  MIKU: 'MIKU'
 } as const;
 export type ThemePreset = typeof ThemePreset[keyof typeof ThemePreset];
 

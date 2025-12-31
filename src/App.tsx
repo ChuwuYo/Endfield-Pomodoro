@@ -5,9 +5,11 @@ import AudioPlayer from './components/AudioPlayer';
 import type { Settings } from './types';
 import { Language, ThemePreset, TimerMode } from './types';
 import { Panel, Input, BackgroundLayer, ForegroundLayer, Button } from './components/TerminalUI';
+import { MikuDecorations } from './components/MikuDecorations';
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { PWAPrompt } from './components/PWAPrompt';
+import { useFooterHeight, useMikuMobileSpacing } from './hooks/useFooterHeight';
 import { useTranslation } from './utils/i18n';
 import { STORAGE_KEYS, MS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from './constants';
 import { defaultMusicConfig } from './config/musicConfig';
@@ -133,6 +135,18 @@ const THEMES = {
         '--color-dim': '#94a3b8',
         '--color-success': '#059669',
         '--color-error': '#dc2626'
+    },
+    [ThemePreset.MIKU]: {
+        '--color-base': '#fff6fd',
+        '--color-surface': '#fff6fd',
+        '--color-highlight': '#B2DFDB',
+        '--color-primary': '#39C5BB',
+        '--color-secondary': '#febce0',
+        '--color-accent': '#E91E63',
+        '--color-text': '#263238',
+        '--color-dim': '#78909C',
+        '--color-success': '#00E676',
+        '--color-error': '#FF5252'
     }
 };
 
@@ -202,6 +216,9 @@ const App: React.FC = () => {
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [now, setNow] = useState(new Date());
     const [isOnline, setIsOnline] = useState(navigator.onLine);
+    
+    // Footer ref 和高度 - 用于 footer 元素和 Miku 装饰组件
+    const { footerRef, footerHeight } = useFooterHeight();
 
     const t = useTranslation(settings.language);
 
@@ -325,6 +342,9 @@ const App: React.FC = () => {
         <div className="h-[100dvh] bg-theme-base text-theme-text font-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
             {/* 背景视觉效果 (Z-0) */}
             <BackgroundLayer theme={settings.theme} />
+
+            {/* Miku 主题专属装饰元素 (Z-5) - 在背景之上，内容之下 */}
+            <MikuDecorations theme={settings.theme} footerHeight={footerHeight} />
 
             {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
             <ForegroundLayer theme={settings.theme} />
@@ -485,7 +505,8 @@ const App: React.FC = () => {
                                                     { value: ThemePreset.TACTICAL, label: t('THEME_TACTICAL') },
                                                     { value: ThemePreset.ROYAL, label: t('THEME_ROYAL') },
                                                     { value: ThemePreset.INDUSTRIAL, label: t('THEME_INDUSTRIAL') },
-                                                    { value: ThemePreset.LABORATORY, label: t('THEME_LABORATORY') }
+                                                    { value: ThemePreset.LABORATORY, label: t('THEME_LABORATORY') },
+                                                    { value: ThemePreset.MIKU, label: t('THEME_MIKU') }
                                                 ]}
                                                 onChange={(value) => setSettings({ ...settings, theme: value as ThemePreset })}
                                             />
@@ -599,8 +620,8 @@ const App: React.FC = () => {
                                 </div>
                             </div>
                         </Panel>
-                        {/* 移动端底部额外间距，防止被 Footer 遮挡 */}
-                        <div className="h-24 w-full md:hidden shrink-0"></div>
+                        {/* 移动端底部额外间距，防止被 Footer 遮挡 - Miku 主题需要更多空间 */}
+                        <div className={`w-full md:hidden shrink-0 ${useMikuMobileSpacing(settings.theme === ThemePreset.MIKU)}`}></div>
                     </div>
                 ) : null}
 
@@ -680,13 +701,13 @@ const App: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 移动端底部间距 */}
-                    <div className="h-24 w-full md:hidden shrink-0"></div>
+                    {/* 移动端底部间距 - Miku 主题需要更多空间 */}
+                    <div className={`w-full md:hidden shrink-0 ${useMikuMobileSpacing(settings.theme === ThemePreset.MIKU)}`}></div>
                 </div>
             </main>
 
-            {/* 页脚 (Z-40) */}
-            <footer className="relative z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none">
+            {/* 页脚 (Z-40) - 固定在底部 */}
+            <footer ref={footerRef} className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme-highlight/30 bg-theme-base/80 backdrop-blur-md text-[10px] font-mono text-theme-dim py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] select-none">
                 <div className="max-w-[1920px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <span className="text-theme-primary/80 uppercase tracking-wider">{t('TOTAL_STUDY_TIME')}:</span>

@@ -214,8 +214,6 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 - 当涉及复杂的依赖关系时
 - 为了提高代码可读性和显式意图
 
-这样做既能利用 Compiler 的优化，又能在关键位置保持代码的清晰性和可维护性。
-
 ## 🤝 贡献 (Contributing)
 
 欢迎提交 Issue 或 Pull Request ，请确保遵循现有的代码风格。

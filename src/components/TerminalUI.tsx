@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ThemePreset } from '../types';
+import { MikuBackgroundLayer, MikuForegroundLayer } from './MikuDecorations';
 
 export const Panel: React.FC<{ children: React.ReactNode; className?: string; title?: React.ReactNode }> = ({ children, className = '', title }) => (
     <div className={`relative bg-theme-surface/80 border border-theme-highlight backdrop-blur-md ${className} shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-all duration-300`}>
@@ -252,6 +253,7 @@ export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
             case ThemePreset.ROYAL: return <RoyalParticles />;
             case ThemePreset.INDUSTRIAL: return <IndustrialGrid />;
             case ThemePreset.LABORATORY: return <LaboratoryGrid />;
+            case ThemePreset.MIKU: return <MikuBackgroundLayer />;
             default: return <OriginGrid />;
         }
     };
@@ -392,6 +394,10 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
                 <style>{`@keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }`}</style>
             </div>
         );
+    }
+
+    if (theme === ThemePreset.MIKU) {
+        return <MikuForegroundLayer mousePos={mousePos} />;
     }
 
     return null;
