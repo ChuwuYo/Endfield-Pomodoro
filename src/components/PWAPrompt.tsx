@@ -61,10 +61,19 @@ export function PWAPrompt({ t }: PWAPromptProps) {
 
     // 监听 display-mode 变化（用户可能在运行时安装 PWA）
     useEffect(() => {
-        const mediaQuery = window.matchMedia('(display-mode: standalone)');
-        const handler = (e: MediaQueryListEvent) => setIsInstalled(e.matches);
-        mediaQuery.addEventListener('change', handler);
-        return () => mediaQuery.removeEventListener('change', handler);
+        const standaloneMql = window.matchMedia('(display-mode: standalone)');
+        const fullscreenMql = window.matchMedia('(display-mode: fullscreen)');
+        
+        // 重新调用 isPWAInstalled() 完整检查当前状态
+        const handler = () => setIsInstalled(isPWAInstalled());
+        
+        standaloneMql.addEventListener('change', handler);
+        fullscreenMql.addEventListener('change', handler);
+        
+        return () => {
+            standaloneMql.removeEventListener('change', handler);
+            fullscreenMql.removeEventListener('change', handler);
+        };
     }, []);
 
     // 监听 controllerchange 事件，一旦新 SW 接管，立即刷新

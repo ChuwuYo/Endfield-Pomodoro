@@ -10,7 +10,7 @@ import { MikuDecorations } from './components/MikuDecorations';
 import { CustomSelect } from './components/CustomSelect';
 import { Checkbox } from './components/Checkbox';
 import { PWAPrompt } from './components/PWAPrompt';
-import { useFooterHeight, getMikuExtraSpacing } from './hooks/useFooterHeight';
+import { useFooterHeight, getThemeExtraSpacing } from './hooks/useFooterHeight';
 import { useTranslation } from './utils/i18n';
 import { STORAGE_KEYS, MS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from './constants';
 import { defaultMusicConfig } from './config/musicConfig';
@@ -326,7 +326,7 @@ const App: React.FC = () => {
             </header>
 
             {/* 主要内容区域 (Z-10) */}
-            <main className="flex-1 pt-24 md:pt-28 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar" style={{ scrollbarGutter: 'stable', paddingBottom: footerHeight + getMikuExtraSpacing(settings.theme === ThemePreset.MIKU) }}>
+            <main className="flex-1 pt-24 md:pt-28 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar" style={{ scrollbarGutter: 'stable', paddingBottom: footerHeight + getThemeExtraSpacing(settings.theme === ThemePreset.MIKU) }}>
                 {currentView === View.SETTINGS ? (
                     <div className="max-w-4xl mx-auto w-full pt-6 px-2">
                         <Panel title={t('SYSTEM_CONFIG')} className="p-4 md:p-8 backdrop-blur-xl bg-theme-surface/80 mt-2">
