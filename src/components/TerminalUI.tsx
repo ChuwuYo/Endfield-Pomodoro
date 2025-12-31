@@ -2,17 +2,11 @@
  * TerminalUI - 主题层容器组件
  * 
  * 负责根据当前主题渲染对应的背景和前景效果
- * UI 基础组件已拆分到 ./ui/ 目录
- * 主题效果组件已拆分到 ./themes/ 目录
+ * 主题效果组件位于 ./themes/ 目录
  */
 import React, { useEffect, useState } from 'react';
 import { ThemePreset } from '../types';
 import { useIsMobile } from '../hooks/useIsMobile';
-
-// UI 基础组件 - 重新导出以保持向后兼容
-export { Panel } from './ui/Panel';
-export { Button } from './ui/Button';
-export { Input, Select } from './ui/Input';
 
 // 主题背景效果
 import {

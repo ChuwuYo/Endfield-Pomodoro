@@ -1,6 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from './TerminalUI';
+import { Button } from './ui';
 import type { useTranslation } from '../utils/i18n';
 import { HOURLY_CHECK_INTERVAL_MS } from '../constants';
 
