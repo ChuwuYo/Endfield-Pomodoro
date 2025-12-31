@@ -12,7 +12,7 @@ export const OriginForeground: React.FC<{ mousePos: MousePos }> = ({ mousePos })
     <div className="fixed inset-0 pointer-events-none z-50 mix-blend-screen">
         <div className="absolute inset-0 transition-opacity duration-300"
             style={{
-                background: `radial-gradient(circle 400px at ${mousePos.x}px ${mousePos.y}px, rgba(var(--color-primary), 0.15), transparent 70%)`
+                background: `radial-gradient(circle 400px at ${mousePos.x}px ${mousePos.y}px, color-mix(in srgb, var(--color-primary) 15%, transparent), transparent 70%)`
             }}></div>
     </div>
 );

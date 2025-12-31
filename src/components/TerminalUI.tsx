@@ -7,6 +7,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { ThemePreset } from '../types';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // UI 基础组件 - 重新导出以保持向后兼容
 export { Panel } from './ui/Panel';
@@ -69,18 +70,7 @@ export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
  */
 export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = ThemePreset.ORIGIN }) => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    const [isMobile, setIsMobile] = useState<boolean>(() => 
-        (typeof window !== 'undefined' && typeof window.matchMedia === 'function') 
-            ? window.matchMedia('(max-width: 768px)').matches 
-            : false
-    );
-
-    useEffect(() => {
-        const mq = window.matchMedia('(max-width: 768px)');
-        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-        mq.addEventListener('change', handler);
-        return () => mq.removeEventListener('change', handler);
-    }, []);
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         if (isMobile) return;
@@ -114,7 +104,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({ theme = The
         case ThemePreset.LABORATORY:
             return <LaboratoryForeground mousePos={mousePos} />;
         case ThemePreset.MIKU:
-            return <MikuForegroundLayer mousePos={mousePos} />;
+            return <MikuForegroundLayer />;
         default:
             return null;
     }

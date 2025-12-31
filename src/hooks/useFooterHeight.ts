@@ -25,17 +25,11 @@ export const useFooterHeight = () => {
 };
 
 /**
- * Hook 用于获取移动端底部间距
- * 根据主题和页面类型动态调整间距
- * 
+ * 计算 Miku 主题装饰元素需要的额外间距
  * @param isMikuTheme 是否为 Miku 主题
- * @param isSettingsPage 是否为设置页面
- * @returns Tailwind CSS 类名
+ * @returns 额外间距像素值
  */
-export const useMikuMobileSpacing = (isMikuTheme: boolean, isSettingsPage: boolean = false) => {
-    if (isMikuTheme) {
-        // Miku 主题需要为装饰元素预留空间
-        return isSettingsPage ? 'h-46' : 'h-32'; // 设置页需要更多空间 (160px vs 128px)
-    }
-    return 'h-24'; // 普通主题基础间距 (96px)
+export const getMikuExtraSpacing = (isMikuTheme: boolean): number => {
+    // Miku 主题需要为角色图片和 Logo 预留额外空间
+    return isMikuTheme ? 80 : 0;
 };

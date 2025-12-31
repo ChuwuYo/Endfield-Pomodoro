@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ThemePreset } from '../types';
+import { useIsMobile } from '../hooks/useIsMobile';
+import mikuCharImg from '../assets/images/MIKU1.webp';
+import mikuLogoImg from '../assets/images/MIKULogo.svg';
 
 // ========== 背景效果组件 ==========
 
@@ -85,18 +88,7 @@ const MikuEqualizerBars = () => {
 // Miku 背景层容器 - 自带鼠标跟踪
 export const MikuBackgroundLayer: React.FC = () => {
     const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
-    const [isMobile, setIsMobile] = useState<boolean>(() => 
-        (typeof window !== 'undefined' && typeof window.matchMedia === 'function') 
-            ? window.matchMedia('(max-width: 768px)').matches 
-            : false
-    );
-
-    useEffect(() => {
-        const mq = window.matchMedia('(max-width: 768px)');
-        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-        mq.addEventListener('change', handler);
-        return () => mq.removeEventListener('change', handler);
-    }, []);
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         if (isMobile) return;
@@ -129,12 +121,8 @@ export const MikuBackgroundLayer: React.FC = () => {
 
 // ========== 前景效果组件 ==========
 
-interface MikuForegroundProps {
-    mousePos: { x: number; y: number };
-}
-
 // Miku 前景层效果
-export const MikuForegroundLayer: React.FC<MikuForegroundProps> = () => {
+export const MikuForegroundLayer: React.FC = () => {
     return (
         <div className="fixed inset-0 pointer-events-none z-50">
             {/* 前景层现在为空 */}
@@ -152,7 +140,7 @@ const MikuCharacter: React.FC<{ footerHeight: number }> = ({ footerHeight }) => 
             style={{ bottom: footerHeight }}
         >
             <img
-                src="/src/assets/images/MIKU1.webp"
+                src={mikuCharImg}
                 alt="Miku"
                 className="w-24 h-24 md:w-36 md:h-36 object-contain opacity-90"
                 draggable={false}
@@ -169,7 +157,7 @@ const MikuLogo: React.FC<{ footerHeight: number }> = ({ footerHeight }) => {
             style={{ bottom: footerHeight }}
         >
             <img 
-                src="/src/assets/images/MIKULogo.svg" 
+                src={mikuLogoImg}
                 alt="Miku Logo" 
                 className="w-10 h-10 md:w-16 md:h-16 opacity-80"
                 draggable={false}
