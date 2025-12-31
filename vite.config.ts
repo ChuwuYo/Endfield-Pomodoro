@@ -13,7 +13,7 @@ export default defineConfig({
     }),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['favicon-32x32.png', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'Endfield Protocol - Pomodoro Terminal',

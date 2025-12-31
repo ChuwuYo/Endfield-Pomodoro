@@ -630,7 +630,7 @@ const App: React.FC = () => {
             </footer>
 
             {/* PWA 更新提示 */}
-            <PWAPrompt t={t} />
+            <PWAPrompt language={settings.language} />
         </div>
     );
 };
