@@ -58,7 +58,21 @@ export default defineConfig({
           /\.(mp3|m4a|flac)$/i
         ],
         ignoreURLParametersMatching: [/.*/],
+        // index.html 不应该被缓存，总是从网络获取
+        dontCacheBustURLsMatching: /\.(js|css)$/,
         runtimeCaching: [
+          // index.html: 优先从网络获取，确保用户总是获得最新版本
+          {
+            urlPattern: /^.*\/index\.html$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'index-html',
+              expiration: {
+                maxEntries: 1,
+                maxAgeSeconds: 0  // 不缓存
+              }
+            }
+          },
           {
             urlPattern: /^https:\/\/api\.injahow\.cn\/meting\/.*/i,
             handler: 'NetworkOnly'
