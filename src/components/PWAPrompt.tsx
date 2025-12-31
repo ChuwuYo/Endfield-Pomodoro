@@ -43,12 +43,14 @@ export function PWAPrompt({ language }: PWAPromptProps) {
     useEffect(() => {
         if (!('serviceWorker' in navigator)) return;
 
+        let timeoutId: number | null = null;
+
         const handleControllerChange = () => {
             console.log('[PWA] Controller changed, showing update notification...');
             setShowUpdated(true);
             
             // 3 秒后自动刷新页面
-            setTimeout(() => {
+            timeoutId = window.setTimeout(() => {
                 window.location.reload();
             }, 3000);
         };
@@ -57,6 +59,9 @@ export function PWAPrompt({ language }: PWAPromptProps) {
 
         return () => {
             navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
         };
     }, []);
 
