@@ -86,24 +86,38 @@
 
 ```text
 endfield-pomodoro/
+├── docs/                       # 文档目录
 ├── public/                     # 公共静态资源目录
 ├── src/                        # 源代码目录
 │   ├── assets/                 # 静态资源文件
+│   │   └── images/             # 图片资源
 │   ├── components/             # UI 组件库
+│   │   ├── themes/             # 主题效果组件
+│   │   │   ├── BackgroundEffects.tsx  # 各主题背景效果
+│   │   │   ├── ForegroundEffects.tsx  # 各主题前景效果
+│   │   │   └── index.ts               # 主题组件导出
+│   │   ├── ui/                 # 基础 UI 组件
+│   │   │   ├── Button.tsx      # 按钮组件
+│   │   │   ├── Input.tsx       # 输入框和选择框组件
+│   │   │   ├── Panel.tsx       # 面板组件
+│   │   │   └── index.ts        # UI 组件导出
 │   │   ├── AudioPlayer.tsx     # 本地音频播放器组件
 │   │   ├── Checkbox.tsx        # 复选框组件
 │   │   ├── CustomSelect.tsx    # 自定义下拉选择组件
 │   │   ├── MessageDisplay.tsx  # 消息显示组件
+│   │   ├── MikuDecorations.tsx # Miku 主题专属装饰组件
 │   │   ├── MusicPlayer.tsx     # 在线音乐播放器组件
 │   │   ├── PlayerInterface.tsx # 播放器UI界面组件
 │   │   ├── Pomodoro.tsx        # 番茄钟核心组件
 │   │   ├── PWAPrompt.tsx       # PWA 提示组件
 │   │   ├── SoundManager.tsx    # 音效管理器 (Web Audio API)
 │   │   ├── TaskManager.tsx     # 任务管理组件
-│   │   └── TerminalUI.tsx      # 基础终端风格组件 (Panel, Button, Input)
+│   │   └── TerminalUI.tsx      # 主题层容器组件
 │   ├── config/                 # 配置文件
-│   │   └── musicConfig.ts      # 音乐播放器默认配置
+│   │   ├── musicConfig.ts      # 音乐播放器默认配置
+│   │   └── themes.ts           # 主题颜色配置
 │   ├── hooks/                  # 自定义 Hooks
+│   │   ├── useFooterHeight.ts  # Footer 高度监听与 Miku 间距管理
 │   │   ├── useLocalPlayer.ts   # 本地播放器逻辑 Hook
 │   │   ├── useMusicData.ts     # 音乐数据获取
 │   │   └── useOnlinePlayer.ts  # 在线播放器逻辑 Hook
@@ -116,12 +130,7 @@ endfield-pomodoro/
 │   ├── main.tsx                # 渲染入口
 │   ├── types.ts                # TypeScript 核心类型定义
 │   └── vite-env.d.ts           # Vite 环境类型定义
-├── docs/                       # 文档目录
 ├── index.html                  # HTML 入口文件
-├── package.json                # 项目依赖配置
-├── vite.config.ts              # Vite 构建配置
-├── eslint.config.js            # ESLint 配置
-└── README.md                   # 项目文档
 ```
 
 ## 🌐 国际化支持 (i18n)
@@ -139,19 +148,19 @@ endfield-pomodoro/
 
 使用 CSS Variables 实现动态主题切换，每个主题定义包括：
 
-- 主色调 (--theme-primary)
-- 高亮色 (--theme-highlight)
-- 背景色 (--theme-bg, --theme-surface)
-- 文本色 (--theme-text, --theme-dim)
-- 状态色 (--theme-success, --theme-error)
-- 特效色 (--glow-color, --particle-color)
+- 主色调 (--color-primary)
+- 高亮色 (--color-highlight)
+- 背景色 (--color-base, --color-surface)
+- 文本色 (--color-text, --color-dim)
+- 状态色 (--color-success, --color-error)
+- 特效色 (--color-secondary, --color-accent)
 
-所有主题配置存储在 `App.tsx` 中，可轻松扩展新主题。
+所有主题配置存储在 `src/config/themes.ts` 中，可轻松扩展新主题。主题效果组件分离在 `src/components/themes/` 目录下，实现了背景和前景效果的模块化管理。
 
 ## 🔧 开发建议 (Development Tips)
 
 ### 添加新主题
-在 `App.tsx` 的 THEMES 中添加新的主题配置：
+在 `src/config/themes.ts` 的 THEMES 中添加新的主题配置：
 
 ```typescript
 [ThemePreset.YOUR_THEME]: {
@@ -167,6 +176,8 @@ endfield-pomodoro/
   '--color-error': '#颜色值'
 }
 ```
+
+如需添加主题特效，可在 `src/components/themes/BackgroundEffects.tsx` 和 `src/components/themes/ForegroundEffects.tsx` 中添加对应的效果组件。
 
 ### 添加新语言
 在 `src/utils/i18n.ts` 中添加新的语言配置：
@@ -194,7 +205,8 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 ```
 
 ### 代码组织原则
-- **组件文件**: 只导出 React 组件，支持 Fast Refresh
+- **组件分层**: UI 基础组件 (`src/components/ui/`)、主题效果组件 (`src/components/themes/`)、业务组件分离
+- **配置集中**: 所有配置文件统一在 `src/config/` 目录下管理
 - **常量文件**: 所有常量统一在 `constants.ts` 中管理
 - **类型文件**: 所有 TypeScript 类型定义在 `types.ts` 中
 - **工具函数**: 纯函数放在 `utils/` 目录下
