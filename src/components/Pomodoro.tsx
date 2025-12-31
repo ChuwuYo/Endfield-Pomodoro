@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TimerMode } from '../types';
 import type { Settings } from '../types';
 import { useSound } from './SoundManager';
-import { Button, Panel } from './TerminalUI';
+import { Button, Panel } from './ui';
 import { useTranslation } from '../utils/i18n';
 import { SECONDS_PER_MINUTE, MS_PER_SECOND, STORAGE_KEYS, TIMER_CHECK_INTERVAL_MS, LONG_BREAK_INTERVAL } from '../constants';
 

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Panel } from './TerminalUI';
+import { Panel } from './ui';
 import { useTranslation } from '../utils/i18n';
 import { Language, AudioMode } from '../types';
 import { STORAGE_KEYS, TOAST_DURATION_MS } from '../constants';

@@ -1,6 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from './TerminalUI';
+import { Button } from './ui';
 import type { useTranslation } from '../utils/i18n';
 import { HOURLY_CHECK_INTERVAL_MS } from '../constants';
 
@@ -8,11 +8,27 @@ interface PWAPromptProps {
     t: ReturnType<typeof useTranslation>;
 }
 
+/**
+ * 检测是否以 PWA 模式运行（已安装）
+ * standalone 或 fullscreen 模式表示用户已安装 PWA
+ */
+const isPWAInstalled = (): boolean => {
+    // 检查 display-mode 媒体查询
+    if (window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+    // iOS Safari 的特殊检测
+    if ((navigator as { standalone?: boolean }).standalone === true) return true;
+    return false;
+};
+
 export function PWAPrompt({ t }: PWAPromptProps) {
     // 使用 Ref 存储 SW 注册实例，避免重复去 navigator 里查
     const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
     const intervalRef = useRef<number | null>(null);
     const [updating, setUpdating] = useState(false);
+    
+    // 检测是否为已安装的 PWA
+    const [isInstalled, setIsInstalled] = useState(() => isPWAInstalled());
 
     const {
         needRefresh: [needRefresh, setNeedRefresh],
@@ -42,6 +58,23 @@ export function PWAPrompt({ t }: PWAPromptProps) {
             console.error('[PWA] Registration error:', error);
         },
     });
+
+    // 监听 display-mode 变化（用户可能在运行时安装 PWA）
+    useEffect(() => {
+        const standaloneMql = window.matchMedia('(display-mode: standalone)');
+        const fullscreenMql = window.matchMedia('(display-mode: fullscreen)');
+        
+        // 重新调用 isPWAInstalled() 完整检查当前状态
+        const handler = () => setIsInstalled(isPWAInstalled());
+        
+        standaloneMql.addEventListener('change', handler);
+        fullscreenMql.addEventListener('change', handler);
+        
+        return () => {
+            standaloneMql.removeEventListener('change', handler);
+            fullscreenMql.removeEventListener('change', handler);
+        };
+    }, []);
 
     // 监听 controllerchange 事件，一旦新 SW 接管，立即刷新
     useEffect(() => {
@@ -93,8 +126,17 @@ export function PWAPrompt({ t }: PWAPromptProps) {
         }
     };
 
-    // 如果不需要刷新，不渲染任何 DOM
-    if (!needRefresh) return null;
+    // 只有在 PWA 已安装且需要刷新时才显示更新提示
+    // 普通浏览器用户自动更新，无需手动确认
+    useEffect(() => {
+        if (needRefresh && !isInstalled) {
+            console.log('[PWA] Browser user, auto-updating...');
+            updateServiceWorker(true);
+        }
+    }, [needRefresh, isInstalled, updateServiceWorker]);
+
+    // 非 PWA 用户不显示 UI（自动更新）
+    if (!needRefresh || !isInstalled) return null;
 
     return (
         <div

@@ -25,11 +25,12 @@ export const useFooterHeight = () => {
 };
 
 /**
- * 计算 Miku 主题装饰元素需要的额外间距
+ * 计算主题装饰元素需要的额外间距
  * @param isMikuTheme 是否为 Miku 主题
  * @returns 额外间距像素值
  */
-export const getMikuExtraSpacing = (isMikuTheme: boolean): number => {
-    // Miku 主题需要为角色图片和 Logo 预留额外空间
-    return isMikuTheme ? 80 : 0;
+export const getThemeExtraSpacing = (isMikuTheme: boolean): number => {
+    // Miku 主题需要为角色图片和 Logo 预留额外空间 (80px)
+    // 其他主题也需要基础间距 (40px)
+    return isMikuTheme ? 80 : 40;
 };

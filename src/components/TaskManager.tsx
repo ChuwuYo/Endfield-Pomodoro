@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Task } from '../types';
 import { Language } from '../types';
-import { Panel, Input, Button } from './TerminalUI';
+import { Panel, Input, Button } from './ui';
 import { useTranslation } from '../utils/i18n';
 
 interface TaskManagerProps {
