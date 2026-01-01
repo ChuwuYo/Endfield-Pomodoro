@@ -102,9 +102,9 @@ export const THEMES: Record<ThemePreset, Record<string, string>> = {
         '--color-error': '#dc2626'
     },
     [ThemePreset.MIKU]: {
-        '--color-base': '#fef8fd',
-        '--color-surface': '#fef8fd',
-        '--color-highlight': '#ffc8ec',
+        '--color-base': '#fefef8',
+        '--color-surface': '#fdfef8',
+        '--color-highlight': '#fdd1ff',
         '--color-primary': '#39C5BB',
         '--color-secondary': '#f6b8da',
         '--color-accent': '#E91E63',
