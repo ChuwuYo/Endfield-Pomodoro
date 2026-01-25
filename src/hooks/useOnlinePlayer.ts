@@ -189,10 +189,10 @@ export const useOnlinePlayer = (playlist: Song[], autoPlay: boolean = false, ena
                 setCurrentIndex(randomIndex);
             }
         } else {
-             // 非 RANDOM 模式或已初始化，标记为已初始化
-             if (playlist.length > 0) {
+            // 非 RANDOM 模式或已初始化，标记为已初始化
+            if (playlist.length > 0) {
                 initializedRef.current = true;
-             }
+            }
         }
     }, [playlist, playMode]);
 
