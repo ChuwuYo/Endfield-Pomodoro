@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import {
     LONG_BREAK_INTERVAL,
     MS_PER_SECOND,
@@ -28,6 +28,59 @@ type TimerPayload = {
     startTs?: number;
 };
 
+// 从 sessionStorage 恢复的计时器状态
+type RestoredTimer = {
+    mode?: TimerMode;
+    timeLeft: number | null;
+    isActive: boolean;
+};
+
+// 读取持久化的计时器状态；仅在组件首次渲染的 state 惰性初始化中调用一次
+const readRestoredTimer = (): RestoredTimer | null => {
+    try {
+        const raw = sessionStorage.getItem(STORAGE_KEYS.TIMER);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+            return null;
+
+        const candidateMode = parsed.mode
+            ? (parsed.mode as TimerMode)
+            : undefined;
+        const candidateTime =
+            typeof parsed.timeLeft === "number" ? parsed.timeLeft : null;
+        const candidateActive = Boolean(parsed.isActive);
+        const candidateStart =
+            typeof parsed.startTs === "number" ? parsed.startTs : null;
+
+        let restoredTime: number | null = null;
+        let restoredActive = false;
+
+        if (candidateTime != null) {
+            let restored = candidateTime;
+            if (candidateActive && candidateStart) {
+                const elapsed = Math.floor(
+                    (Date.now() - candidateStart) / MS_PER_SECOND,
+                );
+                restored = Math.max(0, candidateTime - elapsed);
+            }
+            restoredTime = restored;
+            restoredActive = Boolean(candidateActive && restored > 0);
+        }
+
+        if (candidateMode === undefined && restoredTime === null) return null;
+
+        return {
+            mode: candidateMode,
+            timeLeft: restoredTime,
+            isActive: restoredActive,
+        };
+    } catch (err) {
+        console.error("Failed to parse timer payload from sessionStorage", err);
+        return null;
+    }
+};
+
 const Pomodoro: React.FC<PomodoroProps> = ({
     settings,
     sessionCount,
@@ -36,202 +89,51 @@ const Pomodoro: React.FC<PomodoroProps> = ({
 }) => {
     const t = useTranslation(settings.language);
     const playSound = useSound(settings.soundEnabled, settings.soundVolume);
-    const gradientId = useRef(
-        `progress-gradient-${Math.random().toString(36).substring(2, 11)}`,
-    ).current;
+    const reactId = useId();
+    const gradientId = `progress-gradient-${reactId}`;
 
     const settingsRef = useRef(settings);
     useEffect(() => {
         settingsRef.current = settings;
     }, [settings]);
 
-    // 在恢复流程期间阻止 resetTimer 覆盖刚从存储中恢复的计时状态（记录本次恢复到的 mode）
-    const restoredModeRef = useRef<TimerMode | null>(null);
+    // 惰性读取一次持久化状态（替代挂载 effect 中的同步 setState）
+    const [restored] = useState(readRestoredTimer);
+
     // 标记是否应该在 resetTimer 后自动开始
     const shouldAutoStartRef = useRef(false);
 
-    // 本地状态：模式、剩余时间、是否激活
-    const [mode, setMode] = useState<TimerMode>(TimerMode.WORK);
-    const [timeLeft, setTimeLeft] = useState<number>(
-        () => settings.workDuration * SECONDS_PER_MINUTE,
+    // 本地状态：模式、剩余时间、是否激活（优先采用恢复值）
+    const [mode, setMode] = useState<TimerMode>(
+        restored?.mode ?? TimerMode.WORK,
     );
-    const [isActive, setIsActive] = useState<boolean>(false);
+    const [timeLeft, setTimeLeft] = useState<number>(
+        () => restored?.timeLeft ?? settings.workDuration * SECONDS_PER_MINUTE,
+    );
+    const [isActive, setIsActive] = useState<boolean>(
+        restored?.isActive ?? false,
+    );
 
-    // 从 sessionStorage 恢复计时器（仅在挂载时执行）
+    // 挂载时将初始状态（恢复值或默认值）同步给父组件（仅外部同步，不 setState）
     useEffect(() => {
-        try {
-            const raw = sessionStorage.getItem(STORAGE_KEYS.TIMER);
-            if (!raw) return;
-            const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
-                return;
-
-            const candidateMode = parsed.mode as TimerMode | undefined;
-            const candidateTime =
-                typeof parsed.timeLeft === "number" ? parsed.timeLeft : null;
-            const candidateActive = Boolean(parsed.isActive);
-            const candidateStart =
-                typeof parsed.startTs === "number" ? parsed.startTs : null;
-
-            let restoredMode: TimerMode | undefined;
-            let restoredTime: number | null = null;
-            let restoredActive = false;
-            let restoredStart: number | null = null;
-
-            if (candidateMode) restoredMode = candidateMode;
-
-            if (candidateTime != null) {
-                let restored = candidateTime;
-                if (candidateActive && candidateStart) {
-                    const elapsed = Math.floor(
-                        (Date.now() - candidateStart) / MS_PER_SECOND,
-                    );
-                    restored = Math.max(0, candidateTime - elapsed);
-                    restoredStart = candidateStart;
-                }
-                restoredTime = restored;
-                restoredActive = Boolean(candidateActive && restored > 0);
-            }
-
-            // 将多个 state 更新合并并标记为已恢复，避免随后 resetTimer 覆盖
-            if (
-                restoredMode !== undefined ||
-                restoredTime !== null ||
-                restoredActive ||
-                restoredStart !== null
-            ) {
-                // 记录本次从存储中恢复使用的模式，用于跳过随后对应 mode 的首次 reset
-                restoredModeRef.current = restoredMode ?? mode;
-                if (restoredMode !== undefined) setMode(restoredMode);
-                if (restoredTime !== null) setTimeLeft(restoredTime);
-                setIsActive(restoredActive);
-                if (restoredStart !== null) {
-                    // 如果是工作模式并且存在 startTs，应用到父级统计（通过 onTick 父组件会同步 start）
-                    // 这里仅触发一次 onTick 以同步外部状态（包含 isActive）
-                    if (onTick)
-                        onTick(
-                            restoredTime as number,
-                            restoredMode ?? TimerMode.WORK,
-                            restoredActive,
-                        );
-                } else {
-                    if (restoredTime !== null && onTick)
-                        onTick(
-                            restoredTime,
-                            restoredMode ?? TimerMode.WORK,
-                            restoredActive,
-                        );
-                }
-            }
-        } catch (err) {
-            console.error(
-                "Failed to parse timer payload from sessionStorage",
-                err,
-            );
-        }
+        if (onTick) onTick(timeLeft, mode, isActive);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // 将计时器状态持久化到 sessionStorage（mode / timeLeft / isActive 变化时更新）
-    useEffect(() => {
-        try {
-            const payload: TimerPayload = { mode, timeLeft, isActive };
-            if (isActive) {
-                const total = getTotalTime();
-                const elapsed = total - timeLeft;
-                payload.startTs = Date.now() - elapsed * MS_PER_SECOND;
-            }
-            sessionStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(payload));
-        } catch (err) {
-            if (err instanceof Error && err.name === "QuotaExceededError") {
-                console.warn(
-                    "sessionStorage quota exceeded, timer state will not persist",
-                );
-            } else {
-                console.error(
-                    "Failed to persist timer payload to sessionStorage",
-                    err,
-                );
-            }
-        }
-        // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        mode,
-        timeLeft,
-        isActive,
-        settings.workDuration,
-        settings.shortBreakDuration,
-        settings.longBreakDuration,
-    ]);
+    // 记录上一次执行 resetTimer 时的 (mode, 各时长) 签名。
+    // 挂载时（含 StrictMode 的二次执行）签名一致则跳过 reset，
+    // 避免覆盖惰性初始化恢复的计时状态；真正的 mode/时长变化才会触发 reset。
+    const lastResetKeyRef = useRef(
+        `${mode}|${settings.workDuration}|${settings.shortBreakDuration}|${settings.longBreakDuration}`,
+    );
 
-    useEffect(() => {
-        // 如果刚刚从 sessionStorage 恢复到当前 mode，跳过本次 reset（避免覆盖恢复的剩余时间/运行状态）
-        if (restoredModeRef.current && restoredModeRef.current === mode) {
-            restoredModeRef.current = null;
-            return;
-        }
-        resetTimer();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        mode,
-        settings.workDuration,
-        settings.shortBreakDuration,
-        settings.longBreakDuration,
-    ]);
-
-    const resetTimer = () => {
-        const shouldAutoStart = shouldAutoStartRef.current;
-        shouldAutoStartRef.current = false;
-
-        let newTime = 0;
-        switch (mode) {
-            case TimerMode.WORK:
-                newTime = settingsRef.current.workDuration * SECONDS_PER_MINUTE;
-                break;
-            case TimerMode.SHORT_BREAK:
-                newTime =
-                    settingsRef.current.shortBreakDuration * SECONDS_PER_MINUTE;
-                break;
-            case TimerMode.LONG_BREAK:
-                newTime =
-                    settingsRef.current.longBreakDuration * SECONDS_PER_MINUTE;
-                break;
-        }
-        setTimeLeft(newTime);
-        setIsActive(shouldAutoStart);
-        if (shouldAutoStart) playSound("start");
-        if (onTick) onTick(newTime, mode, shouldAutoStart);
+    const getTotalTime = () => {
+        return mode === TimerMode.WORK
+            ? settings.workDuration * SECONDS_PER_MINUTE
+            : mode === TimerMode.SHORT_BREAK
+              ? settings.shortBreakDuration * SECONDS_PER_MINUTE
+              : settings.longBreakDuration * SECONDS_PER_MINUTE;
     };
-
-    useEffect(() => {
-        if (!isActive || timeLeft <= 0) {
-            return;
-        }
-
-        const startTime = Date.now();
-        const expectedEndTime = startTime + timeLeft * MS_PER_SECOND;
-
-        const interval = window.setInterval(() => {
-            const now = Date.now();
-            const remaining = Math.ceil(
-                (expectedEndTime - now) / MS_PER_SECOND,
-            );
-
-            if (remaining <= 0) {
-                setTimeLeft(0);
-                if (onTick) onTick(0, mode, true);
-                clearInterval(interval);
-                handleComplete();
-            } else if (remaining !== timeLeft) {
-                setTimeLeft(remaining);
-                if (onTick) onTick(remaining, mode, true);
-            }
-        }, TIMER_CHECK_INTERVAL_MS);
-
-        return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isActive, timeLeft]);
 
     const sendNotification = (title: string, body: string) => {
         if (!settingsRef.current.notificationsEnabled) return;
@@ -281,6 +183,106 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         }
     };
 
+    const resetTimer = () => {
+        const shouldAutoStart = shouldAutoStartRef.current;
+        shouldAutoStartRef.current = false;
+
+        let newTime = 0;
+        switch (mode) {
+            case TimerMode.WORK:
+                newTime = settingsRef.current.workDuration * SECONDS_PER_MINUTE;
+                break;
+            case TimerMode.SHORT_BREAK:
+                newTime =
+                    settingsRef.current.shortBreakDuration * SECONDS_PER_MINUTE;
+                break;
+            case TimerMode.LONG_BREAK:
+                newTime =
+                    settingsRef.current.longBreakDuration * SECONDS_PER_MINUTE;
+                break;
+        }
+        setTimeLeft(newTime);
+        setIsActive(shouldAutoStart);
+        if (shouldAutoStart) playSound("start");
+        if (onTick) onTick(newTime, mode, shouldAutoStart);
+    };
+
+    // 将计时器状态持久化到 sessionStorage（mode / timeLeft / isActive 变化时更新）
+    useEffect(() => {
+        try {
+            const payload: TimerPayload = { mode, timeLeft, isActive };
+            if (isActive) {
+                const total = getTotalTime();
+                const elapsed = total - timeLeft;
+                payload.startTs = Date.now() - elapsed * MS_PER_SECOND;
+            }
+            sessionStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(payload));
+        } catch (err) {
+            if (err instanceof Error && err.name === "QuotaExceededError") {
+                console.warn(
+                    "sessionStorage quota exceeded, timer state will not persist",
+                );
+            } else {
+                console.error(
+                    "Failed to persist timer payload to sessionStorage",
+                    err,
+                );
+            }
+        }
+        // 依赖包括 settings 的周期性参数，防止 totalTime 变化导致不一致
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        mode,
+        timeLeft,
+        isActive,
+        settings.workDuration,
+        settings.shortBreakDuration,
+        settings.longBreakDuration,
+    ]);
+
+    useEffect(() => {
+        const resetKey = `${mode}|${settings.workDuration}|${settings.shortBreakDuration}|${settings.longBreakDuration}`;
+        // 签名未变化（挂载、StrictMode 二次执行）时跳过，避免覆盖恢复的计时状态
+        if (lastResetKeyRef.current === resetKey) return;
+        lastResetKeyRef.current = resetKey;
+        resetTimer();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        mode,
+        settings.workDuration,
+        settings.shortBreakDuration,
+        settings.longBreakDuration,
+    ]);
+
+    useEffect(() => {
+        if (!isActive || timeLeft <= 0) {
+            return;
+        }
+
+        const startTime = Date.now();
+        const expectedEndTime = startTime + timeLeft * MS_PER_SECOND;
+
+        const interval = window.setInterval(() => {
+            const now = Date.now();
+            const remaining = Math.ceil(
+                (expectedEndTime - now) / MS_PER_SECOND,
+            );
+
+            if (remaining <= 0) {
+                setTimeLeft(0);
+                if (onTick) onTick(0, mode, true);
+                clearInterval(interval);
+                handleComplete();
+            } else if (remaining !== timeLeft) {
+                setTimeLeft(remaining);
+                if (onTick) onTick(remaining, mode, true);
+            }
+        }, TIMER_CHECK_INTERVAL_MS);
+
+        return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isActive, timeLeft]);
+
     const toggleTimer = () => {
         if (!isActive) playSound("start");
         const next = !isActive;
@@ -293,14 +295,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         const m = Math.floor(seconds / SECONDS_PER_MINUTE);
         const s = seconds % SECONDS_PER_MINUTE;
         return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-    };
-
-    const getTotalTime = () => {
-        return mode === TimerMode.WORK
-            ? settings.workDuration * SECONDS_PER_MINUTE
-            : mode === TimerMode.SHORT_BREAK
-              ? settings.shortBreakDuration * SECONDS_PER_MINUTE
-              : settings.longBreakDuration * SECONDS_PER_MINUTE;
     };
 
     const progress = (() => {

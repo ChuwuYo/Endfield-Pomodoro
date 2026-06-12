@@ -26,6 +26,12 @@ export const useOnlinePlayer = (
     enabled: boolean = true,
     onTrackFix?: (index: number, currentUrl: string) => Promise<string | null>,
 ) => {
+    // 本 hook 将 HTMLAudioElement 存于 state（实例交换 Swap 需要触发重渲染），
+    // 并在事件回调/Effect 中直接修改音频对象属性，与 React Compiler 的不可变性
+    // 假设冲突（编译器本就会因此跳过本函数）。显式退出编译；若要移除该指令，
+    // 需先把音频实例管理重构为 ref + 版本号 state。
+    "use no memo";
+
     // 使用 State 管理当前的 Audio 实例，以便在实例切换（Swap）时触发重渲染
     const [audioInstance, setAudioInstance] = useState<HTMLAudioElement>(
         () => new Audio(),
@@ -125,7 +131,8 @@ export const useOnlinePlayer = (
                 console.log(
                     `[useOnlinePlayer] Initializing random index: ${randomIndex}`,
                 );
-                setCurrentIndex(randomIndex);
+                // 延迟到微任务中更新，避免在 effect 中同步 setState 触发级联渲染
+                queueMicrotask(() => setCurrentIndex(randomIndex));
             }
         }
     }, [playlist.length, playMode]);
