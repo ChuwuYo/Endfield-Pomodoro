@@ -18,7 +18,7 @@
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "react-use": "^17.6.0",
-        "reanimated-color-picker": "^4.2.0",
+        "reanimated-color-picker": "^5.0.0",
         "remixicon": "^4.9.1",
         "tailwindcss": "^4.2.1",
         "workbox-window": "^7.4.0"
