@@ -39,7 +39,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
               checked
                   ? "checkbox-box checked"
                   : "checkbox-box group-hover:border-theme-primary"
-          }
+}
         `}
             >
                 {/* 勾选图标 */}
@@ -66,7 +66,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
               checked
                   ? "text-theme-primary"
                   : "text-theme-text/80 group-hover:text-theme-primary"
-          }
+}
         `}
             >
                 {label}
@@ -80,7 +80,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
               checked
                   ? "bg-theme-primary shadow-[0_0_4px_var(--color-primary)]"
                   : "bg-theme-dim/50 group-hover:bg-theme-primary/50"
-          }
+}
         `}
             />
         </label>
