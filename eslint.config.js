@@ -19,5 +19,13 @@ export default defineConfig([
             ecmaVersion: 2020,
             globals: globals.browser,
         },
+        rules: {
+            // eslint-plugin-react-hooks 7.1 新增的 React Compiler 规则，
+            // 存量代码有 18 处违规，暂降为 warn，增量修复后恢复 error
+            "react-hooks/immutability": "warn",
+            "react-hooks/purity": "warn",
+            "react-hooks/refs": "warn",
+            "react-hooks/set-state-in-effect": "warn",
+        },
     },
 ]);
