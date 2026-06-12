@@ -21,21 +21,16 @@ export const OriginForeground: React.FC = () => {
     const glowRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        let frameId: number;
+        // 同步直写 transform：浏览器本身按帧节奏合并派发 mousemove，
+        // 再经 rAF 转发反而可能多等一帧；样式写入不触发布局，开销极低
         const handleMouseMove = (e: MouseEvent) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            cancelAnimationFrame(frameId);
-            frameId = requestAnimationFrame(() => {
-                if (glowRef.current) {
-                    glowRef.current.style.transform = `translate3d(${x - ORIGIN_GLOW_RADIUS}px, ${y - ORIGIN_GLOW_RADIUS}px, 0)`;
-                }
-            });
+            if (glowRef.current) {
+                glowRef.current.style.transform = `translate3d(${e.clientX - ORIGIN_GLOW_RADIUS}px, ${e.clientY - ORIGIN_GLOW_RADIUS}px, 0)`;
+            }
         };
         window.addEventListener("mousemove", handleMouseMove);
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
-            cancelAnimationFrame(frameId);
         };
     }, []);
 
