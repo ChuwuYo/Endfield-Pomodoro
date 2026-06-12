@@ -314,8 +314,8 @@ body {
       color-mix(in srgb, var(--color-primary) 10%, transparent) 50%,
       transparent 100%);
   background-size: 50% 100%;
+  /* 无需 will-change：infinite transform 动画运行期间元素本就持有独立合成层 */
   animation: data-flow 3s linear infinite;
-  will-change: transform;
 }
 
 @keyframes spin-slow-linear {
