@@ -39,9 +39,9 @@ export const AbyssalGrid = () => (
 export const NeonGrid = () => (
     <>
         <style>{`
-            @keyframes neon-grid-move {
-                0% { background-position: 0 0, 0 0, 0 0; }
-                100% { background-position: 0 0, 0 40px, 0 0; }
+            @keyframes neon-grid-scroll {
+                0% { transform: translateY(0); }
+                100% { transform: translateY(40px); }
             }
             .synthwave-sun {
                 background: linear-gradient(180deg, #ffe53b 0%, #ff9800 45%, #ff5722 75%, #e91e63 100%);
@@ -86,18 +86,49 @@ export const NeonGrid = () => (
             <div className="absolute inset-[-20%] rounded-full bg-[#ff5722] opacity-30 blur-[70px]" />
         </div>
 
+        {/*
+          性能优化：原实现用 background-position 关键帧滚动水平网格线，
+          每帧触发整层重绘。现拆为三层（视觉与原 multi-background 完全一致，
+          叠放顺序 = 原 background 列表的倒序）：静态竖线层、滚动横线层
+          （transform 平移一个 40px 纹理周期，纯合成器动画）、静态渐隐层。
+        */}
         <div
-            className="absolute inset-0 opacity-20 pointer-events-none"
+            className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden"
             style={{
-                background:
-                    "linear-gradient(transparent 0%, var(--color-base) 100%), linear-gradient(0deg, var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)",
-                backgroundSize: "100% 100%, 40px 40px, 40px 40px",
                 transform:
                     "perspective(500px) rotateX(60deg) translateY(100px) translateZ(-100px)",
                 transformOrigin: "bottom",
-                animation: "neon-grid-move 1.5s linear infinite",
             }}
-        ></div>
+        >
+            {/* 竖线（静态） */}
+            <div
+                className="absolute inset-0"
+                style={{
+                    backgroundImage:
+                        "linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)",
+                    backgroundSize: "40px 40px",
+                }}
+            ></div>
+            {/* 横线（向下滚动；上方外扩一个 40px 纹理周期避免露缝，溢出由父级裁剪） */}
+            <div
+                className="absolute left-0 right-0 bottom-0"
+                style={{
+                    top: "-40px",
+                    backgroundImage:
+                        "linear-gradient(0deg, var(--color-primary) 1px, transparent 1px)",
+                    backgroundSize: "40px 40px",
+                    animation: "neon-grid-scroll 1.5s linear infinite",
+                }}
+            ></div>
+            {/* 顶部渐隐遮罩（静态，原 background 列表首层） */}
+            <div
+                className="absolute inset-0"
+                style={{
+                    background:
+                        "linear-gradient(transparent 0%, var(--color-base) 100%)",
+                }}
+            ></div>
+        </div>
 
         <div className="absolute top-0 w-full h-full bg-gradient-to-b from-theme-base via-transparent to-theme-primary/10 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-theme-primary/20 blur-[100px] pointer-events-none"></div>

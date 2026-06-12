@@ -4,7 +4,7 @@
  * 负责根据当前主题渲染对应的背景和前景效果
  * 主题效果组件位于 ./themes/ 目录
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { ThemePreset } from "../types";
 // 主题效果
@@ -70,40 +70,24 @@ export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({
 export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     theme = ThemePreset.ORIGIN,
 }) => {
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const isMobile = useIsMobile();
-
-    useEffect(() => {
-        if (isMobile) return;
-
-        let animationFrameId: number;
-        const handleMouseMove = (e: MouseEvent) => {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                setMousePos({ x: e.clientX, y: e.clientY });
-            });
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, [isMobile]);
 
     // 移动端不渲染鼠标交互层
     if (isMobile) return null;
 
+    // 所有鼠标跟随主题均在组件内部以 ref 直写 transform 跟踪光标，
+    // 不再经由 React state 逐帧重渲染
     switch (theme) {
         case ThemePreset.ORIGIN:
-            return <OriginForeground mousePos={mousePos} />;
+            return <OriginForeground />;
         case ThemePreset.TACTICAL:
-            return <TacticalForeground mousePos={mousePos} />;
+            return <TacticalForeground />;
         case ThemePreset.ABYSSAL:
             return <AbyssalForeground />;
         case ThemePreset.INDUSTRIAL:
-            return <IndustrialForeground mousePos={mousePos} />;
+            return <IndustrialForeground />;
         case ThemePreset.AZURE:
-            return <AzureForeground mousePos={mousePos} />;
+            return <AzureForeground />;
         case ThemePreset.MIKU:
             return <MikuForegroundLayer />;
         default:
