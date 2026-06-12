@@ -54,13 +54,20 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
         setAdapterStartIndex((prev) => (prev + 1) % adapters.length);
     }, []);
 
-    useEffect(() => {
+    // 数据源是否有效；无效时对外暴露 loading=false（见 return）
+    const hasSource = Boolean(server && type && id);
+
+    // 数据源变化时在渲染期间重置适配器起始索引
+    // （React 官方 "adjusting state when props change" 模式，替代 effect 中的同步 setState）
+    const sourceKey = `${server}|${type}|${id}`;
+    const [prevSourceKey, setPrevSourceKey] = useState(sourceKey);
+    if (prevSourceKey !== sourceKey) {
+        setPrevSourceKey(sourceKey);
         setAdapterStartIndex(0);
-    }, [server, type, id]);
+    }
 
     useEffect(() => {
         if (!server || !type || !id) {
-            setLoading(false);
             return;
         }
 
@@ -238,7 +245,7 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
 
     return {
         audioList,
-        loading,
+        loading: hasSource ? loading : false,
         error,
         retryWithNextAdapter,
         activeAdapterIndex,
