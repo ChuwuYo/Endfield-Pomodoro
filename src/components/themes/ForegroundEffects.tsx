@@ -52,26 +52,56 @@ export const OriginForeground: React.FC = () => {
 
 /**
  * Tactical 主题前景效果 - 十字准星
+ *
+ * 性能优化：原实现用 left/top 定位（每帧布局重排）并经 React state 逐帧重渲染，
+ * 改为 ref 直写 transform 平移（纯合成器）、坐标文本直写 textContent。
+ * 原 className 里的 transition-transform duration-75 是死代码（移动走 left/top，
+ * transform 从未变化、过渡从未触发），迁移后已删除以保持"瞬时跟随"的原有行为。
  */
-export const TacticalForeground: React.FC<{ mousePos: MousePos }> = ({
-    mousePos,
-}) => (
-    <div className="fixed inset-0 pointer-events-none z-50">
-        <div
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 ease-out"
-            style={{ left: mousePos.x, top: mousePos.y }}
-        >
-            <div className="w-[100vw] h-[1px] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="w-[1px] h-[100vh] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="w-12 h-12 border border-theme-primary/50 rounded-full flex items-center justify-center">
-                <div className="w-1 h-1 bg-theme-primary"></div>
+export const TacticalForeground: React.FC = () => {
+    const crosshairRef = useRef<HTMLDivElement>(null);
+    const coordsRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
+        const handleMouseMove = (e: MouseEvent) => {
+            if (crosshairRef.current) {
+                crosshairRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+            }
+            if (coordsRef.current) {
+                coordsRef.current.textContent = `TARGET_COORDS: [${e.clientX}, ${e.clientY}]`;
+            }
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+        };
+    }, []);
+
+    return (
+        <div className="fixed inset-0 pointer-events-none z-50">
+            <div
+                ref={crosshairRef}
+                className="absolute top-0 left-0 will-change-transform"
+                style={{
+                    transform: "translate3d(0px, 0px, 0) translate(-50%, -50%)",
+                }}
+            >
+                <div className="w-[100vw] h-[1px] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="w-[1px] h-[100vh] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="w-12 h-12 border border-theme-primary/50 rounded-full flex items-center justify-center">
+                    <div className="w-1 h-1 bg-theme-primary"></div>
+                </div>
+            </div>
+            <div
+                ref={coordsRef}
+                className="absolute bottom-4 right-4 font-ui-mono text-ui-micro text-theme-primary/70"
+            >
+                TARGET_COORDS: [0, 0]
             </div>
         </div>
-        <div className="absolute bottom-4 right-4 font-ui-mono text-ui-micro text-theme-primary/70">
-            TARGET_COORDS: [{mousePos.x}, {mousePos.y}]
-        </div>
-    </div>
-);
+    );
+};
 
 /**
  * Abyssal 主题前景效果 - 扫描线

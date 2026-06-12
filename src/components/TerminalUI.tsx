@@ -74,12 +74,10 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     const isMobile = useIsMobile();
 
     // 仅这些主题仍通过 React state 消费鼠标坐标；
-    // 已迁移到 ref 直写 transform 的主题（Origin、Miku）不再触发逐帧重渲染
+    // 已迁移到 ref 直写 transform 的主题（Origin、Tactical、Miku）不再触发逐帧重渲染
     const needsMousePos =
         !isMobile &&
-        (theme === ThemePreset.TACTICAL ||
-            theme === ThemePreset.INDUSTRIAL ||
-            theme === ThemePreset.AZURE);
+        (theme === ThemePreset.INDUSTRIAL || theme === ThemePreset.AZURE);
 
     useEffect(() => {
         if (!needsMousePos) return;
@@ -102,7 +100,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
         case ThemePreset.ORIGIN:
             return <OriginForeground />;
         case ThemePreset.TACTICAL:
-            return <TacticalForeground mousePos={mousePos} />;
+            return <TacticalForeground />;
         case ThemePreset.ABYSSAL:
             return <AbyssalForeground />;
         case ThemePreset.INDUSTRIAL:
