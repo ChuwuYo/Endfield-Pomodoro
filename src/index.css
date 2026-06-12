@@ -283,24 +283,39 @@ body {
   border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
-/* 数据流动画 */
+/* 数据流动画
+   性能优化：原先在元素自身滚动 background-position（每帧重绘），
+   改为伪元素承载同一渐变纹理（周期 = 2 倍容器宽，与原 background-size 200% 一致），
+   transform 平移一个周期（自身 400% 宽的 -50% = -2 倍容器宽，
+   方向、速度、相位均与原实现相同），纯合成器动画。 */
 @keyframes data-flow {
   0% {
-    background-position: 0% 0%;
+    transform: translateX(0);
   }
 
   100% {
-    background-position: 200% 0%;
+    transform: translateX(-50%);
   }
 }
 
 .data-flow-bg {
+  overflow: hidden;
+}
+
+.data-flow-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 400%;
   background: linear-gradient(90deg,
       transparent 0%,
       color-mix(in srgb, var(--color-primary) 10%, transparent) 50%,
       transparent 100%);
-  background-size: 200% 100%;
+  background-size: 50% 100%;
   animation: data-flow 3s linear infinite;
+  will-change: transform;
 }
 
 @keyframes spin-slow-linear {
