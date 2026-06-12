@@ -1,10 +1,5 @@
 import React, { useEffect, useRef } from "react";
 
-interface MousePos {
-    x: number;
-    y: number;
-}
-
 // Origin 光晕半径（与原 radial-gradient 的 circle 400px 一致）
 const ORIGIN_GLOW_RADIUS = 400;
 
@@ -117,34 +112,56 @@ export const AbyssalForeground: React.FC = () => (
     </div>
 );
 
+// Industrial 警告圈半径（容器 200x200，圆心对准光标）
+const INDUSTRIAL_RING_RADIUS = 100;
+
 /**
  * Industrial 主题前景效果 - 警告圆圈
+ *
+ * 性能优化：transform 定位原本就正确，但仍经 React state 逐帧重渲染，
+ * 改为 ref 直写 transform（与其他主题一致），不再触发渲染。
  */
-export const IndustrialForeground: React.FC<{ mousePos: MousePos }> = ({
-    mousePos,
-}) => (
-    <div className="fixed inset-0 pointer-events-none z-50">
-        <div
-            className="absolute top-0 left-0 will-change-transform"
-            style={{
-                transform: `translate(${mousePos.x - 100}px, ${mousePos.y - 100}px)`,
-                width: "200px",
-                height: "200px",
-            }}
-        >
-            <div className="w-full h-full border-4 border-theme-primary/20 rounded-full animate-ping-slow"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border-2 border-theme-primary/40 rounded-sm rotate-45"></div>
+export const IndustrialForeground: React.FC = () => {
+    const ringRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
+        const handleMouseMove = (e: MouseEvent) => {
+            if (ringRef.current) {
+                ringRef.current.style.transform = `translate3d(${e.clientX - INDUSTRIAL_RING_RADIUS}px, ${e.clientY - INDUSTRIAL_RING_RADIUS}px, 0)`;
+            }
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+        };
+    }, []);
+
+    return (
+        <div className="fixed inset-0 pointer-events-none z-50">
+            <div
+                ref={ringRef}
+                className="absolute top-0 left-0 will-change-transform"
+                style={{
+                    transform: `translate3d(${-INDUSTRIAL_RING_RADIUS}px, ${-INDUSTRIAL_RING_RADIUS}px, 0)`,
+                    width: `${INDUSTRIAL_RING_RADIUS * 2}px`,
+                    height: `${INDUSTRIAL_RING_RADIUS * 2}px`,
+                }}
+            >
+                <div className="w-full h-full border-4 border-theme-primary/20 rounded-full animate-ping-slow"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border-2 border-theme-primary/40 rounded-sm rotate-45"></div>
+            </div>
+            <div
+                className="absolute inset-0 opacity-[0.02]"
+                style={{
+                    backgroundImage:
+                        "repeating-linear-gradient(45deg, var(--color-primary) 0, var(--color-primary) 2px, transparent 0, transparent 20px)",
+                    backgroundSize: "40px 40px",
+                }}
+            ></div>
         </div>
-        <div
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-                backgroundImage:
-                    "repeating-linear-gradient(45deg, var(--color-primary) 0, var(--color-primary) 2px, transparent 0, transparent 20px)",
-                backgroundSize: "40px 40px",
-            }}
-        ></div>
-    </div>
-);
+    );
+};
 
 // Azure 聚光灯半径（与原 radial-gradient 的 circle 300px 一致）
 const AZURE_SPOT_RADIUS = 300;
