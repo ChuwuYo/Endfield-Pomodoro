@@ -73,8 +73,16 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const isMobile = useIsMobile();
 
+    // 仅这些主题仍通过 React state 消费鼠标坐标；
+    // 已迁移到 ref 直写 transform 的主题（Origin、Miku）不再触发逐帧重渲染
+    const needsMousePos =
+        !isMobile &&
+        (theme === ThemePreset.TACTICAL ||
+            theme === ThemePreset.INDUSTRIAL ||
+            theme === ThemePreset.AZURE);
+
     useEffect(() => {
-        if (isMobile) return;
+        if (!needsMousePos) return;
 
         let animationFrameId: number;
         const handleMouseMove = (e: MouseEvent) => {
@@ -88,14 +96,14 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
             window.removeEventListener("mousemove", handleMouseMove);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [isMobile]);
+    }, [needsMousePos]);
 
     // 移动端不渲染鼠标交互层
     if (isMobile) return null;
 
     switch (theme) {
         case ThemePreset.ORIGIN:
-            return <OriginForeground mousePos={mousePos} />;
+            return <OriginForeground />;
         case ThemePreset.TACTICAL:
             return <TacticalForeground mousePos={mousePos} />;
         case ThemePreset.ABYSSAL:
