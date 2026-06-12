@@ -146,32 +146,64 @@ export const IndustrialForeground: React.FC<{ mousePos: MousePos }> = ({
     </div>
 );
 
+// Azure 聚光灯半径（与原 radial-gradient 的 circle 300px 一致）
+const AZURE_SPOT_RADIUS = 300;
+
 /**
  * Azure 主题前景效果 - 分析聚光灯
+ *
+ * 性能优化：聚光灯渐变原先把鼠标坐标写进圆心、每帧重新生成并整层重绘，
+ * 改为固定 600x600 贴图（渐变参数不变，opacity/mix-blend-mode 原样保留，
+ * 贴图覆盖范围外原本就是全透明，混合结果不变）+ ref 直写 transform 跟随；
+ * 角标准星同样由 ref 直写。两者均为纯合成器操作，不再经 React 逐帧重渲染。
  */
-export const AzureForeground: React.FC<{ mousePos: MousePos }> = ({
-    mousePos,
-}) => (
-    <div className="fixed inset-0 pointer-events-none z-50">
-        <div className="absolute top-0 left-0 w-full h-[3px] bg-theme-primary/30 blur-[2px] animate-[scan_3s_ease-in-out_infinite]"></div>
-        <div
-            className="absolute inset-0"
-            style={{
-                background: `radial-gradient(circle 300px at ${mousePos.x}px ${mousePos.y}px, var(--color-primary), transparent 70%)`,
-                opacity: 0.08,
-                mixBlendMode: "overlay",
-            }}
-        ></div>
-        <div
-            className="absolute top-0 left-0 will-change-transform"
-            style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }}
-        >
-            <div className="w-[1px] h-4 bg-theme-primary/30 absolute -top-4 left-0"></div>
-            <div className="w-[1px] h-4 bg-theme-primary/30 absolute top-0 left-0"></div>
-            <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 -left-4"></div>
-            <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 left-0"></div>
+export const AzureForeground: React.FC = () => {
+    const spotlightRef = useRef<HTMLDivElement>(null);
+    const reticleRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
+        const handleMouseMove = (e: MouseEvent) => {
+            if (spotlightRef.current) {
+                spotlightRef.current.style.transform = `translate3d(${e.clientX - AZURE_SPOT_RADIUS}px, ${e.clientY - AZURE_SPOT_RADIUS}px, 0)`;
+            }
+            if (reticleRef.current) {
+                reticleRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+            }
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+        };
+    }, []);
+
+    return (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-[3px] bg-theme-primary/30 blur-[2px] animate-[scan_3s_ease-in-out_infinite]"></div>
+            <div
+                ref={spotlightRef}
+                className="absolute top-0 left-0 will-change-transform"
+                style={{
+                    width: `${AZURE_SPOT_RADIUS * 2}px`,
+                    height: `${AZURE_SPOT_RADIUS * 2}px`,
+                    transform: `translate3d(${-AZURE_SPOT_RADIUS}px, ${-AZURE_SPOT_RADIUS}px, 0)`,
+                    background: `radial-gradient(circle ${AZURE_SPOT_RADIUS}px at center, var(--color-primary), transparent 70%)`,
+                    opacity: 0.08,
+                    mixBlendMode: "overlay",
+                }}
+            ></div>
+            <div
+                ref={reticleRef}
+                className="absolute top-0 left-0 will-change-transform"
+                style={{ transform: "translate3d(0px, 0px, 0)" }}
+            >
+                <div className="w-[1px] h-4 bg-theme-primary/30 absolute -top-4 left-0"></div>
+                <div className="w-[1px] h-4 bg-theme-primary/30 absolute top-0 left-0"></div>
+                <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 -left-4"></div>
+                <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 left-0"></div>
+            </div>
+            {/* 扫描线 keyframes：同 Abyssal，top 布局动画改为合成器 transform */}
+            <style>{`@keyframes scan { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
         </div>
-        {/* 扫描线 keyframes：同 Abyssal，top 布局动画改为合成器 transform */}
-        <style>{`@keyframes scan { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
-    </div>
-);
+    );
+};

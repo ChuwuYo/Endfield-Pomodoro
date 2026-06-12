@@ -73,11 +73,9 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const isMobile = useIsMobile();
 
-    // 仅这些主题仍通过 React state 消费鼠标坐标；
-    // 已迁移到 ref 直写 transform 的主题（Origin、Tactical、Miku）不再触发逐帧重渲染
-    const needsMousePos =
-        !isMobile &&
-        (theme === ThemePreset.INDUSTRIAL || theme === ThemePreset.AZURE);
+    // 仅 INDUSTRIAL 仍通过 React state 消费鼠标坐标；
+    // 其余鼠标主题均已迁移到 ref 直写 transform，不再触发逐帧重渲染
+    const needsMousePos = !isMobile && theme === ThemePreset.INDUSTRIAL;
 
     useEffect(() => {
         if (!needsMousePos) return;
@@ -106,7 +104,7 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
         case ThemePreset.INDUSTRIAL:
             return <IndustrialForeground mousePos={mousePos} />;
         case ThemePreset.AZURE:
-            return <AzureForeground mousePos={mousePos} />;
+            return <AzureForeground />;
         case ThemePreset.MIKU:
             return <MikuForegroundLayer />;
         default:
