@@ -84,17 +84,14 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     useEffect(() => {
         if (!needsMousePos) return;
 
-        let animationFrameId: number;
+        // 同步 setState：浏览器按帧节奏合并派发 mousemove（每帧至多一次），
+        // 经 rAF 转发可能多等一帧，表现为光标跟随延迟
         const handleMouseMove = (e: MouseEvent) => {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                setMousePos({ x: e.clientX, y: e.clientY });
-            });
+            setMousePos({ x: e.clientX, y: e.clientY });
         };
         window.addEventListener("mousemove", handleMouseMove);
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
-            cancelAnimationFrame(animationFrameId);
         };
     }, [needsMousePos]);
 

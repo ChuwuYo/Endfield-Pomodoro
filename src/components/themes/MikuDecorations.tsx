@@ -15,28 +15,22 @@ const MikuHexPattern: React.FC = () => {
     React.useEffect(() => {
         if (isMobile) return;
 
-        let animationFrameId: number;
-        let x = -1000;
-        let y = -1000;
         const radius = 180;
 
+        // 同步直写 transform：浏览器按帧节奏合并派发 mousemove，
+        // 经 rAF 转发可能多等一帧，表现为光标跟随延迟
         const handleMouseMove = (e: MouseEvent) => {
-            x = e.clientX;
-            y = e.clientY;
-
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                if (outerRef.current && innerRef.current) {
-                    outerRef.current.style.transform = `translate3d(${x - radius}px, ${y - radius}px, 0)`;
-                    innerRef.current.style.transform = `translate3d(${-(x - radius)}px, ${-(y - radius)}px, 0)`;
-                }
-            });
+            if (outerRef.current && innerRef.current) {
+                const x = e.clientX - radius;
+                const y = e.clientY - radius;
+                outerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                innerRef.current.style.transform = `translate3d(${-x}px, ${-y}px, 0)`;
+            }
         };
 
         window.addEventListener("mousemove", handleMouseMove);
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
-            cancelAnimationFrame(animationFrameId);
         };
     }, [isMobile]);
 
