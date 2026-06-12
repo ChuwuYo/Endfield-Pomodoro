@@ -73,7 +73,7 @@ export const NeonGrid = () => (
                 );
             }
         `}</style>
-        
+
         {/* Synthwave 夕阳 */}
         <div className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-[240px] h-[240px] md:w-[320px] md:h-[320px] opacity-90 pointer-events-none">
             {/* 太阳本体带边缘模糊和内部发光 */}

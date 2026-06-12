@@ -1,16 +1,16 @@
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
-        react({
-            babel: {
-                plugins: ["babel-plugin-react-compiler"],
-            },
-        }),
+        react(),
+        // @vitejs/plugin-react 6 移除了 babel 选项，
+        // React Compiler 改经 @rolldown/plugin-babel 接入
+        babel({ presets: [reactCompilerPreset()] }),
         tailwindcss(),
         VitePWA({
             registerType: "autoUpdate",
