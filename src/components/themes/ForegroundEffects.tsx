@@ -90,7 +90,7 @@ export const TacticalForeground: React.FC = () => {
             </div>
             <div
                 ref={coordsRef}
-                className="absolute bottom-4 right-4 font-ui-mono text-ui-micro text-theme-primary/70"
+                className="absolute bottom-4 right-4 font-ui-mono text-ui-micro text-theme-primary/70 contain-layout contain-paint"
             >
                 TARGET_COORDS: [0, 0]
             </div>
