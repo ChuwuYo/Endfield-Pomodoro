@@ -74,7 +74,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                 </div>
 
                 <div className="flex items-center gap-4 md:gap-6">
-                    <div className="flex items-center gap-1 p-1 bg-black/20 rounded-md border border-theme-highlight/30">
+                    <div className="flex items-center p-1 bg-black/20 rounded-md border border-theme-highlight/30">
                         <Button
                             variant={
                                 currentView === View.DASHBOARD
@@ -96,7 +96,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                                 </span>
                             </span>
                         </Button>
-                        <div className="w-[1px] h-4 bg-theme-highlight/30 mx-1"></div>
                         <Button
                             variant={
                                 currentView === View.SETTINGS
