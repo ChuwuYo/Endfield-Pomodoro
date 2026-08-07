@@ -9,6 +9,7 @@ import {
 import type { Settings } from "../types";
 import { TimerMode } from "../types";
 import { useTranslation } from "../utils/i18n";
+import { advancePomodoroState } from "../utils/pomodoroState";
 import { useSound } from "./SoundManager";
 import { Button, Panel } from "./ui";
 
@@ -159,28 +160,28 @@ const Pomodoro: React.FC<PomodoroProps> = ({
     const handleComplete = () => {
         playSound("end");
 
+        const { nextMode, nextSessionCount } = advancePomodoroState(
+            mode,
+            sessionCount,
+            LONG_BREAK_INTERVAL,
+        );
+
         if (mode === TimerMode.WORK) {
             sendNotification(
                 t("NOTIFICATION_WORK_COMPLETE_TITLE"),
                 t("NOTIFICATION_WORK_COMPLETE_BODY"),
             );
-            const newCount = sessionCount + 1;
-            onSessionsUpdate(newCount);
-
+            onSessionsUpdate(nextSessionCount);
             shouldAutoStartRef.current = settingsRef.current.autoStartBreaks;
-            if (newCount % LONG_BREAK_INTERVAL === 0) {
-                setMode(TimerMode.LONG_BREAK);
-            } else {
-                setMode(TimerMode.SHORT_BREAK);
-            }
         } else {
             sendNotification(
                 t("NOTIFICATION_BREAK_COMPLETE_TITLE"),
                 t("NOTIFICATION_BREAK_COMPLETE_BODY"),
             );
             shouldAutoStartRef.current = settingsRef.current.autoStartWork;
-            setMode(TimerMode.WORK);
         }
+
+        setMode(nextMode);
     };
 
     const resetTimer = () => {

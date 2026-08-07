@@ -2,6 +2,7 @@ import React from "react";
 import type { Settings } from "../types";
 import { Language, ThemePreset } from "../types";
 import { useTranslation } from "../utils/i18n";
+import { parseDurationInput } from "../utils/settings";
 import { Checkbox } from "./Checkbox";
 import { CustomSelect } from "./CustomSelect";
 import { Button, Input, Panel } from "./ui";
@@ -30,13 +31,6 @@ const getMusicPlatformOptions = (t: ReturnType<typeof useTranslation>) => [
 const getMusicTypeOptions = (t: ReturnType<typeof useTranslation>) => [
     { value: "playlist", label: t("TYPE_PLAYLIST") },
 ];
-
-const parseDurationInput = (value: string, previous: number): number => {
-    if (value.trim() === "") return previous;
-    const next = Number(value);
-    if (!Number.isFinite(next)) return previous;
-    return Math.max(1, Math.floor(next));
-};
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
     settings,
