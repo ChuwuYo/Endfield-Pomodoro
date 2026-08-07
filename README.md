@@ -44,9 +44,8 @@
 | **构建工具** | [Vite](https://vitejs.dev/) | 下一代前端构建工具，极速冷启动 |
 | **开发语言** | [TypeScript](https://www.typescriptlang.org/) | 静态强类型，提升代码可维护性 |
 | **样式方案** | [TailwindCSS v4](https://tailwindcss.com/) | 原子化 CSS 引擎，支持 CSS 变量动态主题 |
-| **图标库** | [Remixicon](https://remixicon.com/) / [Lucide](https://lucide.dev/) | 风格统一的现代化图标集 |
+| **图标库** | [Remixicon](https://remixicon.com/) | 风格统一的现代化图标集 |
 | **状态管理** | React Hooks | 基于 Hook 的原生状态逻辑复用 |
-| **工具函数** | [react-use](https://github.com/streamich/react-use) | 通用 React Hooks 集合 |
 | **代码质量** | [ESLint](https://eslint.org/) + [Biome](https://biomejs.dev/) | 代码检查与高性能格式化 |
 
 ## 快速开始 (Getting Started)

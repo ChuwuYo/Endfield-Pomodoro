@@ -13,11 +13,9 @@
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.3.3",
-        "lucide-react": "^1.27.0",
         "music-metadata": "^11.14.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
-        "react-use": "^17.6.1",
         "remixicon": "^4.9.1",
         "tailwindcss": "^4.3.3",
         "workbox-window": "^7.4.1"
