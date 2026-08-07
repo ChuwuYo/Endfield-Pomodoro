@@ -1,9 +1,14 @@
 import { STORAGE_KEYS } from "../constants";
 import { Language } from "../types";
+import {
+    detectBrowserLanguage,
+    htmlLangToLanguage,
+    languageToHtmlLang,
+} from "./languageLocale";
 
 const LANGUAGE_VALUES = new Set<string>(Object.values(Language));
 
-const readStoredLanguage = (): Language | null => {
+export const readStoredLanguage = (): Language | null => {
     try {
         // 显式用 window.localStorage，避免 Node 全局 localStorage 未启用时读到 undefined
         const raw = window.localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -21,13 +26,23 @@ const readStoredLanguage = (): Language | null => {
 };
 
 /**
- * 优先读已持久化的语言设置（首屏崩溃时 App 的 lang effect 可能还没跑）；
- * 再回退到 documentElement.lang / 英文。
+ * 兜底语言优先级：
+ * 1) 已持久化设置
+ * 2) 当前 html lang（main 在挂载前已按存储/浏览器同步）
  */
 export const resolveFallbackLanguage = (): Language => {
     const stored = readStoredLanguage();
     if (stored) return stored;
+    return htmlLangToLanguage(document.documentElement.lang);
+};
 
-    const lang = document.documentElement.lang?.toLowerCase() ?? "";
-    return lang.startsWith("zh") ? Language.CN : Language.EN;
+/**
+ * 在挂载 React 前同步 <html lang>：
+ * - 有持久化设置 → 用设置
+ * - 否则 → 与 App DEFAULT_SETTINGS 相同的浏览器推断
+ * 避免「index.html 写死 zh-CN + 英文用户首屏崩溃」错成中文兜底。
+ */
+export const syncDocumentLanguageBeforeApp = (): void => {
+    const language = readStoredLanguage() ?? detectBrowserLanguage();
+    document.documentElement.lang = languageToHtmlLang(language);
 };

@@ -95,7 +95,25 @@ describe("ErrorFallback", () => {
         expect(onReload).toHaveBeenCalledTimes(1);
     });
 
-    it("renders English copy from persisted settings", () => {
+    it("renders Chinese copy when html lang is zh-CN", () => {
+        document.documentElement.lang = "zh-CN";
+        render(<ErrorFallback onReload={() => {}} />);
+        expect(
+            screen.getByRole("button", { name: "刷新页面" }),
+        ).toBeInTheDocument();
+        expect(screen.getByText("系统异常")).toBeInTheDocument();
+    });
+
+    it("renders English copy when html lang is en", () => {
+        document.documentElement.lang = "en";
+        render(<ErrorFallback onReload={() => {}} />);
+        expect(
+            screen.getByRole("button", { name: "RELOAD" }),
+        ).toBeInTheDocument();
+        expect(screen.getByText("SYSTEM FAULT")).toBeInTheDocument();
+    });
+
+    it("renders English copy from persisted settings even if html lang is zh-CN", () => {
         window.localStorage.setItem(
             STORAGE_KEYS.SETTINGS,
             JSON.stringify({ language: Language.EN }),
