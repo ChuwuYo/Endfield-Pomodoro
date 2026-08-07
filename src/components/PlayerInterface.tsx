@@ -26,12 +26,17 @@ export interface PlayerInterfaceProps {
     onVolumeChange: (volume: number) => void;
     onModeToggle: () => void;
     onPlaylistToggle: () => void;
+    playlistOpen?: boolean;
+    playlistPanelId?: string;
 }
 
 const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(value, max));
 
 const VOLUME_STEP = 0.05;
+
+const supportsPopoverApi = () =>
+    typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
 
 const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     isPlaying,
@@ -53,6 +58,8 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     onVolumeChange,
     onModeToggle,
     onPlaylistToggle,
+    playlistOpen = false,
+    playlistPanelId,
 }) => {
     const t = useTranslation(language);
     const progressBarRef = useRef<HTMLDivElement>(null);
@@ -361,10 +368,23 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
 
                     {/* 显示播放列表按钮 */}
                     <button
-                        onClick={onPlaylistToggle}
+                        type="button"
+                        onClick={
+                            playlistPanelId && supportsPopoverApi()
+                                ? undefined
+                                : onPlaylistToggle
+                        }
+                        {...(playlistPanelId && supportsPopoverApi()
+                            ? {
+                                  popoverTarget: playlistPanelId,
+                                  popoverTargetAction: "toggle" as const,
+                              }
+                            : {})}
                         className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm cursor-pointer"
                         title={t("PLAYLIST_BUTTON")}
                         aria-label={t("PLAYLIST_BUTTON")}
+                        aria-expanded={playlistOpen}
+                        aria-controls={playlistPanelId}
                     >
                         <i className="ri-play-list-line icon-ui-md"></i>
                     </button>
