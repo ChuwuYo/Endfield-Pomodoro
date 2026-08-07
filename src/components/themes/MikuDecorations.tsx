@@ -196,17 +196,6 @@ export const MikuBackgroundLayer: React.FC = () => {
     );
 };
 
-// ========== 前景效果组件 ==========
-
-// Miku 前景层效果
-export const MikuForegroundLayer: React.FC = () => {
-    return (
-        <div className="fixed inset-0 pointer-events-none z-50">
-            {/* 前景层现在为空 */}
-        </div>
-    );
-};
-
 // ========== 装饰元素组件 ==========
 
 // Miku 角色图片装饰组件
