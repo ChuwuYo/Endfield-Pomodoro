@@ -79,18 +79,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             const track = metingData[index];
             if (!track || !track.id) return null;
 
-            console.log(
-                `[MusicPlayer] Attempting single-track fallback for: ${track.name} (id: ${track.id})`,
-            );
-
             const newUrl = await fetchTrackUrl(track.id, controller.signal);
 
             if (controller.signal.aborted) return null;
 
             if (newUrl) {
-                console.log(
-                    `[MusicPlayer] Track fallback successful. New URL: ${newUrl}`,
-                );
                 // 修复成功，重置错误计数
                 errorCountRef.current = 0;
 

@@ -27,13 +27,11 @@ export function PWAPrompt({ language }: PWAPromptProps) {
 
                 // 立即检查一次
                 r.update();
-                console.log("[PWA] Registered & Initial check fired");
 
                 // 设置轮询 (每小时)
                 if (intervalRef.current) clearInterval(intervalRef.current);
 
                 intervalRef.current = window.setInterval(() => {
-                    console.log("[PWA] Hourly check fired");
                     r.update();
                 }, HOURLY_CHECK_INTERVAL_MS);
             }
@@ -61,9 +59,6 @@ export function PWAPrompt({ language }: PWAPromptProps) {
                 return;
             }
 
-            console.log(
-                "[PWA] Controller changed, showing update notification...",
-            );
             setShowUpdated(true);
         };
 
@@ -98,7 +93,6 @@ export function PWAPrompt({ language }: PWAPromptProps) {
                 return;
             }
             lastVisibilityCheckRef.current = now;
-            console.log("[PWA] Visibility visible, checking update...");
             registration.update();
         };
 
