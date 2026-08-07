@@ -1,74 +1,99 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PlayMode } from "../types";
 import { useShuffle } from "./useShuffle";
 
+/** Flush queueMicrotask used by useShuffle's init effect */
+const flushMicrotasks = async () => {
+    await act(async () => {
+        await Promise.resolve();
+    });
+};
+
 describe("useShuffle", () => {
     beforeEach(() => {
-        vi.spyOn(Math, "random").mockReturnValue(0);
+        // random ≈ 1 → Fisher-Yates 不做交换，洗牌结果保持 [0,1,2,...]
+        vi.spyOn(Math, "random").mockReturnValue(0.999);
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
     });
 
-    it("shuffles without duplicates or missing indices", async () => {
-        const { result } = renderHook(() => useShuffle(5, PlayMode.RANDOM, 0));
-
-        await waitFor(() => {
-            expect(result.current.shuffledIndices).toHaveLength(5);
-        });
-
-        const indices = result.current.shuffledIndices;
-        expect(new Set(indices).size).toBe(5);
-        expect([...indices].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4]);
-    });
-
-    it("cycles through all indices before reshuffling", async () => {
+    it("yields each index exactly once before reshuffling", async () => {
         const { result, rerender } = renderHook(
-            ({ currentIndex }) => useShuffle(3, PlayMode.RANDOM, currentIndex),
+            ({ currentIndex }) => useShuffle(5, PlayMode.RANDOM, currentIndex),
             { initialProps: { currentIndex: 0 } },
         );
 
-        await waitFor(() => {
-            expect(result.current.shuffledIndices).toHaveLength(3);
-        });
+        await flushMicrotasks();
 
-        const order = [...result.current.shuffledIndices];
-        rerender({ currentIndex: order[0] });
-
-        const seen: number[] = [];
-        for (let i = 0; i < 2; i++) {
+        const seen = new Set<number>([0]);
+        let current = 0;
+        for (let i = 0; i < 4; i++) {
             let next = -1;
             act(() => {
                 next = result.current.getNextRandomIndex();
             });
-            seen.push(next);
-            rerender({ currentIndex: next });
+            expect(next).toBe(current + 1);
+            expect(seen.has(next)).toBe(false);
+            seen.add(next);
+            current = next;
+            rerender({ currentIndex: current });
         }
 
-        expect(seen).toEqual([order[1], order[2]]);
+        expect(seen.size).toBe(5);
+        expect([...seen].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4]);
     });
 
-    it("avoids head-tail collision when reshuffling after full cycle", async () => {
+    it("peekNextRandomIndex matches the next getNextRandomIndex value", async () => {
         const { result, rerender } = renderHook(
-            ({ currentIndex }) => useShuffle(3, PlayMode.RANDOM, currentIndex),
+            ({ currentIndex }) => useShuffle(4, PlayMode.RANDOM, currentIndex),
             { initialProps: { currentIndex: 0 } },
         );
 
-        await waitFor(() => {
-            expect(result.current.shuffledIndices).toHaveLength(3);
-        });
+        await flushMicrotasks();
 
-        const initial = [...result.current.shuffledIndices];
-        rerender({ currentIndex: initial[initial.length - 1] });
+        expect(result.current.peekNextRandomIndex()).toBe(1);
 
         let next = -1;
         act(() => {
             next = result.current.getNextRandomIndex();
         });
+        expect(next).toBe(1);
 
-        expect(next).not.toBe(initial[initial.length - 1]);
-        expect(result.current.shuffledIndices[0]).toBe(next);
+        rerender({ currentIndex: next });
+        expect(result.current.peekNextRandomIndex()).toBe(2);
+    });
+
+    it("avoids repeating the last track immediately when reshuffling", async () => {
+        const { result, rerender } = renderHook(
+            ({ currentIndex }) => useShuffle(3, PlayMode.RANDOM, currentIndex),
+            { initialProps: { currentIndex: 0 } },
+        );
+
+        await flushMicrotasks();
+
+        // Advance to the last index in the identity order [0,1,2]
+        let current = 0;
+        for (let i = 0; i < 2; i++) {
+            let next = -1;
+            act(() => {
+                next = result.current.getNextRandomIndex();
+            });
+            current = next;
+            rerender({ currentIndex: current });
+        }
+        expect(current).toBe(2);
+
+        // Next call reshuffles; head-tail guard must not start with 2
+        let reshuffledFirst = -1;
+        act(() => {
+            reshuffledFirst = result.current.getNextRandomIndex();
+        });
+
+        expect(reshuffledFirst).not.toBe(2);
+        expect(reshuffledFirst).toBeGreaterThanOrEqual(0);
+        expect(reshuffledFirst).toBeLessThan(3);
     });
 });
