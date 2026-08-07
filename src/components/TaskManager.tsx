@@ -111,7 +111,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
                     <Button
                         onClick={addTask}
                         disabled={isFull || !inputValue.trim()}
-                        className="min-w-[72px] h-form-control px-0 flex-shrink-0"
+                        className="min-w-[var(--size-button-min)] h-form-control px-0 flex-shrink-0"
                     >
                         {t("ADD_TASK")}
                     </Button>

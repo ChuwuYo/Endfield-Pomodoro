@@ -309,7 +309,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                             <span className="flex-1 truncate mr-2">
                                 {song.name}
                             </span>
-                            <span className="text-theme-dim truncate max-w-[80px] text-right">
+                            <span className="text-theme-dim truncate max-w-[var(--size-track-meta)] text-right">
                                 {song.artist}
                             </span>
                             {index === player.currentIndex && (

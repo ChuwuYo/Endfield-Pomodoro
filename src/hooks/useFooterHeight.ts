@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { scalePx } from "../utils/uiScale";
 
 /**
  * Hook 用于获取 footer 元素的高度
@@ -25,12 +26,11 @@ export const useFooterHeight = () => {
 };
 
 /**
- * 计算主题装饰元素需要的额外间距
+ * 计算主题装饰元素需要的额外间距（设计稿 px，经 --ui-scale 换算）
  * @param isMikuTheme 是否为 Miku 主题
  * @returns 额外间距像素值
  */
 export const getThemeExtraSpacing = (isMikuTheme: boolean): number => {
-    // Miku 主题需要为角色图片和 Logo 预留额外空间 (120px)
-    // 其他主题也需要基础间距 (60px)
-    return isMikuTheme ? 120 : 60;
+    // Miku：120；其他：60（均随 --ui-scale）
+    return scalePx(isMikuTheme ? 120 : 60);
 };

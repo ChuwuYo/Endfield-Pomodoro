@@ -25,12 +25,22 @@
   --animate-spin-slow: spin 12s linear infinite;
   --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 
-  /* 表单控件统一高度 */
-  --spacing-form-control: 36px;
+  /*
+    表单控件高度：设计稿 36px @ root 15px → 2.4rem，随 --ui-scale 缩放。
+  */
+  --spacing-form-control: 2.4rem;
 }
 
-/* 主题的基础变量（通过React动态切换） */
+/*
+  UI 密度（单一旋钮）
+  - --ui-scale 驱动 html 根字号 → 所有 rem（Tailwind p/gap/w/h、本文件 token）一起缩放
+  - 设计基准：scale=1 时根字号 15px；token 用「设计 px / 15」的 rem，避免再乘一次 scale
+  - 禁止用 transform:scale / zoom 做全局缩放（糊字、弄坏 fixed）
+*/
 :root {
+  --ui-scale: 0.9;
+  --ui-root-font-size: 15px;
+
   --color-base: #e5e5e5;
   --color-surface: #d4d4d4;
   --color-highlight: #a3a3a3;
@@ -42,29 +52,42 @@
   --color-success: #16a34a;
   --color-error: #dc2626;
 
-  --text-ui-3xs: 8px;
-  --text-ui-2xs: 9px;
-  --text-ui-micro: 10px;
-  --text-ui-xs: 12px;
-  --text-ui-sm: 14px;
-  --text-ui-base: 15px;
-  --text-ui-lg: 18px;
-  --text-ui-xl: 20px;
-  --text-ui-2xl: 24px;
-  --text-ui-display: 48px;
-  --text-ui-display-xl: 64px;
+  /* 字号 token（设计 px → rem） */
+  --text-ui-3xs: calc(8 / 15 * 1rem);
+  --text-ui-2xs: calc(9 / 15 * 1rem);
+  --text-ui-micro: calc(10 / 15 * 1rem);
+  --text-ui-xs: calc(12 / 15 * 1rem);
+  --text-ui-sm: calc(14 / 15 * 1rem);
+  --text-ui-base: calc(15 / 15 * 1rem);
+  --text-ui-lg: calc(18 / 15 * 1rem);
+  --text-ui-xl: calc(20 / 15 * 1rem);
+  --text-ui-2xl: calc(24 / 15 * 1rem);
+  --text-ui-display: calc(48 / 15 * 1rem);
+  --text-ui-display-xl: calc(64 / 15 * 1rem);
 
-  --icon-ui-xs: 12px;
-  --icon-ui-sm: 14px;
-  --icon-ui-md: 16px;
-  --icon-ui-lg: 18px;
-  --icon-ui-xl: 20px;
-  --icon-ui-2xl: 24px;
-  --icon-ui-display: 48px;
+  /* 图标 token */
+  --icon-ui-xs: calc(12 / 15 * 1rem);
+  --icon-ui-sm: calc(14 / 15 * 1rem);
+  --icon-ui-md: calc(16 / 15 * 1rem);
+  --icon-ui-lg: calc(18 / 15 * 1rem);
+  --icon-ui-xl: calc(20 / 15 * 1rem);
+  --icon-ui-2xl: calc(24 / 15 * 1rem);
+  --icon-ui-display: calc(48 / 15 * 1rem);
+
+  /* 关键尺寸 token（原硬编码 px） */
+  --size-timer-ring: calc(256 / 15 * 1rem);
+  --size-timer-ring-md: calc(320 / 15 * 1rem);
+  --size-control-lg: calc(56 / 15 * 1rem);
+  --size-track-meta: calc(80 / 15 * 1rem);
+  --size-button-min: calc(72 / 15 * 1rem);
+
+  /* 主题底栏预留（JS 可读，随 scale） */
+  --space-theme-extra: calc(60 / 15 * 1rem);
+  --space-theme-extra-miku: calc(120 / 15 * 1rem);
 }
 
 html {
-  font-size: 15px;
+  font-size: calc(var(--ui-root-font-size) * var(--ui-scale));
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -369,27 +392,6 @@ body {
   outline-offset: 2px;
 }
 
-/* 减弱动效：关闭常开装饰动画与过渡 */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .data-flow-bg::before,
-  .animate-spin-slow-linear-4s,
-  .animate-spin-slow,
-  .animate-ping-slow,
-  .animate-pulse-fast,
-  .animate-pulse {
-    animation: none !important;
-  }
-}
-
 /*
   在线播放列表下拉：外观与 Popover UA 重置都集中在这里。
   组件只挂 class / popover 属性，不再用 Tailwind 重复写底色、模糊、描边。
@@ -397,13 +399,15 @@ body {
 .playlist-dropdown {
   color: inherit;
   background: transparent;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(calc(12px * var(--ui-scale)));
+  backdrop-filter: blur(calc(12px * var(--ui-scale)));
   border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
   border-radius: 0.375rem;
   box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 0.25),
-    0 8px 10px -6px rgb(0 0 0 / 0.25);
+    0 calc(20px * var(--ui-scale)) calc(25px * var(--ui-scale))
+      rgb(0 0 0 / 0.25),
+    0 calc(8px * var(--ui-scale)) calc(10px * var(--ui-scale))
+      rgb(0 0 0 / 0.25);
   overflow: hidden;
   max-height: 15rem; /* 原 max-h-60 */
 }

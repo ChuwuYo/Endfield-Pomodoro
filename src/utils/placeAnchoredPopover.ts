@@ -1,3 +1,5 @@
+import { getUiScale } from "./uiScale";
+
 export type AnchoredPopoverPlacement = {
     top?: string;
     bottom?: string;
@@ -8,19 +10,20 @@ export type AnchoredPopoverPlacement = {
 };
 
 export type PlaceAnchoredPopoverOptions = {
-    /** 锚点与面板间距 */
+    /** 锚点与面板间距（设计稿 px，apply 时会乘 --ui-scale） */
     gap?: number;
-    /** 距视口边缘的最小内边距 */
+    /** 距视口边缘的最小内边距（设计稿 px） */
     padding?: number;
-    /** 面板最小高度（空间极小时仍保证可滚） */
+    /** 面板最小高度（设计稿 px） */
     minHeight?: number;
-    /** 与原先 max-h-60 一致：优先不超过该高度 */
+    /** 与原先 max-h-60 一致：优先不超过该高度（设计稿 px） */
     maxHeightCap?: number;
 };
 
 /**
  * Material / Fluent 式锚点定位：优先下方；空间不足则 flip 到上方；
  * max-height 限制在可用视口内，由面板内部滚动。
+ * 纯函数：传入的 options 已是最终 CSS px（含 scale）。
  */
 export const computeAnchoredPopoverPlacement = (
     anchorRect: DOMRectReadOnly,
@@ -73,10 +76,16 @@ export const applyAnchoredPopoverPlacement = (
     anchor: HTMLElement,
     options?: PlaceAnchoredPopoverOptions,
 ): AnchoredPopoverPlacement => {
+    const scale = getUiScale();
     const placement = computeAnchoredPopoverPlacement(
         anchor.getBoundingClientRect(),
         { width: window.innerWidth, height: window.innerHeight },
-        options,
+        {
+            gap: (options?.gap ?? 8) * scale,
+            padding: (options?.padding ?? 16) * scale,
+            minHeight: (options?.minHeight ?? 120) * scale,
+            maxHeightCap: (options?.maxHeightCap ?? 240) * scale,
+        },
     );
 
     popover.style.position = "fixed";
