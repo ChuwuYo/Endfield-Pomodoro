@@ -1,6 +1,6 @@
-import React from "react";
-import { Language } from "../types";
+import React, { useEffect, useRef } from "react";
 import { translations } from "../utils/i18n";
+import { resolveFallbackLanguage } from "../utils/resolveFallbackLanguage";
 import { Button } from "./ui/Button";
 
 type ErrorBoundaryProps = {
@@ -11,11 +11,6 @@ type ErrorBoundaryState = {
     error: Error | null;
 };
 
-const resolveFallbackLanguage = (): Language => {
-    const lang = document.documentElement.lang?.toLowerCase() ?? "";
-    return lang.startsWith("zh") ? Language.CN : Language.EN;
-};
-
 type ErrorFallbackProps = {
     onReload: () => void;
 };
@@ -24,6 +19,11 @@ type ErrorFallbackProps = {
 export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onReload }) => {
     const language = resolveFallbackLanguage();
     const t = translations[language];
+    const reloadRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        reloadRef.current?.focus();
+    }, []);
 
     return (
         <div
@@ -43,7 +43,12 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onReload }) => {
                     {t.ERROR_BOUNDARY_MESSAGE}
                 </p>
             </div>
-            <Button type="button" variant="primary" onClick={onReload}>
+            <Button
+                ref={reloadRef}
+                type="button"
+                variant="primary"
+                onClick={onReload}
+            >
                 {t.ERROR_BOUNDARY_RELOAD}
             </Button>
         </div>

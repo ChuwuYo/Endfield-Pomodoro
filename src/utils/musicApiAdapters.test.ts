@@ -77,20 +77,33 @@ describe("music API URL builders", () => {
     });
 
     it("encodes track URL params on both adapters", () => {
+        const dirtyId = "song&id=1 x";
         const primary = metingAdapter.buildTrackUrl!({
             server: "tencent",
-            id: "song/1?x=1",
+            id: dirtyId,
         });
         const fallback = metingFallbackAdapter.buildTrackUrl!({
             server: "tencent",
-            id: "song/1?x=1",
+            id: dirtyId,
         });
 
         expect(new URL(primary).searchParams.get("type")).toBe("song");
-        expect(new URL(primary).searchParams.get("id")).toBe("song/1?x=1");
-        expect(new URL(fallback).searchParams.get("id")).toBe("song/1?x=1");
+        expect(new URL(primary).searchParams.get("id")).toBe(dirtyId);
+        expect(new URL(fallback).searchParams.get("id")).toBe(dirtyId);
+        expect(primary).not.toContain("id=song&id=");
+        expect(fallback).not.toContain("id=song&id=");
         expect(fallback.startsWith("https://api.injahow.cn/meting/?")).toBe(
             true,
         );
+    });
+
+    it("encodes reserved characters on fallback playlist URLs", () => {
+        const url = metingFallbackAdapter.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "a&b=c d",
+        });
+        expect(new URL(url).searchParams.get("id")).toBe("a&b=c d");
+        expect(url).not.toContain("id=a&b=c");
     });
 });
