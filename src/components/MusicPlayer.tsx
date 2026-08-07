@@ -11,6 +11,11 @@ import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
 import { AudioMode, Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { applyAnchoredPopoverPlacement } from "../utils/placeAnchoredPopover";
+import {
+    PLAYLIST_MAX_HEIGHT_CAP_DESIGN_PX,
+    PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+    PLAYLIST_POSITIONED_CLASS,
+} from "../utils/playlistPopoverLayout";
 import { isPlaylistPopoverMountReady } from "../utils/playlistPopoverMount";
 import { shouldRestoreFocusAfterPopoverClose } from "../utils/popoverFocus";
 import MessageDisplay from "./MessageDisplay";
@@ -48,6 +53,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
     const rootRef = useRef<HTMLDivElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
+    const positionRafRef = useRef<number | null>(null);
     const errorCountRef = useRef(0);
     const trackFixAbortRef = useRef<AbortController | null>(null);
 
@@ -120,18 +126,42 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     const player = useOnlinePlayer(playlist, false, enabled, handleTrackFix);
 
-    const repositionPlaylist = useCallback(() => {
+    const applyPlaylistPlacement = useCallback(() => {
         const popover = popoverRef.current;
         const anchor = rootRef.current;
         if (!popover || !anchor) return;
-        // 对齐原 absolute top-full left-0 right-0 mt-2 + max-h-60
         applyAnchoredPopoverPlacement(popover, anchor, {
             gap: 8,
             padding: 16,
-            minHeight: 120,
-            maxHeightCap: 240,
+            minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+            maxHeightCap: PLAYLIST_MAX_HEIGHT_CAP_DESIGN_PX,
         });
     }, []);
+
+    const clearPlaylistPositioned = useCallback(() => {
+        if (positionRafRef.current != null) {
+            cancelAnimationFrame(positionRafRef.current);
+            positionRafRef.current = null;
+        }
+        popoverRef.current?.classList.remove(PLAYLIST_POSITIONED_CLASS);
+    }, []);
+
+    /** 先定位再显示，避免首帧闪左上角（visibility + is-positioned） */
+    const revealPlaylistPlacement = useCallback(() => {
+        const popover = popoverRef.current;
+        if (!popover) return;
+        popover.classList.remove(PLAYLIST_POSITIONED_CLASS);
+        applyPlaylistPlacement();
+        if (positionRafRef.current != null) {
+            cancelAnimationFrame(positionRafRef.current);
+        }
+        // 一帧后再显示：盖掉 UA 打开时可能写回的默认 inset
+        positionRafRef.current = requestAnimationFrame(() => {
+            positionRafRef.current = null;
+            applyPlaylistPlacement();
+            popover.classList.add(PLAYLIST_POSITIONED_CLASS);
+        });
+    }, [applyPlaylistPlacement]);
 
     const restorePlaylistFocus = useCallback(() => {
         queueMicrotask(() => {
@@ -156,9 +186,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             el.hidePopover();
             return;
         }
+        clearPlaylistPositioned();
         setIsListOpen(false);
         restorePlaylistFocus();
-    }, [restorePlaylistFocus]);
+    }, [clearPlaylistPositioned, restorePlaylistFocus]);
 
     const togglePlaylist = useCallback(() => {
         const el = popoverRef.current;
@@ -186,12 +217,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         const syncOpen = (open: boolean) => {
             setIsListOpen(open);
             if (open) {
-                // 先同步定位，避免首帧停在 inset:auto 左上角；双 rAF 再盖 UA 居中
-                repositionPlaylist();
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(repositionPlaylist);
-                });
+                revealPlaylistPlacement();
             } else {
+                clearPlaylistPositioned();
                 restorePlaylistFocus();
             }
         };
@@ -205,8 +233,16 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         if (el.matches(":popover-open")) {
             syncOpen(true);
         }
-        return () => el.removeEventListener("toggle", onToggle);
-    }, [playlistUiReady, repositionPlaylist, restorePlaylistFocus]);
+        return () => {
+            el.removeEventListener("toggle", onToggle);
+            clearPlaylistPositioned();
+        };
+    }, [
+        playlistUiReady,
+        revealPlaylistPlacement,
+        clearPlaylistPositioned,
+        restorePlaylistFocus,
+    ]);
 
     // 无 Popover API：Esc / 点外部
     useEffect(() => {
@@ -235,17 +271,30 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         };
     }, [isListOpen, closePlaylist]);
 
-    // 打开后跟随锚点；resize/scroll 时重算（下方不够则 flip）
+    // 打开后跟随锚点；resize/scroll 时重算（下方不够 5 行则 flip）
     useEffect(() => {
         if (!isListOpen) return;
-        repositionPlaylist();
-        window.addEventListener("resize", repositionPlaylist);
-        window.addEventListener("scroll", repositionPlaylist, true);
-        return () => {
-            window.removeEventListener("resize", repositionPlaylist);
-            window.removeEventListener("scroll", repositionPlaylist, true);
+        if (!supportsPopoverApi()) {
+            revealPlaylistPlacement();
+        } else {
+            applyPlaylistPlacement();
+        }
+        const onReposition = () => {
+            applyPlaylistPlacement();
+            popoverRef.current?.classList.add(PLAYLIST_POSITIONED_CLASS);
         };
-    }, [isListOpen, playlist.length, repositionPlaylist]);
+        window.addEventListener("resize", onReposition);
+        window.addEventListener("scroll", onReposition, true);
+        return () => {
+            window.removeEventListener("resize", onReposition);
+            window.removeEventListener("scroll", onReposition, true);
+        };
+    }, [
+        isListOpen,
+        playlist.length,
+        applyPlaylistPlacement,
+        revealPlaylistPlacement,
+    ]);
 
     useEffect(() => {
         if (!isListOpen) return;

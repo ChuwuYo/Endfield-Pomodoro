@@ -33,4 +33,22 @@ describe("shouldRestoreFocusAfterPopoverClose", () => {
         popover.remove();
         outside.remove();
     });
+
+    it("does not steal focus from an external focusable SVG", () => {
+        const popover = document.createElement("div");
+        const svg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg",
+        );
+        svg.setAttribute("tabindex", "0");
+        document.body.appendChild(popover);
+        document.body.appendChild(svg);
+        expect(shouldRestoreFocusAfterPopoverClose(popover, svg)).toBe(false);
+        popover.remove();
+        svg.remove();
+    });
+
+    it("restores when activeElement is null", () => {
+        expect(shouldRestoreFocusAfterPopoverClose(null, null)).toBe(true);
+    });
 });

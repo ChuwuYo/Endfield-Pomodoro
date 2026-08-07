@@ -406,6 +406,12 @@ body {
       rgb(0 0 0 / 0.25);
   overflow: hidden;
   max-height: 15rem; /* 原 max-h-60 */
+  /* 定位完成前隐藏，避免首帧停在左上角（Floating UI / Popover 通用做法） */
+  visibility: hidden;
+}
+
+.playlist-dropdown.is-positioned {
+  visibility: visible;
 }
 
 .playlist-dropdown__header {

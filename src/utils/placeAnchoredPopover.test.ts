@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeAnchoredPopoverPlacement } from "./placeAnchoredPopover";
+import { PLAYLIST_MIN_HEIGHT_DESIGN_PX } from "./playlistPopoverLayout";
 
 const rect = (
     top: number,
@@ -24,6 +25,7 @@ describe("computeAnchoredPopoverPlacement", () => {
         const placement = computeAnchoredPopoverPlacement(
             rect(100, 40, 320, 80),
             { width: 800, height: 900 },
+            { minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX, maxHeightCap: 240 },
         );
         expect(placement.openBelow).toBe(true);
         expect(placement.top).toBe("188px"); // 100+80+8
@@ -33,12 +35,19 @@ describe("computeAnchoredPopoverPlacement", () => {
         expect(Number.parseFloat(placement.maxHeight)).toBeLessThanOrEqual(240);
     });
 
-    it("flips above when the footer leaves little space below", () => {
+    it("opens above when below cannot fit the minimum row height", () => {
+        // 下方仅 84px < 220，即使上方也不充裕也必须翻上
         const placement = computeAnchoredPopoverPlacement(
             rect(700, 40, 320, 80),
             { width: 800, height: 800 },
-            { minHeight: 120, maxHeightCap: 240 },
+            {
+                minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+                maxHeightCap: 240,
+                gap: 8,
+                padding: 16,
+            },
         );
+        // spaceBelow = 800-780-8-16 = -4 → 0 available below
         expect(placement.openBelow).toBe(false);
         expect(placement.top).toBe("auto");
         expect(placement.bottom).toBe("108px"); // 800 - 700 + 8
@@ -56,14 +65,42 @@ describe("computeAnchoredPopoverPlacement", () => {
     });
 
     it("does not force minHeight above the real available space", () => {
-        // 锚点几乎贴底：下方仅 ~16px，上方仅 ~16px（均 < minHeight 120）
         const placement = computeAnchoredPopoverPlacement(
             rect(40, 40, 320, 720),
             { width: 800, height: 800 },
-            { gap: 8, padding: 16, minHeight: 120, maxHeightCap: 240 },
+            {
+                gap: 8,
+                padding: 16,
+                minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+                maxHeightCap: 240,
+            },
         );
-        // spaceBelow = 800-760-8-16 = 16；spaceAbove = 40-8-16 = 16 → openBelow
-        expect(placement.openBelow).toBe(true);
+        // spaceBelow = 16 < 220 → 上方打开；spaceAbove = 16
+        expect(placement.openBelow).toBe(false);
         expect(Number.parseFloat(placement.maxHeight)).toBe(16);
+    });
+
+    it("stays below only when at least minHeight fits under the anchor", () => {
+        // 锚点靠上：下方充足
+        const below = computeAnchoredPopoverPlacement(
+            rect(80, 40, 300, 40),
+            { width: 800, height: 700 },
+            { minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX, maxHeightCap: 240 },
+        );
+        expect(below.openBelow).toBe(true);
+
+        // 锚点偏下：下方 200 < 220 → 上方
+        const above = computeAnchoredPopoverPlacement(
+            rect(480, 40, 300, 40),
+            { width: 800, height: 700 },
+            {
+                gap: 8,
+                padding: 16,
+                minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+                maxHeightCap: 240,
+            },
+        );
+        // spaceBelow = 700-520-8-16 = 156 < 220
+        expect(above.openBelow).toBe(false);
     });
 });

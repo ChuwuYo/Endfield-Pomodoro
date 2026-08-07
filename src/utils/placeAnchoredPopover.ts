@@ -14,15 +14,18 @@ export type PlaceAnchoredPopoverOptions = {
     gap?: number;
     /** 距视口边缘的最小内边距（设计稿 px） */
     padding?: number;
-    /** 面板最小高度（设计稿 px）；仅用于决定是否 flip，不抬高 max-height */
+    /**
+     * 面板最小可用高度（设计稿 px）。
+     * 仅用于决定是否在下方打开：下方不足则翻到上方；不抬高 max-height。
+     */
     minHeight?: number;
     /** 与原先 max-h-60 一致：优先不超过该高度（设计稿 px） */
     maxHeightCap?: number;
 };
 
 /**
- * Material / Fluent 式锚点定位：优先下方；空间不足则 flip 到上方；
- * max-height 限制在可用视口内，由面板内部滚动。
+ * 锚点定位：下方能放下 minHeight 才向下开，否则翻到上方；
+ * max-height 限制在真实可用视口内，由面板内部滚动。
  * 纯函数：传入的 options 已是最终 CSS px（含 scale）。
  */
 export const computeAnchoredPopoverPlacement = (
@@ -37,8 +40,8 @@ export const computeAnchoredPopoverPlacement = (
 
     const spaceBelow = viewport.height - anchorRect.bottom - gap - padding;
     const spaceAbove = anchorRect.top - gap - padding;
-    const openBelow = spaceBelow >= minHeight || spaceBelow >= spaceAbove;
-    // 用真实可用高度封顶，避免两侧都不够时仍强制 minHeight 撑出视口
+    // 下方撑不满最小行数高度 → 必须上方打开（即使上方也偏紧）
+    const openBelow = spaceBelow >= minHeight;
     const available = Math.max(0, openBelow ? spaceBelow : spaceAbove);
     const maxHeight = Math.min(maxHeightCap, available);
 
