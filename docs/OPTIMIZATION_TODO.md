@@ -29,7 +29,7 @@
 - [x] **#33 移除无效兜底** `PWAPrompt.tsx` 的 `|| "Close"`。*S*
 - [x] **#38 魔法数字入 constants**（连续错误阈值 5、MAX_TASKS、循环等，同 #28 前半）。*S*
 - [x] **#30 修正注释数值不一致** `useFooterHeight.ts`。*S*
-- [ ] **#29 裁剪未消费的 hook 返回字段**（useSessionStats / useShuffle）。*S*
+- [x] **#29 裁剪未消费的 hook 返回字段**（useSessionStats / useShuffle）。*S*
 
 ## 阶段 3：无障碍阻断项（真实用户可感知）
 
