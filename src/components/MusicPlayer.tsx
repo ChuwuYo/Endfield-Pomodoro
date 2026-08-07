@@ -11,6 +11,8 @@ import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
 import { AudioMode, Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { applyAnchoredPopoverPlacement } from "../utils/placeAnchoredPopover";
+import { isPlaylistPopoverMountReady } from "../utils/playlistPopoverMount";
+import { shouldRestoreFocusAfterPopoverClose } from "../utils/popoverFocus";
 import MessageDisplay from "./MessageDisplay";
 import PlayerInterface from "./PlayerInterface";
 
@@ -135,12 +137,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         queueMicrotask(() => {
             const popover = popoverRef.current;
             const active = document.activeElement;
-            // 仅当焦点仍在列表内（Esc/关按钮）才归还；点外部关时保留用户点到的控件
-            if (
-                popover &&
-                active instanceof Node &&
-                !popover.contains(active)
-            ) {
+            // 点外部关：焦点已在其它控件上 → 不抢；body / 面板内关闭 → 归还触发器
+            if (!shouldRestoreFocusAfterPopoverClose(popover, active)) {
                 return;
             }
             const trigger = rootRef.current?.querySelector(
@@ -172,11 +170,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         setIsListOpen((open) => !open);
     }, []);
 
-    // 播放器 UI（含 popover 节点）是否已挂载。
-    // loading/error/empty 会 early-return，若只在 mount 绑 toggle，节点晚出现时监听器永远挂不上，
-    // 列表会停在 Popover 默认左上角且 isListOpen 不同步。
-    const playlistUiReady = Boolean(
-        !dataLoading && !dataError && player.currentSong,
+    // loading/error/empty early-return 时 popover 不在 DOM；必须等就绪后再绑 toggle
+    const playlistUiReady = isPlaylistPopoverMountReady(
+        dataLoading,
+        Boolean(dataError),
+        Boolean(player.currentSong),
     );
 
     // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
@@ -188,7 +186,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         const syncOpen = (open: boolean) => {
             setIsListOpen(open);
             if (open) {
-                // MDN：打开后再设位置；双 rAF 避开 UA 居中样式覆盖
+                // 先同步定位，避免首帧停在 inset:auto 左上角；双 rAF 再盖 UA 居中
+                repositionPlaylist();
                 requestAnimationFrame(() => {
                     requestAnimationFrame(repositionPlaylist);
                 });
