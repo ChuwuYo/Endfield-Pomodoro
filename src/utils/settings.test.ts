@@ -71,4 +71,28 @@ describe("parseStoredSettings", () => {
         );
         expect(result.theme).toBe(ThemePreset.AZURE);
     });
+
+    it("falls back dirty field types to defaults without crashing", () => {
+        const result = parseStoredSettings(
+            JSON.stringify({
+                workDuration: "abc",
+                soundVolume: 9,
+                theme: "NOT_A_THEME",
+                language: 123,
+                musicConfig: { server: 1, type: "playlist", id: null },
+                autoStartBreaks: "yes",
+            }),
+            defaults,
+        );
+        expect(result.workDuration).toBe(defaults.workDuration);
+        expect(result.soundVolume).toBe(1);
+        expect(result.theme).toBe(defaults.theme);
+        expect(result.language).toBe(defaults.language);
+        expect(result.musicConfig).toEqual({
+            server: defaults.musicConfig.server,
+            type: "playlist",
+            id: defaults.musicConfig.id,
+        });
+        expect(result.autoStartBreaks).toBe(defaults.autoStartBreaks);
+    });
 });

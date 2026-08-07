@@ -45,7 +45,7 @@
 
 ## 阶段 4：健壮性与安全
 
-- [ ] **#10 设置反序列化深校验** —— 字段级类型/范围校验（workDuration ≥1 整数等），脏字段回退默认值；复用 TaskManager 的校验写法。*S*
+- [x] **#10 设置反序列化深校验** —— 字段级类型/范围校验（workDuration ≥1 整数等），脏字段回退默认值；复用 TaskManager 的校验写法。*S*
 - [ ] **#24 Error Boundary** —— 根部包一层错误边界 + 兜底 UI（PWA 白屏恢复路径）。*S*
 - [ ] **#22 API URL 参数编码** —— `buildUrl`/`buildTrackUrl` 中 `id`/`server`/`type` 经 `encodeURIComponent`（或 URLSearchParams）。*S*
 - [ ] **#23 CSP** —— 评估并添加 Content-Security-Policy（注意 Google Fonts 与第三方音频域白名单）。*S*
