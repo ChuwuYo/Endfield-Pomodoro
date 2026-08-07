@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 .claude
+
+# Local agent / indexer scratch (do not commit)
+.codegraph/
+.superpowers/

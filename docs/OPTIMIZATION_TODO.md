@@ -13,13 +13,13 @@
 ## 阶段 1：质量门禁（为一切后续改动兜底）
 
 - [x] **#3 建立 CI** —— `.github/workflows/ci.yml`：pnpm install → lint → check → build。*S*
-- [ ] **#2 测试基建** —— 引入 Vitest（+ @testing-library/react、jsdom/happy-dom），先覆盖纯逻辑：
-  - [ ] `useShuffle`（洗牌不重不漏、循环重洗、首尾相接规避）
-  - [ ] `asyncPool`（并发上限、结果保序、异常传播）
-  - [ ] `musicApiAdapters.parseResponse`（字段回退、空数组抛错）
-  - [ ] `SettingsPanel.parseDurationInput`、设置反序列化校验（与 #10 联动）
-  - [ ] `Pomodoro` 状态机（完成流转、重置、跳过语义）——组件级，最后补
-  - 将 `pnpm test` 挂入 CI。*L*
+- [x] **#2 测试基建** —— 引入 Vitest（+ @testing-library/react、jsdom/happy-dom），先覆盖纯逻辑：
+  - [x] `useShuffle`（洗牌不重不漏、循环重洗、首尾相接规避）
+  - [x] `asyncPool`（并发上限、结果保序、异常传播）
+  - [x] `musicApiAdapters.parseResponse`（字段回退、空数组抛错）
+  - [x] `SettingsPanel.parseDurationInput`、设置反序列化校验（与 #10 联动）
+  - [x] `Pomodoro` 状态机（完成流转纯函数 `advancePomodoroState`；重置/跳过组件级留待后续）
+  - [x] 将 `pnpm test` 挂入 CI。*L*
 
 ## 阶段 2：低成本清理（快速胜利，不改行为）
 
