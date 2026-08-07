@@ -19,6 +19,7 @@ import { useSessionStats } from "./hooks/useSessionStats";
 import type { Settings } from "./types";
 import { Language, ThemePreset, TimerMode, View } from "./types";
 import { useTranslation } from "./utils/i18n";
+import { parseStoredSettings } from "./utils/settings";
 
 const DEFAULT_SETTINGS: Settings = {
     workDuration: 25,
@@ -43,36 +44,11 @@ const App: React.FC = () => {
     // 从localStorage加载设置
     const [settings, setSettings] = useState<Settings>(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if (
-                    parsed &&
-                    typeof parsed === "object" &&
-                    !Array.isArray(parsed)
-                ) {
-                    const loadedSettings = { ...DEFAULT_SETTINGS, ...parsed };
-                    // 检测通知权限被撤销时自动取消勾选
-                    if (
-                        loadedSettings.notificationsEnabled &&
-                        "Notification" in window &&
-                        Notification.permission === "denied"
-                    ) {
-                        loadedSettings.notificationsEnabled = false;
-                    }
-
-                    // Theme Migration: Handle legacy "LABORATORY" theme which was renamed to "AZURE"
-                    if (loadedSettings.theme === "LABORATORY") {
-                        loadedSettings.theme = ThemePreset.AZURE;
-                    }
-
-                    return loadedSettings;
-                }
-            } catch (e) {
-                console.error("Failed to load settings", e);
-            }
-        }
-        return DEFAULT_SETTINGS;
+        const notificationPermission =
+            "Notification" in window ? Notification.permission : null;
+        return parseStoredSettings(saved, DEFAULT_SETTINGS, {
+            notificationPermission,
+        });
     });
 
     // 临时音乐配置状态，用于在点击应用前存储更改
