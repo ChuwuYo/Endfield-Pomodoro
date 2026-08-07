@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { metingAdapter } from "./musicApiAdapters";
+import { metingAdapter, metingFallbackAdapter } from "./musicApiAdapters";
 
 describe("metingAdapter.parseResponse", () => {
     it("maps primary fields", () => {
@@ -56,5 +56,54 @@ describe("metingAdapter.parseResponse", () => {
         expect(() => metingAdapter.parseResponse({ ok: true })).toThrow(
             "Empty playlist",
         );
+    });
+});
+
+describe("music API URL builders", () => {
+    it("encodes reserved characters in playlist query params", () => {
+        const url = metingAdapter.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "a&b=c d",
+        });
+        const parsed = new URL(url);
+        expect(parsed.origin + parsed.pathname).toBe(
+            "https://api.i-meto.com/meting/api",
+        );
+        expect(parsed.searchParams.get("server")).toBe("netease");
+        expect(parsed.searchParams.get("type")).toBe("playlist");
+        expect(parsed.searchParams.get("id")).toBe("a&b=c d");
+        expect(url).not.toContain("id=a&b=c");
+    });
+
+    it("encodes track URL params on both adapters", () => {
+        const dirtyId = "song&id=1 x";
+        const primary = metingAdapter.buildTrackUrl!({
+            server: "tencent",
+            id: dirtyId,
+        });
+        const fallback = metingFallbackAdapter.buildTrackUrl!({
+            server: "tencent",
+            id: dirtyId,
+        });
+
+        expect(new URL(primary).searchParams.get("type")).toBe("song");
+        expect(new URL(primary).searchParams.get("id")).toBe(dirtyId);
+        expect(new URL(fallback).searchParams.get("id")).toBe(dirtyId);
+        expect(primary).not.toContain("id=song&id=");
+        expect(fallback).not.toContain("id=song&id=");
+        expect(fallback.startsWith("https://api.injahow.cn/meting/?")).toBe(
+            true,
+        );
+    });
+
+    it("encodes reserved characters on fallback playlist URLs", () => {
+        const url = metingFallbackAdapter.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "a&b=c d",
+        });
+        expect(new URL(url).searchParams.get("id")).toBe("a&b=c d");
+        expect(url).not.toContain("id=a&b=c");
     });
 });

@@ -19,6 +19,10 @@ import { useSessionStats } from "./hooks/useSessionStats";
 import type { Settings } from "./types";
 import { Language, ThemePreset, TimerMode, View } from "./types";
 import { useTranslation } from "./utils/i18n";
+import {
+    detectBrowserLanguage,
+    languageToHtmlLang,
+} from "./utils/languageLocale";
 import { parseStoredSettings } from "./utils/settings";
 
 const DEFAULT_SETTINGS: Settings = {
@@ -30,12 +34,7 @@ const DEFAULT_SETTINGS: Settings = {
     soundEnabled: true,
     soundVolume: 0.5,
     notificationsEnabled: false,
-    language: (() => {
-        const browserLangs = navigator.languages || [navigator.language];
-        return browserLangs.some((lang) => lang?.toLowerCase().startsWith("zh"))
-            ? Language.CN
-            : Language.EN;
-    })(),
+    language: detectBrowserLanguage(),
     theme: ThemePreset.INDUSTRIAL,
     musicConfig: defaultMusicConfig,
 };
@@ -160,8 +159,7 @@ const App: React.FC = () => {
 
     // 同步 html lang，供屏幕阅读器与浏览器拼写/翻译使用
     useEffect(() => {
-        document.documentElement.lang =
-            settings.language === Language.CN ? "zh-CN" : "en";
+        document.documentElement.lang = languageToHtmlLang(settings.language);
     }, [settings.language]);
 
     useEffect(() => {

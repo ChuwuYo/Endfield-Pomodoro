@@ -46,10 +46,13 @@
 ## 阶段 4：健壮性与安全
 
 - [x] **#10 设置反序列化深校验** —— 字段级类型/范围校验（workDuration ≥1 整数等），脏字段回退默认值；复用 TaskManager 的校验写法。*S*
-- [ ] **#24 Error Boundary** —— 根部包一层错误边界 + 兜底 UI（PWA 白屏恢复路径）。*S*
-- [ ] **#22 API URL 参数编码** —— `buildUrl`/`buildTrackUrl` 中 `id`/`server`/`type` 经 `encodeURIComponent`（或 URLSearchParams）。*S*
-- [ ] **#23 CSP** —— 评估并添加 Content-Security-Policy（注意 Google Fonts 与第三方音频域白名单）。*S*
-- [ ] **#11 落地统一消息系统** —— 按 `docs/TODO.md` 既定计划执行（替换 alert/MessageDisplay/PWAPrompt 提示）。*M*
+- [x] **#24 Error Boundary** —— 根部包一层错误边界 + 兜底 UI（PWA 白屏恢复路径）。*S*
+- [x] **#22 API URL 参数编码** —— `buildUrl`/`buildTrackUrl` 中 `id`/`server`/`type` 经 `encodeURIComponent`（或 URLSearchParams）。*S*
+- [ ] **#23 CSP** —— ~~评估并添加 Content-Security-Policy~~ **不做**：个人/爱好向静态站，威胁模型弱；Fonts + 多域名音源/封面 + PWA 下 CSP 过紧易白屏，收益不抵运维成本。若以后上线强隔离再单独立项。*S*
+
+## 专项：统一消息系统（独立排期，不绑阶段 4）
+
+- [ ] **#11 落地统一消息系统** —— 按 `docs/TODO.md` 既定计划执行（替换 alert/MessageDisplay/PWAPrompt 提示）。与阶段 4 其它项解耦，单独开 PR。*M*
 
 ## 阶段 5：重构（依赖阶段 1 的测试兜底）
 
