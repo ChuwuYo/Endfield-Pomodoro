@@ -1,6 +1,7 @@
 import React, {
     useCallback,
     useEffect,
+    useId,
     useMemo,
     useRef,
     useState,
@@ -9,6 +10,14 @@ import { type MusicTrack, useMusicData } from "../hooks/useMusicData";
 import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
 import { AudioMode, Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
+import { applyAnchoredPopoverPlacement } from "../utils/placeAnchoredPopover";
+import {
+    PLAYLIST_MAX_HEIGHT_CAP_DESIGN_PX,
+    PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+    PLAYLIST_POSITIONED_CLASS,
+} from "../utils/playlistPopoverLayout";
+import { isPlaylistPopoverMountReady } from "../utils/playlistPopoverMount";
+import { shouldRestoreFocusAfterPopoverClose } from "../utils/popoverFocus";
 import MessageDisplay from "./MessageDisplay";
 import PlayerInterface from "./PlayerInterface";
 
@@ -22,12 +31,16 @@ interface MusicPlayerProps {
     enabled?: boolean;
 }
 
+const supportsPopoverApi = () =>
+    typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
+
 const MusicPlayer: React.FC<MusicPlayerProps> = ({
     config,
     language,
     enabled = true,
 }) => {
     const t = useTranslation(language);
+    const playlistPanelId = useId();
 
     const {
         audioList: metingData,
@@ -38,10 +51,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     } = useMusicData(config);
     const [isListOpen, setIsListOpen] = useState(false);
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
+    const rootRef = useRef<HTMLDivElement>(null);
+    const popoverRef = useRef<HTMLDivElement>(null);
+    const positionRafRef = useRef<number | null>(null);
     const errorCountRef = useRef(0);
     const trackFixAbortRef = useRef<AbortController | null>(null);
 
-    // 组件卸载时取消未完成的请求
     useEffect(() => {
         return () => {
             if (trackFixAbortRef.current) {
@@ -50,12 +65,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         };
     }, []);
 
-    // 本地维护一个 URL 覆盖映射，用于存储单曲修复后的 URL
     const [urlOverrides, setUrlOverrides] = useState<Record<string, string>>(
         {},
     );
 
-    // 转换数据格式以适配 useOnlinePlayer
     const playlist = useMemo(() => {
         return metingData.map((item: MusicTrack) => ({
             id: item.id,
@@ -69,7 +82,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     const handleTrackFix = useCallback(
         async (index: number): Promise<string | null> => {
-            // 取消上一次可能的请求
             if (trackFixAbortRef.current) {
                 trackFixAbortRef.current.abort();
             }
@@ -84,9 +96,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             if (controller.signal.aborted) return null;
 
             if (newUrl) {
-                // 修复成功，重置错误计数
                 errorCountRef.current = 0;
-
                 setUrlOverrides((prev) => ({
                     ...prev,
                     [track.id]: newUrl,
@@ -98,7 +108,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 `[MusicPlayer] Track fallback failed for: ${track.name}`,
             );
 
-            // 修复失败，增加错误计数
             errorCountRef.current += 1;
 
             if (errorCountRef.current >= 2) {
@@ -117,25 +126,186 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     const player = useOnlinePlayer(playlist, false, enabled, handleTrackFix);
 
-    // 当播放列表打开或当前索引变化时，滚动到当前项
+    const applyPlaylistPlacement = useCallback(() => {
+        const popover = popoverRef.current;
+        const anchor = rootRef.current;
+        if (!popover || !anchor) return;
+        applyAnchoredPopoverPlacement(popover, anchor, {
+            gap: 8,
+            padding: 16,
+            minHeight: PLAYLIST_MIN_HEIGHT_DESIGN_PX,
+            maxHeightCap: PLAYLIST_MAX_HEIGHT_CAP_DESIGN_PX,
+        });
+    }, []);
+
+    const clearPlaylistPositioned = useCallback(() => {
+        if (positionRafRef.current != null) {
+            cancelAnimationFrame(positionRafRef.current);
+            positionRafRef.current = null;
+        }
+        popoverRef.current?.classList.remove(PLAYLIST_POSITIONED_CLASS);
+    }, []);
+
+    /** 先定位再显示，避免首帧闪左上角（visibility + is-positioned） */
+    const revealPlaylistPlacement = useCallback(() => {
+        const popover = popoverRef.current;
+        if (!popover) return;
+        popover.classList.remove(PLAYLIST_POSITIONED_CLASS);
+        applyPlaylistPlacement();
+        if (positionRafRef.current != null) {
+            cancelAnimationFrame(positionRafRef.current);
+        }
+        // 一帧后再显示：盖掉 UA 打开时可能写回的默认 inset
+        positionRafRef.current = requestAnimationFrame(() => {
+            positionRafRef.current = null;
+            applyPlaylistPlacement();
+            popover.classList.add(PLAYLIST_POSITIONED_CLASS);
+        });
+    }, [applyPlaylistPlacement]);
+
+    const restorePlaylistFocus = useCallback(() => {
+        queueMicrotask(() => {
+            const popover = popoverRef.current;
+            const active = document.activeElement;
+            // 点外部关：焦点已在其它控件上 → 不抢；body / 面板内关闭 → 归还触发器
+            if (!shouldRestoreFocusAfterPopoverClose(popover, active)) {
+                return;
+            }
+            const trigger = rootRef.current?.querySelector(
+                `[aria-controls="${CSS.escape(playlistPanelId)}"]`,
+            );
+            if (trigger instanceof HTMLElement) {
+                trigger.focus();
+            }
+        });
+    }, [playlistPanelId]);
+
+    const closePlaylist = useCallback(() => {
+        const el = popoverRef.current;
+        if (el && supportsPopoverApi() && el.matches(":popover-open")) {
+            el.hidePopover();
+            return;
+        }
+        clearPlaylistPositioned();
+        setIsListOpen(false);
+        restorePlaylistFocus();
+    }, [clearPlaylistPositioned, restorePlaylistFocus]);
+
+    const togglePlaylist = useCallback(() => {
+        const el = popoverRef.current;
+        if (el && supportsPopoverApi()) {
+            el.togglePopover();
+            return;
+        }
+        // 无 Popover：触发按钮点击切换；焦点已在按钮上，无需副作用恢复
+        setIsListOpen((open) => !open);
+    }, []);
+
+    // loading/error/empty early-return 时 popover 不在 DOM；必须等就绪后再绑 toggle
+    const playlistUiReady = isPlaylistPopoverMountReady(
+        dataLoading,
+        Boolean(dataError),
+        Boolean(player.currentSong),
+    );
+
+    // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
     useEffect(() => {
-        const scrollToCurrentItem = () => {
-            const itemEl = itemRefs.current.get(player.currentIndex);
-            if (itemEl) {
-                itemEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (!playlistUiReady) return;
+        const el = popoverRef.current;
+        if (!el || !supportsPopoverApi()) return;
+
+        const syncOpen = (open: boolean) => {
+            setIsListOpen(open);
+            if (open) {
+                revealPlaylistPlacement();
+            } else {
+                clearPlaylistPositioned();
+                restorePlaylistFocus();
             }
         };
 
-        if (isListOpen) {
-            // 使用 requestAnimationFrame 确保 DOM 已更新
-            const rafId = requestAnimationFrame(() => {
-                scrollToCurrentItem();
-            });
-            return () => cancelAnimationFrame(rafId);
+        const onToggle = (event: Event) => {
+            const { newState } = event as ToggleEvent;
+            syncOpen(newState === "open");
+        };
+        el.addEventListener("toggle", onToggle);
+        // 监听器晚绑时若已打开，补一次同步与定位
+        if (el.matches(":popover-open")) {
+            syncOpen(true);
         }
+        return () => {
+            el.removeEventListener("toggle", onToggle);
+            clearPlaylistPositioned();
+        };
+    }, [
+        playlistUiReady,
+        revealPlaylistPlacement,
+        clearPlaylistPositioned,
+        restorePlaylistFocus,
+    ]);
+
+    // 无 Popover API：Esc / 点外部
+    useEffect(() => {
+        if (!isListOpen || supportsPopoverApi()) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                closePlaylist();
+            }
+        };
+        const onPointerDown = (e: PointerEvent) => {
+            const target = e.target as Node;
+            if (
+                popoverRef.current?.contains(target) ||
+                rootRef.current?.contains(target)
+            ) {
+                return;
+            }
+            closePlaylist();
+        };
+        document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("pointerdown", onPointerDown);
+        return () => {
+            document.removeEventListener("keydown", onKeyDown);
+            document.removeEventListener("pointerdown", onPointerDown);
+        };
+    }, [isListOpen, closePlaylist]);
+
+    // 打开后跟随锚点；resize/scroll 时重算（下方不够 5 行则 flip）
+    useEffect(() => {
+        if (!isListOpen) return;
+        if (!supportsPopoverApi()) {
+            revealPlaylistPlacement();
+        } else {
+            applyPlaylistPlacement();
+        }
+        const onReposition = () => {
+            applyPlaylistPlacement();
+            popoverRef.current?.classList.add(PLAYLIST_POSITIONED_CLASS);
+        };
+        window.addEventListener("resize", onReposition);
+        window.addEventListener("scroll", onReposition, true);
+        return () => {
+            window.removeEventListener("resize", onReposition);
+            window.removeEventListener("scroll", onReposition, true);
+        };
+    }, [
+        isListOpen,
+        playlist.length,
+        applyPlaylistPlacement,
+        revealPlaylistPlacement,
+    ]);
+
+    useEffect(() => {
+        if (!isListOpen) return;
+        const rafId = requestAnimationFrame(() => {
+            itemRefs.current
+                .get(player.currentIndex)
+                ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        return () => cancelAnimationFrame(rafId);
     }, [isListOpen, player.currentIndex]);
 
-    // 映射 PlayMode 到 AudioMode
     const mapPlayMode = (mode: PlayMode): AudioMode => {
         switch (mode) {
             case PlayMode.SEQUENCE:
@@ -177,8 +347,74 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         );
     }
 
+    // 面板外观由 .playlist-dropdown CSS 统一；这里只拼内容结构
+    const playlistPanel = (
+        <>
+            <div className="playlist-dropdown__header">
+                <span>
+                    {t("PLAYLIST_TITLE")} [{playlist.length}]
+                </span>
+                <button
+                    type="button"
+                    onClick={closePlaylist}
+                    className="hover:text-theme-primary cursor-pointer"
+                    aria-label={t("CLOSE_PLAYLIST")}
+                    title={t("CLOSE_PLAYLIST")}
+                >
+                    <i className="ri-close-line"></i>
+                </button>
+            </div>
+            <ul
+                className="playlist-dropdown__list"
+                style={{ scrollbarGutter: "stable" }}
+            >
+                {playlist.map((song, index) => (
+                    <li
+                        key={song.id || song.url || index}
+                        ref={(el) => {
+                            if (el) itemRefs.current.set(index, el);
+                            else itemRefs.current.delete(index);
+                        }}
+                        className={`border-b border-theme-highlight/5 last:border-0 ${index === player.currentIndex ? "text-theme-primary bg-theme-primary/5" : "text-theme-text"}`}
+                    >
+                        <button
+                            type="button"
+                            className="flex w-full items-center p-2 hover:bg-theme-highlight/10 cursor-pointer text-ui-xs text-left bg-transparent border-0"
+                            onClick={() => {
+                                player.playTrack(index, true);
+                            }}
+                            aria-current={
+                                index === player.currentIndex
+                                    ? "true"
+                                    : undefined
+                            }
+                            aria-label={
+                                song.artist
+                                    ? `${song.name} — ${song.artist}`
+                                    : song.name
+                            }
+                        >
+                            <span className="w-6 text-theme-dim font-ui-mono">
+                                {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span className="flex-1 truncate mr-2">
+                                {song.name}
+                            </span>
+                            <span className="text-theme-dim truncate max-w-[var(--size-track-meta)] text-right">
+                                {song.artist}
+                            </span>
+                            {index === player.currentIndex && (
+                                <i className="ri-volume-up-line ml-2 animate-pulse"></i>
+                            )}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </>
+    );
+
     return (
-        <div className="flex flex-col h-full w-full relative">
+        <div ref={rootRef} className="flex flex-col h-full w-full relative">
             <PlayerInterface
                 isPlaying={player.isPlaying}
                 currentTime={player.currentTime}
@@ -198,57 +434,30 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 onSeek={player.seek}
                 onVolumeChange={player.setVolume}
                 onModeToggle={player.toggleMode}
-                onPlaylistToggle={() => setIsListOpen(!isListOpen)}
+                onPlaylistToggle={togglePlaylist}
+                playlistOpen={isListOpen}
+                playlistPanelId={playlistPanelId}
             />
 
-            {/* 播放列表 (绝对定位覆盖) */}
-            {isListOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-theme-surface/95 backdrop-blur-md border border-theme-primary/30 rounded-md z-50 max-h-60 overflow-hidden shadow-xl">
-                    <div className="sticky top-0 bg-theme-surface/95 border-b border-theme-highlight/20 p-2 flex justify-between items-center text-ui-xs text-theme-dim">
-                        <span>
-                            {t("PLAYLIST_TITLE")} [{playlist.length}]
-                        </span>
-                        <button
-                            onClick={() => setIsListOpen(false)}
-                            className="hover:text-theme-primary cursor-pointer"
-                        >
-                            <i className="ri-close-line"></i>
-                        </button>
-                    </div>
-                    <ul
-                        className="p-1 overflow-y-auto max-h-[calc(15rem-2.5rem)]"
-                        style={{ scrollbarGutter: "stable" }}
-                    >
-                        {playlist.map((song, index) => (
-                            <li
-                                key={song.id || song.url || index}
-                                ref={(el) => {
-                                    if (el) itemRefs.current.set(index, el);
-                                    else itemRefs.current.delete(index);
-                                }}
-                                className={`flex items-center p-2 hover:bg-theme-highlight/10 cursor-pointer text-ui-xs border-b border-theme-highlight/5 last:border-0 ${index === player.currentIndex ? "text-theme-primary bg-theme-primary/5" : "text-theme-text"}`}
-                                onClick={() => {
-                                    // 保持当前播放状态：如果正在播放则继续播放，如果暂停则保持暂停
-                                    player.playTrack(index, true);
-                                    // 不关闭播放列表
-                                }}
-                            >
-                                <span className="w-6 text-theme-dim font-ui-mono">
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
-                                <span className="flex-1 truncate mr-2">
-                                    {song.name}
-                                </span>
-                                <span className="text-theme-dim truncate max-w-[80px] text-right">
-                                    {song.artist}
-                                </span>
-                                {index === player.currentIndex && (
-                                    <i className="ri-volume-up-line ml-2 animate-pulse"></i>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
+            {supportsPopoverApi() ? (
+                <div
+                    id={playlistPanelId}
+                    ref={popoverRef}
+                    popover="auto"
+                    className="playlist-dropdown"
+                >
+                    {playlistPanel}
                 </div>
+            ) : (
+                isListOpen && (
+                    <div
+                        id={playlistPanelId}
+                        ref={popoverRef}
+                        className="playlist-dropdown fixed z-50"
+                    >
+                        {playlistPanel}
+                    </div>
+                )
             )}
         </div>
     );

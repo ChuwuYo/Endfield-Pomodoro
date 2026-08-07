@@ -120,6 +120,9 @@ export const translations = {
         RESET_SESSIONS: "RESET CYCLES",
         MUTE: "MUTE",
         UNMUTE: "UNMUTE",
+        PROGRESS_SLIDER: "Playback progress",
+        VOLUME_SLIDER: "Volume",
+        CLOSE_PLAYLIST: "Close playlist",
 
         // PWA
         pwa_updated: "Update ready. Refresh to apply.",
@@ -252,6 +255,9 @@ export const translations = {
         RESET_SESSIONS: "重置完成周期",
         MUTE: "静音",
         UNMUTE: "取消静音",
+        PROGRESS_SLIDER: "播放进度",
+        VOLUME_SLIDER: "音量",
+        CLOSE_PLAYLIST: "关闭播放列表",
 
         // PWA
         pwa_updated: "新版本已就绪，刷新后生效。",

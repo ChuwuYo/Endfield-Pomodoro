@@ -362,7 +362,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
 
                 {/* 计时器显示 */}
                 <div className="flex-1 w-full flex items-center justify-center relative py-8 md:py-10 min-h-[22rem] md:min-h-[27rem]">
-                    <div className="relative w-[256px] h-[256px] md:w-[320px] md:h-[320px] flex items-center justify-center shrink-0 group max-w-full max-h-full">
+                    <div className="relative w-[var(--size-timer-ring)] h-[var(--size-timer-ring)] md:w-[var(--size-timer-ring-md)] md:h-[var(--size-timer-ring-md)] flex items-center justify-center shrink-0 group max-w-full max-h-full">
                         {/* 脉冲背景环（呼吸效果） */}
                         {isActive && (
                             <div className="absolute inset-0 rounded-full border-2 border-theme-primary/30 animate-ping-slow"></div>
@@ -426,7 +426,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                 cy="128"
                                 className="transition-all duration-1000 ease-linear"
                                 style={{
-                                    transformOrigin: "128px 128px",
+                                    transformOrigin: "50% 50%",
                                     transform: `rotate(${progress * 3.6}deg)`,
                                 }}
                             />
@@ -441,7 +441,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute -rotate-45"></div>
                         </div>
 
-                        {/* 时间文本 */}
+                        {/* 时间文本：倒计时可查询，但不挂 aria-live，避免每秒打断读屏 */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 select-none">
                             <span
                                 className={`text-ui-display md:text-ui-display-xl font-ui-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}
@@ -451,13 +451,24 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                         : "scale(1)",
                                     transformOrigin: "center",
                                 }}
-                                aria-live="polite"
-                                aria-atomic="true"
+                                role="timer"
+                                aria-label={`${t("TIME_REMAINING")} ${formatTime(timeLeft)}`}
                             >
                                 {formatTime(timeLeft)}
                             </span>
-                            <span className="text-ui-xs text-theme-dim font-ui-mono mt-2 tracking-ui-signal uppercase animate-pulse">
+                            <span
+                                className="text-ui-xs text-theme-dim font-ui-mono mt-2 tracking-ui-signal uppercase animate-pulse"
+                                aria-hidden="true"
+                            >
                                 {t("TIME_REMAINING")}
+                            </span>
+                            {/* 仅播报状态/模式变化，不含每秒跳动的倒计时 */}
+                            <span
+                                className="sr-only"
+                                aria-live="polite"
+                                aria-atomic="true"
+                            >
+                                {getStatusText()}
                             </span>
                         </div>
                     </div>
@@ -466,7 +477,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                 {/* 控制 */}
                 <div className="w-full grid grid-cols-4 gap-4 shrink-0">
                     <div
-                        className={`col-span-2 h-[56px] relative ${!isActive ? "group" : ""}`}
+                        className={`col-span-2 h-[var(--size-control-lg)] relative ${!isActive ? "group" : ""}`}
                     >
                         {!isActive && (
                             <div className="absolute -inset-[3px] overflow-hidden clip-path-slant z-0 bg-theme-dim/10">
@@ -485,7 +496,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                     <Button
                         onClick={resetTimer}
                         variant="ghost"
-                        className="col-span-1 h-[56px] border border-theme-highlight/30 hover:border-theme-primary"
+                        className="col-span-1 h-[var(--size-control-lg)] border border-theme-highlight/30 hover:border-theme-primary"
                         title={t("RESET_TIMER")}
                         aria-label={t("RESET_TIMER")}
                     >
@@ -494,7 +505,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                     <Button
                         onClick={handleComplete}
                         variant="ghost"
-                        className="col-span-1 h-[56px] border border-theme-highlight/30 hover:border-theme-primary"
+                        className="col-span-1 h-[var(--size-control-lg)] border border-theme-highlight/30 hover:border-theme-primary"
                         title={t("SKIP_TIMER")}
                         aria-label={t("SKIP_TIMER")}
                     >

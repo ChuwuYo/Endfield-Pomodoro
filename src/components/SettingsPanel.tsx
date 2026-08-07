@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import type { Settings } from "../types";
 import { Language, ThemePreset } from "../types";
 import { useTranslation } from "../utils/i18n";
@@ -41,6 +41,20 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onResetMusicConfig,
     t,
 }) => {
+    const idPrefix = useId();
+    const workId = `${idPrefix}-work`;
+    const shortBreakId = `${idPrefix}-short-break`;
+    const longBreakId = `${idPrefix}-long-break`;
+    const languageId = `${idPrefix}-language`;
+    const themeId = `${idPrefix}-theme`;
+    const platformId = `${idPrefix}-platform`;
+    const typeId = `${idPrefix}-type`;
+    const musicId = `${idPrefix}-music-id`;
+    const languageLabelId = `${idPrefix}-language-label`;
+    const themeLabelId = `${idPrefix}-theme-label`;
+    const platformLabelId = `${idPrefix}-platform-label`;
+    const typeLabelId = `${idPrefix}-type-label`;
+
     return (
         <div className="max-w-4xl mx-auto w-full pt-6 px-2">
             <Panel
@@ -57,10 +71,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    htmlFor={workId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("WORK_DURATION")}
                                 </label>
                                 <Input
+                                    id={workId}
                                     type="number"
                                     min={1}
                                     value={settings.workDuration}
@@ -76,10 +94,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    htmlFor={shortBreakId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("SHORT_BREAK_DURATION")}
                                 </label>
                                 <Input
+                                    id={shortBreakId}
                                     type="number"
                                     min={1}
                                     value={settings.shortBreakDuration}
@@ -96,10 +118,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    htmlFor={longBreakId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("LONG_BREAK_DURATION")}
                                 </label>
                                 <Input
+                                    id={longBreakId}
                                     type="number"
                                     min={1}
                                     value={settings.longBreakDuration}
@@ -127,10 +153,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    id={languageLabelId}
+                                    htmlFor={languageId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("LANGUAGE")}
                                 </label>
                                 <CustomSelect
+                                    id={languageId}
+                                    aria-labelledby={languageLabelId}
                                     value={settings.language}
                                     options={[
                                         {
@@ -151,10 +183,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    id={themeLabelId}
+                                    htmlFor={themeId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("THEME")}
                                 </label>
                                 <CustomSelect
+                                    id={themeId}
+                                    aria-labelledby={themeLabelId}
                                     value={settings.theme}
                                     options={[
                                         {
@@ -297,10 +335,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    id={platformLabelId}
+                                    htmlFor={platformId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("PLATFORM")}
                                 </label>
                                 <CustomSelect
+                                    id={platformId}
+                                    aria-labelledby={platformLabelId}
                                     value={tempMusicConfig.server}
                                     options={getMusicPlatformOptions(t)}
                                     onChange={(value) =>
@@ -316,10 +360,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    id={typeLabelId}
+                                    htmlFor={typeId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("TYPE")}
                                 </label>
                                 <CustomSelect
+                                    id={typeId}
+                                    aria-labelledby={typeLabelId}
                                     value={tempMusicConfig.type}
                                     options={getMusicTypeOptions(t)}
                                     onChange={(value) =>
@@ -328,10 +378,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider">
+                                <label
+                                    htmlFor={musicId}
+                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
+                                >
                                     {t("ID")}
                                 </label>
                                 <Input
+                                    id={musicId}
                                     type="text"
                                     value={tempMusicConfig.id}
                                     onChange={(e) =>

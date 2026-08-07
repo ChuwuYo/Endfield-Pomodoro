@@ -33,15 +33,15 @@
 
 ## 阶段 3：无障碍阻断项（真实用户可感知）
 
-- [ ] **#4 滑块可操作性** —— PlayerInterface 进度/音量条：mouse 事件 → Pointer Events（触屏可拖）；补 `role="slider"` + `aria-valuenow/min/max` + 方向键步进。*M*
-- [ ] **#5 计时器 aria-live 降噪** —— 移除每秒播报；改为模式切换/完成时才播报状态。*S*
-- [ ] **#7 `prefers-reduced-motion`** —— index.css 加媒体查询兜底（禁用 ping/spin/scan/rain/equalizer/data-flow 等常开动画）。*S*
-- [ ] **#8 `html lang` 动态化** —— 语言切换时同步 `document.documentElement.lang`。*S*
-- [ ] **#6 CustomSelect 键盘导航** —— ↑↓ 移动、Enter 选定、Escape 关闭、`aria-activedescendant`、焦点管理。*M*
-- [ ] **#9 主题对比度审计** —— 对 9 套主题的 dim/text 组合跑 WCAG AA 检查，调整不达标变量值。*M*
-- [ ] **#26 播放列表模态** —— Escape 关闭 + 焦点陷阱 + 背景滚动锁定。*S*
-- [ ] **#27 label 关联** —— SettingsPanel 全部 label 补 `htmlFor`/控件补 `id`。*S*
-- [ ] **#34 Button/全局 focus-visible 焦点环**；Button 按压态补 `:active` CSS（触屏反馈）。*S*
+- [x] **#4 滑块可操作性** —— PlayerInterface 进度/音量条：mouse 事件 → Pointer Events（触屏可拖）；补 `role="slider"` + `aria-valuenow/min/max` + 方向键步进。*M*
+- [x] **#5 计时器 aria-live 降噪** —— 移除每秒播报；改为模式切换/完成时才播报状态。*S*
+- [ ] **#7 `prefers-reduced-motion`** —— ~~用系统媒体查询硬关装饰动画~~ **不做**：装饰动效是产品视觉的一部分；系统「减少动态效果」不应静默接管站点。若以后要做，应是设置页显式开关，而不是 `@media (prefers-reduced-motion)` 一刀切。*S*
+- [x] **#8 `html lang` 动态化** —— 语言切换时同步 `document.documentElement.lang`。*S*
+- [x] **#6 CustomSelect 键盘导航** —— ↑↓ 移动、Enter 选定、Escape 关闭、`aria-activedescendant`、焦点管理。*M*
+- [x] **#9 主题对比度审计** —— 对 9 套主题的 dim/text 组合跑 WCAG AA 检查，调整不达标变量值。*M*
+- [x] **#26 播放列表模态** —— Escape 关闭 + 焦点陷阱 + 背景滚动锁定。*S*
+- [x] **#27 label 关联** —— SettingsPanel 全部 label 补 `htmlFor`/控件补 `id`。*S*
+- [x] **#34 Button/全局 focus-visible 焦点环**；Button 按压态补 `:active` CSS（触屏反馈）。*S*
 
 ## 阶段 4：健壮性与安全
 

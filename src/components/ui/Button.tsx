@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 
 export const Button: React.FC<
     React.ButtonHTMLAttributes<HTMLButtonElement> & {
         variant?: "primary" | "secondary" | "danger" | "ghost";
     }
 > = ({ children, variant = "primary", className = "", ...props }) => {
-    const [isPressed, setIsPressed] = useState(false);
-
     const baseStyle =
-        "font-ui-mono uppercase tracking-ui-wider text-ui-sm leading-ui-none px-3 md:px-6 min-h-form-control transition-all duration-200 inline-flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden whitespace-nowrap";
+        "font-ui-mono uppercase tracking-ui-wider text-ui-sm leading-ui-none px-3 md:px-6 min-h-form-control transition-all duration-200 inline-flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden whitespace-nowrap active:scale-95";
 
     const variants = {
         primary:
@@ -22,10 +20,6 @@ export const Button: React.FC<
     return (
         <button
             className={`${baseStyle} ${variants[variant]} ${className}`}
-            style={{ transform: isPressed ? "scale(0.95)" : "scale(1)" }}
-            onMouseDown={() => setIsPressed(true)}
-            onMouseUp={() => setIsPressed(false)}
-            onMouseLeave={() => setIsPressed(false)}
             {...props}
         >
             <span className="relative z-10 flex items-center gap-2">

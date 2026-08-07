@@ -8,6 +8,7 @@ import React, {
 import { createPortal } from "react-dom";
 import { STORAGE_KEYS, TOAST_DURATION_MS } from "../constants";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
+import { useModalA11y } from "../hooks/useModalA11y";
 import { AudioMode, Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
 import MessageDisplay from "./MessageDisplay";
@@ -76,6 +77,9 @@ const AudioPlayer: React.FC<{
     }, [isOnline, audioSource]);
 
     const [showPlaylist, setShowPlaylist] = useState(false);
+    const playlistModalRef = useRef<HTMLDivElement>(null);
+    const closePlaylist = useCallback(() => setShowPlaylist(false), []);
+    useModalA11y(showPlaylist, closePlaylist, playlistModalRef);
 
     // 当播放列表打开或当前索引变化时，滚动到当前项
     useEffect(() => {
@@ -219,22 +223,30 @@ const AudioPlayer: React.FC<{
                             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
                                 <div
                                     className="absolute inset-0"
-                                    onClick={() => setShowPlaylist(false)}
+                                    onClick={closePlaylist}
                                 ></div>
 
                                 <div
-                                    className="w-full max-w-lg bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10"
+                                    ref={playlistModalRef}
+                                    role="dialog"
+                                    aria-modal="true"
+                                    aria-labelledby="local-playlist-title"
+                                    tabIndex={-1}
+                                    className="w-full max-w-lg bg-theme-base/95 border border-theme-primary/50 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[80vh] backdrop-blur-xl z-10 outline-none"
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     <div className="flex items-center justify-between p-4 border-b border-theme-highlight bg-theme-surface/50">
-                                        <h3 className="font-ui-mono text-ui-sm uppercase text-theme-primary tracking-ui-widest">
-                                            {t("PLAYLIST_COUNT")}
+                                        <h3
+                                            id="local-playlist-title"
+                                            className="font-ui-mono text-ui-sm uppercase text-theme-primary tracking-ui-widest"
+                                        >
+                                            {t("PLAYLIST_TITLE")}
                                         </h3>
                                         <button
-                                            onClick={() =>
-                                                setShowPlaylist(false)
-                                            }
+                                            onClick={closePlaylist}
                                             className="text-theme-dim hover:text-theme-primary p-1 cursor-pointer"
+                                            aria-label={t("CLOSE_PLAYLIST")}
+                                            title={t("CLOSE_PLAYLIST")}
                                         >
                                             <i className="ri-close-line icon-ui-xl"></i>
                                         </button>
@@ -267,13 +279,25 @@ const AudioPlayer: React.FC<{
                                                             }}
                                                             className={`flex items-start p-3 border border-transparent hover:bg-theme-highlight/20 hover:border-theme-highlight/50 transition-all duration-200 group ${idx === localPlayer.currentIndex ? "bg-theme-primary/10 border-theme-primary/30" : ""}`}
                                                         >
-                                                            <div
-                                                                className="flex items-start flex-1 min-w-0 cursor-pointer"
+                                                            <button
+                                                                type="button"
+                                                                className="flex items-start flex-1 min-w-0 text-left cursor-pointer bg-transparent border-0 p-0"
                                                                 onClick={() =>
                                                                     localPlayer.playTrack(
                                                                         idx,
                                                                         true,
                                                                     )
+                                                                }
+                                                                aria-current={
+                                                                    idx ===
+                                                                    localPlayer.currentIndex
+                                                                        ? "true"
+                                                                        : undefined
+                                                                }
+                                                                aria-label={
+                                                                    track.artist
+                                                                        ? `${track.name} — ${track.artist}`
+                                                                        : track.name
                                                                 }
                                                             >
                                                                 <div
@@ -309,7 +333,7 @@ const AudioPlayer: React.FC<{
                                                                             <i className="ri-rhythm-line icon-ui-md"></i>
                                                                         </span>
                                                                     )}
-                                                            </div>
+                                                            </button>
                                                             <button
                                                                 onClick={(
                                                                     e,
@@ -323,6 +347,7 @@ const AudioPlayer: React.FC<{
                                                                 title={t(
                                                                     "DELETE_TRACK",
                                                                 )}
+                                                                aria-label={`${t("DELETE_TRACK")}: ${track.artist ? `${track.name} — ${track.artist}` : track.name}`}
                                                             >
                                                                 <i className="ri-close-line icon-ui-lg"></i>
                                                             </button>
