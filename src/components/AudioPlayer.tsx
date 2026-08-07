@@ -347,9 +347,7 @@ const AudioPlayer: React.FC<{
                                                                 title={t(
                                                                     "DELETE_TRACK",
                                                                 )}
-                                                                aria-label={t(
-                                                                    "DELETE_TRACK",
-                                                                )}
+                                                                aria-label={`${t("DELETE_TRACK")}: ${track.artist ? `${track.name} — ${track.artist}` : track.name}`}
                                                             >
                                                                 <i className="ri-close-line icon-ui-lg"></i>
                                                             </button>

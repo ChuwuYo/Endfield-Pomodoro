@@ -25,6 +25,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
     const listboxId = useId();
     const optionId = (index: number) => `${listboxId}-option-${index}`;
 
@@ -61,6 +62,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         if (!option) return;
         onChange(option.value);
         setIsOpen(false);
+        // 选项卸载前可能抢走焦点；提交后回到触发器，便于继续键盘操作
+        queueMicrotask(() => triggerRef.current?.focus());
     };
 
     useEffect(() => {
@@ -118,7 +121,10 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         <div ref={containerRef} className={`relative ${className}`}>
             <button
                 type="button"
+                ref={triggerRef}
                 id={id}
+                role="combobox"
+                aria-autocomplete="none"
                 onClick={() => {
                     if (isOpen) {
                         setIsOpen(false);
@@ -171,6 +177,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                             role="option"
                             aria-selected={option.value === value}
                             tabIndex={-1}
+                            onMouseDown={(e) => e.preventDefault()}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => commit(index)}
                             className={`w-full text-left px-4 min-h-form-control font-ui-mono text-ui-sm leading-ui-none transition-all duration-200 border-b border-theme-highlight/30 border-l-2 last:border-b-0 cursor-pointer ${

@@ -62,8 +62,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     playlistPanelId,
 }) => {
     const t = useTranslation(language);
-    const progressBarRef = useRef<HTMLDivElement>(null);
-    const volumeBarRef = useRef<HTMLDivElement>(null);
     const isDraggingRef = useRef(false);
     const isVolumeDraggingRef = useRef(false);
     const previousVolumeRef = useRef<number>(0.5);
@@ -108,23 +106,29 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     }, [volume]);
 
     const formatTime = (seconds: number) => {
-        if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
+        if (!Number.isFinite(seconds)) return "00:00";
         const mins = Math.floor(seconds / SECONDS_PER_MINUTE);
         const secs = Math.floor(seconds % SECONDS_PER_MINUTE);
         return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    const getProgressStep = () =>
-        durationRef.current > 0 ? Math.max(5, durationRef.current * 0.01) : 5;
+    const hasFiniteDuration = Number.isFinite(duration) && duration > 0;
+    const safeCurrentTime = Number.isFinite(currentTime) ? currentTime : 0;
+
+    const getProgressStep = () => {
+        const d = durationRef.current;
+        return Number.isFinite(d) && d > 0 ? Math.max(5, d * 0.01) : 5;
+    };
 
     const updateProgressFromPointer = (
         clientX: number,
         element: HTMLDivElement,
     ) => {
-        if (durationRef.current <= 0) return;
+        const d = durationRef.current;
+        if (!Number.isFinite(d) || d <= 0) return;
         const rect = element.getBoundingClientRect();
         const clickX = clamp(clientX - rect.left, 0, rect.width);
-        setDragTime((clickX / rect.width) * durationRef.current);
+        setDragTime((clickX / rect.width) * d);
     };
 
     const updateVolumeFromPointer = (
@@ -140,7 +144,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         if (!isDraggingRef.current) return;
         isDraggingRef.current = false;
         setDragTime((prev) => {
-            if (prev !== null) onSeekRef.current(prev);
+            if (prev !== null && Number.isFinite(prev)) onSeekRef.current(prev);
             return null;
         });
     };
@@ -157,8 +161,10 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const handleProgressPointerDown = (
         e: React.PointerEvent<HTMLDivElement>,
     ) => {
-        if (durationRef.current <= 0) return;
+        const d = durationRef.current;
+        if (!Number.isFinite(d) || d <= 0) return;
         e.preventDefault();
+        e.currentTarget.focus();
         isDraggingRef.current = true;
         e.currentTarget.setPointerCapture(e.pointerId);
         updateProgressFromPointer(e.clientX, e.currentTarget);
@@ -180,18 +186,18 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     };
 
     const handleProgressKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (duration <= 0) return;
+        if (!hasFiniteDuration) return;
         const step = getProgressStep();
         switch (e.key) {
             case "ArrowLeft":
             case "ArrowDown":
                 e.preventDefault();
-                onSeek(clamp(currentTime - step, 0, duration));
+                onSeek(clamp(safeCurrentTime - step, 0, duration));
                 break;
             case "ArrowRight":
             case "ArrowUp":
                 e.preventDefault();
-                onSeek(clamp(currentTime + step, 0, duration));
+                onSeek(clamp(safeCurrentTime + step, 0, duration));
                 break;
             case "Home":
                 e.preventDefault();
@@ -206,6 +212,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
 
     const handleVolumePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
         e.preventDefault();
+        e.currentTarget.focus();
         isVolumeDraggingRef.current = true;
         e.currentTarget.setPointerCapture(e.pointerId);
         updateVolumeFromPointer(e.clientX, e.currentTarget);
@@ -247,10 +254,12 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         }
     };
 
-    const displayTime = dragTime !== null ? dragTime : currentTime;
+    const displayTime = dragTime !== null ? dragTime : safeCurrentTime;
     const displayVolume = dragVolume !== null ? dragVolume : volume;
     const renderedCoverUrl = coverUrl ? displayCoverUrl : undefined;
-    const progressValueNow = Math.round(displayTime);
+    const progressValueNow = Math.round(
+        Number.isFinite(displayTime) ? displayTime : 0,
+    );
     const volumeValueNow = Math.round(displayVolume * 100);
 
     return (
@@ -308,18 +317,22 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         <div className="relative w-full h-12">
                             {/* 进度轨道 */}
                             <div
-                                ref={progressBarRef}
                                 role="slider"
-                                tabIndex={duration > 0 ? 0 : -1}
-                                aria-disabled={duration <= 0}
+                                tabIndex={hasFiniteDuration ? 0 : -1}
+                                aria-disabled={!hasFiniteDuration}
                                 aria-label={t("PROGRESS_SLIDER")}
                                 aria-valuemin={0}
-                                aria-valuemax={Math.max(
-                                    0,
-                                    Math.round(duration),
-                                )}
-                                aria-valuenow={progressValueNow}
-                                aria-valuetext={`${formatTime(displayTime)} / ${formatTime(duration)}`}
+                                aria-valuemax={
+                                    hasFiniteDuration ? Math.round(duration) : 0
+                                }
+                                aria-valuenow={
+                                    hasFiniteDuration ? progressValueNow : 0
+                                }
+                                aria-valuetext={
+                                    hasFiniteDuration
+                                        ? `${formatTime(displayTime)} / ${formatTime(duration)}`
+                                        : undefined
+                                }
                                 className="absolute inset-0 bg-theme-highlight/20 border border-theme-highlight/50 clip-path-slant cursor-pointer overflow-hidden touch-none"
                                 style={{ touchAction: "none" }}
                                 onPointerDown={handleProgressPointerDown}
@@ -329,7 +342,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                 onKeyDown={handleProgressKeyDown}
                             >
                                 {/* 进度填充 */}
-                                {duration > 0 &&
+                                {hasFiniteDuration &&
                                     displayTime / duration > 0.01 && (
                                         <div
                                             className="h-full bg-theme-primary/80 relative pointer-events-none"
@@ -473,7 +486,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         }}
                     ></i>
                     <div
-                        ref={volumeBarRef}
                         role="slider"
                         tabIndex={0}
                         aria-label={t("VOLUME_SLIDER")}

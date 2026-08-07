@@ -59,6 +59,15 @@ export const useModalA11y = (
             const first = items[0];
             const last = items[items.length - 1];
             const active = document.activeElement;
+            const activeInside =
+                active instanceof Node && container.contains(active);
+
+            // 删除当前聚焦项后焦点可能落到 body，Tab 会逃出模态
+            if (!activeInside) {
+                e.preventDefault();
+                (e.shiftKey ? last : first).focus();
+                return;
+            }
 
             if (e.shiftKey && active === first) {
                 e.preventDefault();

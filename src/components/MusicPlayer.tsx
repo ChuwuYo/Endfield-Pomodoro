@@ -131,13 +131,26 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         });
     }, []);
 
+    const restorePlaylistFocus = useCallback(() => {
+        queueMicrotask(() => {
+            const trigger = rootRef.current?.querySelector(
+                `[aria-controls="${CSS.escape(playlistPanelId)}"]`,
+            );
+            if (trigger instanceof HTMLElement) {
+                trigger.focus();
+            }
+        });
+    }, [playlistPanelId]);
+
     const closePlaylist = useCallback(() => {
         const el = popoverRef.current;
         if (el && supportsPopoverApi() && el.matches(":popover-open")) {
             el.hidePopover();
+            return;
         }
         setIsListOpen(false);
-    }, []);
+        restorePlaylistFocus();
+    }, [restorePlaylistFocus]);
 
     const togglePlaylist = useCallback(() => {
         const el = popoverRef.current;
@@ -145,8 +158,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             el.togglePopover();
             return;
         }
-        setIsListOpen((open) => !open);
-    }, []);
+        setIsListOpen((open) => {
+            if (open) {
+                queueMicrotask(() => restorePlaylistFocus());
+            }
+            return !open;
+        });
+    }, [restorePlaylistFocus]);
 
     // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
     useEffect(() => {
@@ -160,11 +178,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             if (open) {
                 // MDN：打开后再设位置，避免被 UA 居中样式盖住
                 requestAnimationFrame(repositionPlaylist);
+            } else {
+                restorePlaylistFocus();
             }
         };
         el.addEventListener("toggle", onToggle);
         return () => el.removeEventListener("toggle", onToggle);
-    }, [repositionPlaylist]);
+    }, [repositionPlaylist, restorePlaylistFocus]);
 
     // 无 Popover API：Esc / 点外部
     useEffect(() => {
