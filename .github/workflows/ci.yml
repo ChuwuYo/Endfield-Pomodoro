@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          # pnpm 11 requires Node >=22.13; pin a current 22.x patch for CI reproducibility
+          node-version: 22.22.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # `pnpm check` 使用 biome --write；随后校验工作区未被改写，避免 CI 静默“修过又绿”
+      - name: Check
+        run: pnpm check
+
+      - name: Ensure check left working tree clean
+        run: test -z "$(git status --porcelain)"
+
+      - name: Build
+        run: pnpm build

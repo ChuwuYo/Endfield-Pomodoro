@@ -12,7 +12,7 @@
 
 ## 阶段 1：质量门禁（为一切后续改动兜底）
 
-- [ ] **#3 建立 CI** —— `.github/workflows/ci.yml`：pnpm install → lint → check → build。*S*
+- [x] **#3 建立 CI** —— `.github/workflows/ci.yml`：pnpm install → lint → check → build。*S*
 - [ ] **#2 测试基建** —— 引入 Vitest（+ @testing-library/react、jsdom/happy-dom），先覆盖纯逻辑：
   - [ ] `useShuffle`（洗牌不重不漏、循环重洗、首尾相接规避）
   - [ ] `asyncPool`（并发上限、结果保序、异常传播）
