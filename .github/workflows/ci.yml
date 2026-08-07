@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          # pnpm 11 needs >=22.13; jsdom 30 (tests) needs >=22.22.2
+          # pnpm 11 requires Node >=22.13; pin a current 22.x patch for CI reproducibility
           node-version: 22.22.2
           cache: pnpm
 
