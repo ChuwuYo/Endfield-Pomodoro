@@ -126,8 +126,8 @@ export function PWAPrompt({ language }: PWAPromptProps) {
                 <button
                     onClick={() => setShowUpdated(false)}
                     className="p-1 hover:bg-theme-primary/10 rounded transition-colors group"
-                    aria-label={t("pwa_close") || "Close"}
-                    title={t("pwa_close") || "Close"}
+                    aria-label={t("pwa_close")}
+                    title={t("pwa_close")}
                 >
                     <i className="ri-close-line icon-ui-lg text-theme-text/60 group-hover:text-theme-text" />
                 </button>
