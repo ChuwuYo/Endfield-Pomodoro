@@ -52,7 +52,7 @@
 ## 快速开始 (Getting Started)
 
 ### 环境要求
-- Node.js >= 22.12
+- Node.js >= 22.22.2
 - pnpm (推荐) 或 npm/yarn
 
 ### 安装步骤
