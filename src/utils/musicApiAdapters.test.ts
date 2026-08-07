@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { metingAdapter } from "./musicApiAdapters";
+import { metingAdapter, metingFallbackAdapter } from "./musicApiAdapters";
 
 describe("metingAdapter.parseResponse", () => {
     it("maps primary fields", () => {
@@ -55,6 +55,42 @@ describe("metingAdapter.parseResponse", () => {
     it("throws on non-array", () => {
         expect(() => metingAdapter.parseResponse({ ok: true })).toThrow(
             "Empty playlist",
+        );
+    });
+});
+
+describe("music API URL builders", () => {
+    it("encodes reserved characters in playlist query params", () => {
+        const url = metingAdapter.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "a&b=c d",
+        });
+        const parsed = new URL(url);
+        expect(parsed.origin + parsed.pathname).toBe(
+            "https://api.i-meto.com/meting/api",
+        );
+        expect(parsed.searchParams.get("server")).toBe("netease");
+        expect(parsed.searchParams.get("type")).toBe("playlist");
+        expect(parsed.searchParams.get("id")).toBe("a&b=c d");
+        expect(url).not.toContain("id=a&b=c");
+    });
+
+    it("encodes track URL params on both adapters", () => {
+        const primary = metingAdapter.buildTrackUrl!({
+            server: "tencent",
+            id: "song/1?x=1",
+        });
+        const fallback = metingFallbackAdapter.buildTrackUrl!({
+            server: "tencent",
+            id: "song/1?x=1",
+        });
+
+        expect(new URL(primary).searchParams.get("type")).toBe("song");
+        expect(new URL(primary).searchParams.get("id")).toBe("song/1?x=1");
+        expect(new URL(fallback).searchParams.get("id")).toBe("song/1?x=1");
+        expect(fallback.startsWith("https://api.injahow.cn/meting/?")).toBe(
+            true,
         );
     });
 });

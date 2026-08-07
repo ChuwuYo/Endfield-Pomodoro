@@ -26,17 +26,24 @@ export interface MusicAPIAdapter {
     fetchOptions?: RequestInit;
 }
 
+const withQuery = (baseUrl: string, params: Record<string, string>): string => {
+    const query = new URLSearchParams(params).toString();
+    return `${baseUrl}?${query}`;
+};
+
 /**
  * Meting API 适配器（主）
  */
 export const metingAdapter: MusicAPIAdapter = {
-    buildUrl: ({ server, type, id }) => {
-        return `https://api.i-meto.com/meting/api?server=${server}&type=${type}&id=${id}`;
-    },
+    buildUrl: ({ server, type, id }) =>
+        withQuery("https://api.i-meto.com/meting/api", { server, type, id }),
 
-    buildTrackUrl: ({ server, id }) => {
-        return `https://api.i-meto.com/meting/api?server=${server}&type=song&id=${id}`;
-    },
+    buildTrackUrl: ({ server, id }) =>
+        withQuery("https://api.i-meto.com/meting/api", {
+            server,
+            type: "song",
+            id,
+        }),
 
     parseResponse: (data) => {
         if (!Array.isArray(data) || data.length === 0) {
@@ -58,13 +65,15 @@ export const metingAdapter: MusicAPIAdapter = {
  * Meting API 适配器（备用）
  */
 export const metingFallbackAdapter: MusicAPIAdapter = {
-    buildUrl: ({ server, type, id }) => {
-        return `https://api.injahow.cn/meting/?server=${server}&type=${type}&id=${id}`;
-    },
+    buildUrl: ({ server, type, id }) =>
+        withQuery("https://api.injahow.cn/meting/", { server, type, id }),
 
-    buildTrackUrl: ({ server, id }) => {
-        return `https://api.injahow.cn/meting/?server=${server}&type=song&id=${id}`;
-    },
+    buildTrackUrl: ({ server, id }) =>
+        withQuery("https://api.injahow.cn/meting/", {
+            server,
+            type: "song",
+            id,
+        }),
 
     parseResponse: metingAdapter.parseResponse,
 };

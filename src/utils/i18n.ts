@@ -124,6 +124,12 @@ export const translations = {
         VOLUME_SLIDER: "Volume",
         CLOSE_PLAYLIST: "Close playlist",
 
+        // Error Boundary
+        ERROR_BOUNDARY_TITLE: "SYSTEM FAULT",
+        ERROR_BOUNDARY_MESSAGE:
+            "The interface crashed. Reload to restore the session.",
+        ERROR_BOUNDARY_RELOAD: "RELOAD",
+
         // PWA
         pwa_updated: "Update ready. Refresh to apply.",
         pwa_offline: "OFFLINE MODE",
@@ -258,6 +264,11 @@ export const translations = {
         PROGRESS_SLIDER: "播放进度",
         VOLUME_SLIDER: "音量",
         CLOSE_PLAYLIST: "关闭播放列表",
+
+        // Error Boundary
+        ERROR_BOUNDARY_TITLE: "系统异常",
+        ERROR_BOUNDARY_MESSAGE: "界面发生错误。刷新页面可恢复会话。",
+        ERROR_BOUNDARY_RELOAD: "刷新页面",
 
         // PWA
         pwa_updated: "新版本已就绪，刷新后生效。",
