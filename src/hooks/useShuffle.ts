@@ -135,8 +135,6 @@ export const useShuffle = (
     }, [playlistLength, shuffledIndices, shufflePointer]);
 
     return {
-        shuffledIndices,
-        shufflePointer,
         getNextRandomIndex,
         getPrevRandomIndex,
         peekNextRandomIndex,

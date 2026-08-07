@@ -12,12 +12,6 @@ import { TimerMode } from "../types";
 type UseSessionStatsResult = {
     /** 当前已完成的番茄钟会话数量 */
     sessionCount: number;
-    /** 历史累计专注总时长（秒），不包含当前正在进行但未完成的会话 */
-    accumulatedSeconds: number;
-    /** 当前正在进行的会话已经过的时长（秒） */
-    elapsedSeconds: number;
-    /** 总专注时长 = 历史累计 + 当前已经过（秒） */
-    totalSeconds: number;
     /** 总专注时长（小时部分） */
     hours: number;
     /** 总专注时长（分钟部分） */
@@ -169,9 +163,6 @@ export const useSessionStats = (
 
     return {
         sessionCount,
-        accumulatedSeconds,
-        elapsedSeconds,
-        totalSeconds,
         hours,
         minutes,
         seconds,
