@@ -80,10 +80,6 @@
   --size-control-lg: calc(56 / 15 * 1rem);
   --size-track-meta: calc(80 / 15 * 1rem);
   --size-button-min: calc(72 / 15 * 1rem);
-
-  /* 主题底栏预留（JS 可读，随 scale） */
-  --space-theme-extra: calc(60 / 15 * 1rem);
-  --space-theme-extra-miku: calc(120 / 15 * 1rem);
 }
 
 html {

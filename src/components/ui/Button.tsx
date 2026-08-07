@@ -6,7 +6,7 @@ export const Button: React.FC<
     }
 > = ({ children, variant = "primary", className = "", ...props }) => {
     const baseStyle =
-        "font-ui-mono uppercase tracking-ui-wider text-ui-sm leading-ui-none px-3 md:px-6 min-h-form-control transition-all duration-200 inline-flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden whitespace-nowrap active:scale-95 focus:outline-none";
+        "font-ui-mono uppercase tracking-ui-wider text-ui-sm leading-ui-none px-3 md:px-6 min-h-form-control transition-all duration-200 inline-flex items-center justify-center gap-2 relative group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer overflow-hidden whitespace-nowrap active:scale-95";
 
     const variants = {
         primary:

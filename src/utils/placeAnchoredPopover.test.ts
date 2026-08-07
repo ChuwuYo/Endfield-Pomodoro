@@ -54,4 +54,16 @@ describe("computeAnchoredPopoverPlacement", () => {
         expect(placement.left).toBe("464px"); // 800 - 320 - 16
         expect(placement.width).toBe("320px");
     });
+
+    it("does not force minHeight above the real available space", () => {
+        // 锚点几乎贴底：下方仅 ~16px，上方仅 ~16px（均 < minHeight 120）
+        const placement = computeAnchoredPopoverPlacement(
+            rect(40, 40, 320, 720),
+            { width: 800, height: 800 },
+            { gap: 8, padding: 16, minHeight: 120, maxHeightCap: 240 },
+        );
+        // spaceBelow = 800-760-8-16 = 16；spaceAbove = 40-8-16 = 16 → openBelow
+        expect(placement.openBelow).toBe(true);
+        expect(Number.parseFloat(placement.maxHeight)).toBe(16);
+    });
 });

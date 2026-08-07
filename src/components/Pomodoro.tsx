@@ -441,7 +441,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute -rotate-45"></div>
                         </div>
 
-                        {/* 时间文本：倒计时本身不挂 aria-live，避免每秒打断读屏 */}
+                        {/* 时间文本：倒计时可查询，但不挂 aria-live，避免每秒打断读屏 */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 select-none">
                             <span
                                 className={`text-ui-display md:text-ui-display-xl font-ui-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}
@@ -451,11 +451,15 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                         : "scale(1)",
                                     transformOrigin: "center",
                                 }}
-                                aria-hidden="true"
+                                role="timer"
+                                aria-label={`${t("TIME_REMAINING")} ${formatTime(timeLeft)}`}
                             >
                                 {formatTime(timeLeft)}
                             </span>
-                            <span className="text-ui-xs text-theme-dim font-ui-mono mt-2 tracking-ui-signal uppercase animate-pulse">
+                            <span
+                                className="text-ui-xs text-theme-dim font-ui-mono mt-2 tracking-ui-signal uppercase animate-pulse"
+                                aria-hidden="true"
+                            >
                                 {t("TIME_REMAINING")}
                             </span>
                             {/* 仅播报状态/模式变化，不含每秒跳动的倒计时 */}

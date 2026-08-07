@@ -133,6 +133,16 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     const restorePlaylistFocus = useCallback(() => {
         queueMicrotask(() => {
+            const popover = popoverRef.current;
+            const active = document.activeElement;
+            // 仅当焦点仍在列表内（Esc/关按钮）才归还；点外部关时保留用户点到的控件
+            if (
+                popover &&
+                active instanceof Node &&
+                !popover.contains(active)
+            ) {
+                return;
+            }
             const trigger = rootRef.current?.querySelector(
                 `[aria-controls="${CSS.escape(playlistPanelId)}"]`,
             );
@@ -158,13 +168,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             el.togglePopover();
             return;
         }
-        setIsListOpen((open) => {
-            if (open) {
-                queueMicrotask(() => restorePlaylistFocus());
-            }
-            return !open;
-        });
-    }, [restorePlaylistFocus]);
+        // 无 Popover：触发按钮点击切换；焦点已在按钮上，无需副作用恢复
+        setIsListOpen((open) => !open);
+    }, []);
 
     // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
     useEffect(() => {

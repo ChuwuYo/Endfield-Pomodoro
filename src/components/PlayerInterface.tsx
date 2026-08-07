@@ -127,6 +127,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         const d = durationRef.current;
         if (!Number.isFinite(d) || d <= 0) return;
         const rect = element.getBoundingClientRect();
+        if (rect.width <= 0) return;
         const clickX = clamp(clientX - rect.left, 0, rect.width);
         setDragTime((clickX / rect.width) * d);
     };
@@ -136,6 +137,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         element: HTMLDivElement,
     ) => {
         const rect = element.getBoundingClientRect();
+        if (rect.width <= 0) return;
         const clickX = clamp(clientX - rect.left, 0, rect.width);
         setDragVolume(clamp(clickX / rect.width, 0, 1));
     };
@@ -161,6 +163,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const handleProgressPointerDown = (
         e: React.PointerEvent<HTMLDivElement>,
     ) => {
+        if (e.button !== 0) return;
         const d = durationRef.current;
         if (!Number.isFinite(d) || d <= 0) return;
         e.preventDefault();
@@ -211,6 +214,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     };
 
     const handleVolumePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.button !== 0) return;
         e.preventDefault();
         e.currentTarget.focus();
         isVolumeDraggingRef.current = true;

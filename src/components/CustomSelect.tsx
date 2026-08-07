@@ -152,7 +152,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     isOpen ? optionId(activeIndex) : undefined
                 }
                 aria-labelledby={ariaLabelledBy}
-                className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-ui-mono text-ui-sm leading-ui-none px-4 h-form-control focus:outline-none focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group cursor-pointer"
+                className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-ui-mono text-ui-sm leading-ui-none px-4 h-form-control focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group cursor-pointer"
             >
                 <span className="truncate">
                     {selectedOption?.label || value}
