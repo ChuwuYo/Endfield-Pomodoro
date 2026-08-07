@@ -8,7 +8,7 @@
 
 ## 阶段 0：正确性修复（立即做，无依赖）
 
-- [ ] **#1 SoundManager AudioContext 泄漏** —— 改为模块级单例 + 复用 `ctx`，蜂鸣结束 `osc.onended` 中释放节点；补充 `ctx.state === "suspended"` 时的 `resume()` 处理（autoplay 策略）。*S*
+- [x] **#1 SoundManager AudioContext 泄漏** —— 改为模块级单例 + 复用 `ctx`，蜂鸣结束 `osc.onended` 中释放节点；补充 `ctx.state === "suspended"` 时的 `resume()` 处理（autoplay 策略）。*S*
 
 ## 阶段 1：质量门禁（为一切后续改动兜底）
 
