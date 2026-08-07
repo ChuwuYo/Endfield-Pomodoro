@@ -19,7 +19,7 @@
   - [x] `musicApiAdapters.parseResponse`（字段回退、空数组抛错）
   - [x] `SettingsPanel.parseDurationInput`、设置反序列化校验（与 #10 联动）
   - [x] `Pomodoro` 状态机（完成流转纯函数 `advancePomodoroState`；重置/跳过组件级留待后续）
-  - 将 `pnpm test` 挂入 CI。*L*
+  - [x] 将 `pnpm test` 挂入 CI。*L*
 
 ## 阶段 2：低成本清理（快速胜利，不改行为）
 

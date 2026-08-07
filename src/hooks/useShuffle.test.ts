@@ -67,6 +67,16 @@ describe("useShuffle", () => {
     });
 
     it("avoids repeating the last track immediately when reshuffling", async () => {
+        let call = 0;
+        vi.spyOn(Math, "random").mockImplementation(() => {
+            call += 1;
+            // 初始洗牌：保持恒等 [0,1,2]
+            // 重洗：使首项等于上一曲末项 2，从而命中首尾相接 swap
+            if (call <= 2) return 0.999;
+            if (call === 3) return 0; // i=2 → j=0 → [2,1,0]
+            return 0.999; // i=1 → j=1 → 保持 [2,1,0]，再被 swap 成 [1,2,0]
+        });
+
         const { result, rerender } = renderHook(
             ({ currentIndex }) => useShuffle(3, PlayMode.RANDOM, currentIndex),
             { initialProps: { currentIndex: 0 } },
@@ -74,7 +84,6 @@ describe("useShuffle", () => {
 
         await flushMicrotasks();
 
-        // Advance to the last index in the identity order [0,1,2]
         let current = 0;
         for (let i = 0; i < 2; i++) {
             let next = -1;
@@ -86,14 +95,12 @@ describe("useShuffle", () => {
         }
         expect(current).toBe(2);
 
-        // Next call reshuffles; head-tail guard must not start with 2
         let reshuffledFirst = -1;
         act(() => {
             reshuffledFirst = result.current.getNextRandomIndex();
         });
 
-        expect(reshuffledFirst).not.toBe(2);
-        expect(reshuffledFirst).toBeGreaterThanOrEqual(0);
-        expect(reshuffledFirst).toBeLessThan(3);
+        // 若无 swap，首项会是 2；防护生效后应为 1
+        expect(reshuffledFirst).toBe(1);
     });
 });
