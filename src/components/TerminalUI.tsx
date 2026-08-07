@@ -17,7 +17,6 @@ import {
     IndustrialGrid,
     MatrixRain,
     MikuBackgroundLayer,
-    MikuForegroundLayer,
     NeonGrid,
     OriginForeground,
     OriginGrid,
@@ -88,8 +87,6 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
             return <IndustrialForeground />;
         case ThemePreset.AZURE:
             return <AzureForeground />;
-        case ThemePreset.MIKU:
-            return <MikuForegroundLayer />;
         default:
             return null;
     }

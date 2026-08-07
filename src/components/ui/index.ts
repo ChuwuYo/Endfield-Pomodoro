@@ -3,5 +3,5 @@
  */
 
 export { Button } from "./Button";
-export { Input, Select } from "./Input";
+export { Input } from "./Input";
 export { Panel } from "./Panel";

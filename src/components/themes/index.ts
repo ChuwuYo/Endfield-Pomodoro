@@ -23,5 +23,4 @@ export {
 export {
     MikuBackgroundLayer,
     MikuDecorations,
-    MikuForegroundLayer,
 } from "./MikuDecorations";

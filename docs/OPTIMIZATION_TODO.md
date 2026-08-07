@@ -24,7 +24,7 @@
 ## 阶段 2：低成本清理（快速胜利，不改行为）
 
 - [x] **#13 移除未使用依赖** `lucide-react`、`react-use`。*S*
-- [ ] **#14 删除死代码** `ui/Input.tsx` 的 `Select`（同步 ui/index.ts 导出）、`MikuForegroundLayer` 空渲染（TerminalUI 中 MIKU 分支一并处理）。*S*
+- [x] **#14 删除死代码** `ui/Input.tsx` 的 `Select`（同步 ui/index.ts 导出）、`MikuForegroundLayer` 空渲染（TerminalUI 中 MIKU 分支一并处理）。*S*
 - [x] **#12 清理生产 console** —— 高频/调试日志改为 debug 级别或删除；Biome `noConsole` 规则可选开启（warn 级）。*S*
 - [ ] **#33 移除无效兜底** `PWAPrompt.tsx` 的 `|| "Close"`。*S*
 - [x] **#38 魔法数字入 constants**（连续错误阈值 5、MAX_TASKS、循环等，同 #28 前半）。*S*
