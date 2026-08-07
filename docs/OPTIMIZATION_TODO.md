@@ -2,7 +2,7 @@
 
 > 来源：`docs/QUALITY_ASSESSMENT.md`（编号对应评估报告"待优化事项总表"第 # 列）
 > 排序原则：**先修真实 Bug → 再建安全网（测试+CI）→ 然后低成本清理 → 再做有测试兜底的重构 → 最后打磨**。
-> 前置项阻塞后置项：测试基建（阶段 2）必须先于重构（阶段 5）完成；统一消息系统已有专项计划见 `docs/TODO.md`。
+> 前置项阻塞后置项：测试基建（阶段 1）必须先于重构（阶段 5）完成；统一消息系统（#11）排到全部阶段之后，见文末专项。
 
 ---
 
@@ -50,10 +50,6 @@
 - [x] **#22 API URL 参数编码** —— `buildUrl`/`buildTrackUrl` 中 `id`/`server`/`type` 经 `encodeURIComponent`（或 URLSearchParams）。*S*
 - [ ] **#23 CSP** —— ~~评估并添加 Content-Security-Policy~~ **不做**：个人/爱好向静态站，威胁模型弱；Fonts + 多域名音源/封面 + PWA 下 CSP 过紧易白屏，收益不抵运维成本。若以后上线强隔离再单独立项。*S*
 
-## 专项：统一消息系统（独立排期，不绑阶段 4）
-
-- [ ] **#11 落地统一消息系统** —— 按 `docs/TODO.md` 既定计划执行（替换 alert/MessageDisplay/PWAPrompt 提示）。与阶段 4 其它项解耦，单独开 PR。*M*
-
 ## 阶段 5：重构（依赖阶段 1 的测试兜底）
 
 - [ ] **#17 合并 PlayMode/AudioMode** —— 统一为单枚举，删除两份 `mapPlayMode`（保留 never 穷尽检查版语义）。*S*
@@ -75,6 +71,10 @@
 - [ ] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`。*S*
 - [ ] **#39 统计语义确认** —— sessionStorage vs localStorage 的"累计时长"语义，确认后写入 README/注释。*S*
 - [ ] **#40 CHANGELOG.md** —— 建立变更记录（可从 git tag 历史回填）。*S*
+
+## 专项（全部阶段之后）：统一消息系统
+
+- [ ] **#11 落地统一消息系统** —— 按 `docs/TODO.md` 既定计划执行（替换 alert/MessageDisplay/PWAPrompt 提示）。排在阶段 0–6 全部完成之后再做；单独开 PR，不与其它重构混提。*M*
 
 ---
 
