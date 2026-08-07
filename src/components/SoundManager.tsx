@@ -53,7 +53,8 @@ const resumeAudioContext = async (ctx: AudioContext): Promise<boolean> => {
                 );
             }),
         ]);
-        return ctx.state === "running";
+        // resume() resolve 即表示已恢复；勿再读 ctx.state（控制流仍收窄为 suspended）
+        return true;
     } catch {
         return false;
     }
