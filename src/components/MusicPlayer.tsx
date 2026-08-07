@@ -41,6 +41,18 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     const errorCountRef = useRef(0);
     const trackFixAbortRef = useRef<AbortController | null>(null);
 
+    useEffect(() => {
+        if (!isListOpen) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                setIsListOpen(false);
+            }
+        };
+        document.addEventListener("keydown", onKeyDown);
+        return () => document.removeEventListener("keydown", onKeyDown);
+    }, [isListOpen]);
+
     // 组件卸载时取消未完成的请求
     useEffect(() => {
         return () => {
@@ -211,6 +223,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                         <button
                             onClick={() => setIsListOpen(false)}
                             className="hover:text-theme-primary cursor-pointer"
+                            aria-label={t("CLOSE_PLAYLIST")}
+                            title={t("CLOSE_PLAYLIST")}
                         >
                             <i className="ri-close-line"></i>
                         </button>
@@ -226,25 +240,38 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                                     if (el) itemRefs.current.set(index, el);
                                     else itemRefs.current.delete(index);
                                 }}
-                                className={`flex items-center p-2 hover:bg-theme-highlight/10 cursor-pointer text-ui-xs border-b border-theme-highlight/5 last:border-0 ${index === player.currentIndex ? "text-theme-primary bg-theme-primary/5" : "text-theme-text"}`}
-                                onClick={() => {
-                                    // 保持当前播放状态：如果正在播放则继续播放，如果暂停则保持暂停
-                                    player.playTrack(index, true);
-                                    // 不关闭播放列表
-                                }}
+                                className={`border-b border-theme-highlight/5 last:border-0 ${index === player.currentIndex ? "text-theme-primary bg-theme-primary/5" : "text-theme-text"}`}
                             >
-                                <span className="w-6 text-theme-dim font-ui-mono">
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
-                                <span className="flex-1 truncate mr-2">
-                                    {song.name}
-                                </span>
-                                <span className="text-theme-dim truncate max-w-[80px] text-right">
-                                    {song.artist}
-                                </span>
-                                {index === player.currentIndex && (
-                                    <i className="ri-volume-up-line ml-2 animate-pulse"></i>
-                                )}
+                                <button
+                                    type="button"
+                                    className="flex w-full items-center p-2 hover:bg-theme-highlight/10 cursor-pointer text-ui-xs text-left bg-transparent border-0"
+                                    onClick={() => {
+                                        player.playTrack(index, true);
+                                    }}
+                                    aria-current={
+                                        index === player.currentIndex
+                                            ? "true"
+                                            : undefined
+                                    }
+                                    aria-label={
+                                        song.artist
+                                            ? `${song.name} — ${song.artist}`
+                                            : song.name
+                                    }
+                                >
+                                    <span className="w-6 text-theme-dim font-ui-mono">
+                                        {String(index + 1).padStart(2, "0")}
+                                    </span>
+                                    <span className="flex-1 truncate mr-2">
+                                        {song.name}
+                                    </span>
+                                    <span className="text-theme-dim truncate max-w-[80px] text-right">
+                                        {song.artist}
+                                    </span>
+                                    {index === player.currentIndex && (
+                                        <i className="ri-volume-up-line ml-2 animate-pulse"></i>
+                                    )}
+                                </button>
                             </li>
                         ))}
                     </ul>

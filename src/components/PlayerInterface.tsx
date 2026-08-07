@@ -28,6 +28,11 @@ export interface PlayerInterfaceProps {
     onPlaylistToggle: () => void;
 }
 
+const clamp = (value: number, min: number, max: number) =>
+    Math.max(min, Math.min(value, max));
+
+const VOLUME_STEP = 0.05;
+
 const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     isPlaying,
     currentTime,
@@ -57,13 +62,11 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
     const previousVolumeRef = useRef<number>(0.5);
     const [dragTime, setDragTime] = useState<number | null>(null);
     const [dragVolume, setDragVolume] = useState<number | null>(null);
-    const [isHandleHovered, setIsHandleHovered] = useState(false);
     const [displayCoverUrl, setDisplayCoverUrl] = useState<string | undefined>(
         coverUrl,
     );
     const coverLoadIdRef = useRef(0);
 
-    // 用 ref 保存回调和 duration，避免事件监听器频繁重建
     const onSeekRef = useRef(onSeek);
     const onVolumeChangeRef = useRef(onVolumeChange);
     const durationRef = useRef(duration);
@@ -91,14 +94,12 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         img.src = coverUrl;
     }, [coverUrl, displayCoverUrl]);
 
-    // 同步保存非零音量值到 ref
     useEffect(() => {
         if (volume > 0) {
             previousVolumeRef.current = volume;
         }
     }, [volume]);
 
-    // 格式化时间
     const formatTime = (seconds: number) => {
         if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
         const mins = Math.floor(seconds / SECONDS_PER_MINUTE);
@@ -106,70 +107,144 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
         return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    // 处理进度条和音量条拖拽
-    useEffect(() => {
-        const handleGlobalMouseMove = (e: MouseEvent) => {
-            e.preventDefault();
+    const getProgressStep = () =>
+        durationRef.current > 0 ? Math.max(5, durationRef.current * 0.01) : 5;
 
-            // 进度条拖拽
-            if (
-                isDraggingRef.current &&
-                progressBarRef.current &&
-                durationRef.current > 0
-            ) {
-                const rect = progressBarRef.current.getBoundingClientRect();
-                const clickX = Math.max(
-                    0,
-                    Math.min(e.clientX - rect.left, rect.width),
-                );
-                const newTime = (clickX / rect.width) * durationRef.current;
-                setDragTime(newTime);
-            }
+    const updateProgressFromPointer = (
+        clientX: number,
+        element: HTMLDivElement,
+    ) => {
+        if (durationRef.current <= 0) return;
+        const rect = element.getBoundingClientRect();
+        const clickX = clamp(clientX - rect.left, 0, rect.width);
+        setDragTime((clickX / rect.width) * durationRef.current);
+    };
 
-            // 音量条拖拽 - 实时更新
-            if (isVolumeDraggingRef.current && volumeBarRef.current) {
-                const rect = volumeBarRef.current.getBoundingClientRect();
-                const clickX = Math.max(
-                    0,
-                    Math.min(e.clientX - rect.left, rect.width),
-                );
-                const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
-                setDragVolume(newVolume);
-            }
-        };
+    const updateVolumeFromPointer = (
+        clientX: number,
+        element: HTMLDivElement,
+    ) => {
+        const rect = element.getBoundingClientRect();
+        const clickX = clamp(clientX - rect.left, 0, rect.width);
+        setDragVolume(clamp(clickX / rect.width, 0, 1));
+    };
 
-        const handleGlobalMouseUp = () => {
-            // 进度条释放
-            if (isDraggingRef.current) {
-                // 使用函数式更新获取最新 dragTime
-                setDragTime((prev) => {
-                    if (prev !== null) onSeekRef.current(prev);
-                    return null;
-                });
-            }
-            isDraggingRef.current = false;
+    const finishProgressDrag = () => {
+        if (!isDraggingRef.current) return;
+        isDraggingRef.current = false;
+        setDragTime((prev) => {
+            if (prev !== null) onSeekRef.current(prev);
+            return null;
+        });
+    };
 
-            // 音量条释放
-            if (isVolumeDraggingRef.current) {
-                setDragVolume((prev) => {
-                    if (prev !== null) onVolumeChangeRef.current(prev);
-                    return null;
-                });
-            }
-            isVolumeDraggingRef.current = false;
-        };
+    const finishVolumeDrag = () => {
+        if (!isVolumeDraggingRef.current) return;
+        isVolumeDraggingRef.current = false;
+        setDragVolume((prev) => {
+            if (prev !== null) onVolumeChangeRef.current(prev);
+            return null;
+        });
+    };
 
-        window.addEventListener("mousemove", handleGlobalMouseMove);
-        window.addEventListener("mouseup", handleGlobalMouseUp);
-        return () => {
-            window.removeEventListener("mousemove", handleGlobalMouseMove);
-            window.removeEventListener("mouseup", handleGlobalMouseUp);
-        };
-    }, []); // 空依赖，只挂载一次
+    const handleProgressPointerDown = (
+        e: React.PointerEvent<HTMLDivElement>,
+    ) => {
+        if (durationRef.current <= 0) return;
+        e.preventDefault();
+        isDraggingRef.current = true;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        updateProgressFromPointer(e.clientX, e.currentTarget);
+    };
+
+    const handleProgressPointerMove = (
+        e: React.PointerEvent<HTMLDivElement>,
+    ) => {
+        if (!isDraggingRef.current) return;
+        e.preventDefault();
+        updateProgressFromPointer(e.clientX, e.currentTarget);
+    };
+
+    const handleProgressPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+        finishProgressDrag();
+    };
+
+    const handleProgressKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (duration <= 0) return;
+        const step = getProgressStep();
+        switch (e.key) {
+            case "ArrowLeft":
+            case "ArrowDown":
+                e.preventDefault();
+                onSeek(clamp(currentTime - step, 0, duration));
+                break;
+            case "ArrowRight":
+            case "ArrowUp":
+                e.preventDefault();
+                onSeek(clamp(currentTime + step, 0, duration));
+                break;
+            case "Home":
+                e.preventDefault();
+                onSeek(0);
+                break;
+            case "End":
+                e.preventDefault();
+                onSeek(duration);
+                break;
+        }
+    };
+
+    const handleVolumePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        isVolumeDraggingRef.current = true;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        updateVolumeFromPointer(e.clientX, e.currentTarget);
+    };
+
+    const handleVolumePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (!isVolumeDraggingRef.current) return;
+        e.preventDefault();
+        updateVolumeFromPointer(e.clientX, e.currentTarget);
+    };
+
+    const handleVolumePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }
+        finishVolumeDrag();
+    };
+
+    const handleVolumeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        switch (e.key) {
+            case "ArrowLeft":
+            case "ArrowDown":
+                e.preventDefault();
+                onVolumeChange(clamp(volume - VOLUME_STEP, 0, 1));
+                break;
+            case "ArrowRight":
+            case "ArrowUp":
+                e.preventDefault();
+                onVolumeChange(clamp(volume + VOLUME_STEP, 0, 1));
+                break;
+            case "Home":
+                e.preventDefault();
+                onVolumeChange(0);
+                break;
+            case "End":
+                e.preventDefault();
+                onVolumeChange(1);
+                break;
+        }
+    };
 
     const displayTime = dragTime !== null ? dragTime : currentTime;
     const displayVolume = dragVolume !== null ? dragVolume : volume;
     const renderedCoverUrl = coverUrl ? displayCoverUrl : undefined;
+    const progressValueNow = Math.round(displayTime);
+    const volumeValueNow = Math.round(displayVolume * 100);
 
     return (
         <div className="flex flex-col h-full w-full relative gap-3">
@@ -227,17 +302,24 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                             {/* 进度轨道 */}
                             <div
                                 ref={progressBarRef}
-                                className="absolute inset-0 bg-theme-highlight/20 border border-theme-highlight/50 clip-path-slant cursor-pointer overflow-hidden"
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    isDraggingRef.current = true;
-                                    const rect =
-                                        e.currentTarget.getBoundingClientRect();
-                                    const clickX = e.clientX - rect.left;
-                                    const newTime =
-                                        (clickX / rect.width) * duration;
-                                    setDragTime(newTime);
-                                }}
+                                role="slider"
+                                tabIndex={duration > 0 ? 0 : -1}
+                                aria-disabled={duration <= 0}
+                                aria-label={t("PROGRESS_SLIDER")}
+                                aria-valuemin={0}
+                                aria-valuemax={Math.max(
+                                    0,
+                                    Math.round(duration),
+                                )}
+                                aria-valuenow={progressValueNow}
+                                aria-valuetext={`${formatTime(displayTime)} / ${formatTime(duration)}`}
+                                className="absolute inset-0 bg-theme-highlight/20 border border-theme-highlight/50 clip-path-slant cursor-pointer overflow-hidden touch-none"
+                                style={{ touchAction: "none" }}
+                                onPointerDown={handleProgressPointerDown}
+                                onPointerMove={handleProgressPointerMove}
+                                onPointerUp={handleProgressPointerUp}
+                                onPointerCancel={handleProgressPointerUp}
+                                onKeyDown={handleProgressKeyDown}
                             >
                                 {/* 进度填充 */}
                                 {duration > 0 &&
@@ -370,24 +452,24 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                             }
                         }}
                     ></i>
-                    <div className="w-full h-4 flex items-center relative group">
-                        <div
-                            ref={volumeBarRef}
-                            className="w-full h-1 bg-theme-highlight/30 relative rounded-full"
-                            onClick={(e) => {
-                                const rect =
-                                    e.currentTarget.getBoundingClientRect();
-                                const clickX = Math.max(
-                                    0,
-                                    Math.min(e.clientX - rect.left, rect.width),
-                                );
-                                const newVolume = Math.max(
-                                    0,
-                                    Math.min(1, clickX / rect.width),
-                                );
-                                onVolumeChange(newVolume);
-                            }}
-                        >
+                    <div
+                        ref={volumeBarRef}
+                        role="slider"
+                        tabIndex={0}
+                        aria-label={t("VOLUME_SLIDER")}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={volumeValueNow}
+                        aria-valuetext={`${volumeValueNow}%`}
+                        className="w-full h-4 flex items-center relative group cursor-pointer touch-none"
+                        style={{ touchAction: "none" }}
+                        onPointerDown={handleVolumePointerDown}
+                        onPointerMove={handleVolumePointerMove}
+                        onPointerUp={handleVolumePointerUp}
+                        onPointerCancel={handleVolumePointerUp}
+                        onKeyDown={handleVolumeKeyDown}
+                    >
+                        <div className="w-full h-1 bg-theme-highlight/30 relative rounded-full pointer-events-none">
                             <div
                                 className="h-full bg-theme-dim group-hover:bg-theme-primary transition-colors relative"
                                 style={{ width: `${displayVolume * 100}%` }}
@@ -395,28 +477,10 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         </div>
                         {/* 可拖拽的圆球滑块 */}
                         <div
-                            className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform group/slider"
+                            className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform group-hover:scale-125 pointer-events-none"
                             style={{
                                 left: `${displayVolume * 100}%`,
-                                transform: `translateX(-50%) scale(${isHandleHovered ? 1.25 : 1})`,
-                            }}
-                            onMouseEnter={() => setIsHandleHovered(true)}
-                            onMouseLeave={() => setIsHandleHovered(false)}
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                isVolumeDraggingRef.current = true;
-                                const rect =
-                                    volumeBarRef.current!.getBoundingClientRect();
-                                const clickX = Math.max(
-                                    0,
-                                    Math.min(e.clientX - rect.left, rect.width),
-                                );
-                                const newVolume = Math.max(
-                                    0,
-                                    Math.min(1, clickX / rect.width),
-                                );
-                                setDragVolume(newVolume);
+                                transform: "translateX(-50%)",
                             }}
                         ></div>
                     </div>

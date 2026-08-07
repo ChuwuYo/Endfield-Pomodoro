@@ -158,6 +158,12 @@ const App: React.FC = () => {
         });
     }, [settings.theme]);
 
+    // 同步 html lang，供屏幕阅读器与浏览器拼写/翻译使用
+    useEffect(() => {
+        document.documentElement.lang =
+            settings.language === Language.CN ? "zh-CN" : "en";
+    }, [settings.language]);
+
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
 

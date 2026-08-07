@@ -362,3 +362,30 @@ body {
   width: 100%;
   filter: drop-shadow(0 0 5px var(--color-primary));
 }
+
+/* 全局键盘焦点环（鼠标点击不显示） */
+:where(a, button, input, select, textarea, [role="button"], [role="slider"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 减弱动效：关闭常开装饰动画与过渡 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .data-flow-bg::before,
+  .animate-spin-slow-linear-4s,
+  .animate-spin-slow,
+  .animate-ping-slow,
+  .animate-pulse-fast,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
