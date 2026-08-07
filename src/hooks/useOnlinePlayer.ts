@@ -3,6 +3,7 @@ import { DEFAULT_MUSIC_VOLUME } from "../config/musicConfig";
 import {
     AUDIO_LOADING_TIMEOUT_MS,
     NEXT_TRACK_RETRY_DELAY_MS,
+    ONLINE_CONSECUTIVE_ERROR_LIMIT,
     PRELOAD_DELAY_MS,
     RESUME_TIME_BUFFER_SECONDS,
     STORAGE_KEYS,
@@ -291,7 +292,9 @@ export const useOnlinePlayer = (
         const proceedToErrorHandling = () => {
             setError("Load failed"); // Set error state only when we give up or skip
             consecutiveErrorsRef.current += 1;
-            if (consecutiveErrorsRef.current >= 5) {
+            if (
+                consecutiveErrorsRef.current >= ONLINE_CONSECUTIVE_ERROR_LIMIT
+            ) {
                 console.error(
                     "Too many consecutive errors, stopping playback.",
                 );

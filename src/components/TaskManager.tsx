@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { STORAGE_KEYS } from "../constants";
+import { MAX_TASKS, STORAGE_KEYS } from "../constants";
 import type { Task } from "../types";
 import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
@@ -8,8 +8,6 @@ import { Button, Input, Panel } from "./ui";
 interface TaskManagerProps {
     language: Language;
 }
-
-const MAX_TASKS = 6;
 
 const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
     const t = useTranslation(language);

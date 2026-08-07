@@ -57,6 +57,7 @@ export const TIME_UPDATE_THROTTLE_SECONDS = 0.25; // 时间更新节流阈值（
 export const RESUME_TIME_BUFFER_SECONDS = 0.2; // 修复音轨后恢复播放时的时间回退缓冲（秒）
 export const API_FETCH_DELAY_MS = 100; // API 数据获取延迟（毫秒），减少初始加载卡顿
 export const API_TIMEOUT_MS = 5000; // API 请求超时时间（毫秒）
+export const ONLINE_CONSECUTIVE_ERROR_LIMIT = 5; // 在线播放连续加载失败达到该次数后停止自动切歌
 
 /**
  * 时间转换常量
@@ -81,6 +82,14 @@ export const VISIBILITY_CHECK_MIN_INTERVAL_MS = 30 * 60 * 1000; // 页面从隐�
  */
 export const TIMER_CHECK_INTERVAL_MS = 100; // 计时器精度检查间隔（毫秒）
 export const LONG_BREAK_INTERVAL = 4; // 每完成多少个工作会话后进入长休息
+
+/**
+ * 任务列表常量
+ *
+ * 使用位置：
+ * - TaskManager.tsx
+ */
+export const MAX_TASKS = 6; // 任务容量上限
 
 /**
  * 音效时长常量（秒）
