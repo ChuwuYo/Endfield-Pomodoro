@@ -172,25 +172,42 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         setIsListOpen((open) => !open);
     }, []);
 
+    // 播放器 UI（含 popover 节点）是否已挂载。
+    // loading/error/empty 会 early-return，若只在 mount 绑 toggle，节点晚出现时监听器永远挂不上，
+    // 列表会停在 Popover 默认左上角且 isListOpen 不同步。
+    const playlistUiReady = Boolean(
+        !dataLoading && !dataError && player.currentSong,
+    );
+
     // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
     useEffect(() => {
+        if (!playlistUiReady) return;
         const el = popoverRef.current;
         if (!el || !supportsPopoverApi()) return;
 
-        const onToggle = (event: Event) => {
-            const { newState } = event as ToggleEvent;
-            const open = newState === "open";
+        const syncOpen = (open: boolean) => {
             setIsListOpen(open);
             if (open) {
-                // MDN：打开后再设位置，避免被 UA 居中样式盖住
-                requestAnimationFrame(repositionPlaylist);
+                // MDN：打开后再设位置；双 rAF 避开 UA 居中样式覆盖
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(repositionPlaylist);
+                });
             } else {
                 restorePlaylistFocus();
             }
         };
+
+        const onToggle = (event: Event) => {
+            const { newState } = event as ToggleEvent;
+            syncOpen(newState === "open");
+        };
         el.addEventListener("toggle", onToggle);
+        // 监听器晚绑时若已打开，补一次同步与定位
+        if (el.matches(":popover-open")) {
+            syncOpen(true);
+        }
         return () => el.removeEventListener("toggle", onToggle);
-    }, [repositionPlaylist, restorePlaylistFocus]);
+    }, [playlistUiReady, repositionPlaylist, restorePlaylistFocus]);
 
     // 无 Popover API：Esc / 点外部
     useEffect(() => {
