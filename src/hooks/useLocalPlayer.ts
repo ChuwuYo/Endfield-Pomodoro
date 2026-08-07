@@ -287,9 +287,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                     track.file.size === file.size &&
                     track.file.lastModified === file.lastModified,
             );
-            if (isDuplicate) {
-                console.warn(`Skip duplicate file: ${file.name}`);
-            }
             return !isDuplicate;
         });
 

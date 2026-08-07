@@ -19,6 +19,10 @@ export default defineConfig([
             ecmaVersion: 2020,
             globals: globals.browser,
         },
+        rules: {
+            // 禁止调试日志进生产；保留 warn/error 供真实故障排查
+            "no-console": ["warn", { allow: ["warn", "error"] }],
+        },
     },
     {
         // useOnlinePlayer 将 HTMLAudioElement 存于 state（实例交换 Swap 需触发重渲染），

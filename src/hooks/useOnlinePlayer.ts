@@ -128,9 +128,6 @@ export const useOnlinePlayer = (
             // 如果是随机模式，则随机选择一首起始歌曲
             if (playMode === PlayMode.RANDOM) {
                 const randomIndex = Math.floor(Math.random() * playlist.length);
-                console.log(
-                    `[useOnlinePlayer] Initializing random index: ${randomIndex}`,
-                );
                 // 延迟到微任务中更新，避免在 effect 中同步 setState 触发级联渲染
                 queueMicrotask(() => setCurrentIndex(randomIndex));
             }
@@ -212,12 +209,6 @@ export const useOnlinePlayer = (
         const handleError = () => {
             setIsLoading(false);
             console.error("Online playback error: Load failed");
-            try {
-                const code = audio.error?.code;
-                if (code) console.warn("Audio error code:", code);
-            } catch {
-                void 0;
-            }
 
             const currentOnTrackFix = onTrackFixRef.current;
             const currentIsPlaying = isPlayingRef.current;
@@ -233,7 +224,6 @@ export const useOnlinePlayer = (
                     trackRetryRef.current.id !== currentTrackId ||
                     !trackRetryRef.current.fixed
                 ) {
-                    console.log("Attempting track fallback fix...");
                     // 尝试修复时，暂时清除错误状态，避免触发上层整单回退
                     setError(null);
                     trackRetryRef.current = {
@@ -246,9 +236,6 @@ export const useOnlinePlayer = (
                         .then((newUrl) => {
                             if (!isMounted) return;
                             if (newUrl) {
-                                console.log(
-                                    "Track fix successful, retrying with new URL",
-                                );
                                 // URL 覆盖将通过播放列表状态传播
                                 // 但为了立即生效，直接应用到当前 audio 实例
                                 audio.src = newUrl;
@@ -410,7 +397,6 @@ export const useOnlinePlayer = (
 
                 // Only load if URL is different
                 if (preloadAudio.src !== nextSong.url) {
-                    console.log(`Preloading next track: ${nextSong.name}`);
                     preloadAudio.src = nextSong.url;
                     preloadAudio.preload = "auto";
                     preloadAudio.load();
@@ -452,7 +438,6 @@ export const useOnlinePlayer = (
             preloadAudioRef.current &&
             preloadAudioRef.current.src === currentSong.url
         ) {
-            console.log("Instant play: Swapping audio instance");
             const newMain = preloadAudioRef.current;
             const oldMain = audioInstance;
 
@@ -489,9 +474,6 @@ export const useOnlinePlayer = (
                                 err instanceof DOMException &&
                                 err.name === "AbortError"
                             ) {
-                                console.log(
-                                    "Playback aborted (rapid switching)",
-                                );
                                 return;
                             }
                             throw err;
