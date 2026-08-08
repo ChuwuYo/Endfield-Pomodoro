@@ -9,7 +9,11 @@ import {
 import type { Settings } from "../types";
 import { TimerMode } from "../types";
 import { useTranslation } from "../utils/i18n";
-import { advancePomodoroState } from "../utils/pomodoroState";
+import {
+    advancePomodoroState,
+    parseStoredTimerPayload,
+    type RestoredTimer,
+} from "../utils/pomodoroState";
 import { useSound } from "./SoundManager";
 import { Button, Panel } from "./ui";
 
@@ -26,12 +30,6 @@ type TimerPayload = {
     timeLeft: number;
     isActive: boolean;
     startTs?: number;
-};
-
-type RestoredTimer = {
-    mode?: TimerMode;
-    timeLeft: number | null;
-    isActive: boolean;
 };
 
 const durationSecondsForMode = (
@@ -57,41 +55,7 @@ const readRestoredTimer = (): RestoredTimer | null => {
     try {
         const raw = sessionStorage.getItem(STORAGE_KEYS.TIMER);
         if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
-            return null;
-
-        const candidateMode = parsed.mode
-            ? (parsed.mode as TimerMode)
-            : undefined;
-        const candidateTime =
-            typeof parsed.timeLeft === "number" ? parsed.timeLeft : null;
-        const candidateActive = Boolean(parsed.isActive);
-        const candidateStart =
-            typeof parsed.startTs === "number" ? parsed.startTs : null;
-
-        let restoredTime: number | null = null;
-        let restoredActive = false;
-
-        if (candidateTime != null) {
-            let restored = candidateTime;
-            if (candidateActive && candidateStart) {
-                const elapsed = Math.floor(
-                    (Date.now() - candidateStart) / MS_PER_SECOND,
-                );
-                restored = Math.max(0, candidateTime - elapsed);
-            }
-            restoredTime = restored;
-            restoredActive = Boolean(candidateActive && restored > 0);
-        }
-
-        if (candidateMode === undefined && restoredTime === null) return null;
-
-        return {
-            mode: candidateMode,
-            timeLeft: restoredTime,
-            isActive: restoredActive,
-        };
+        return parseStoredTimerPayload(JSON.parse(raw));
     } catch (err) {
         console.error("Failed to parse timer payload from sessionStorage", err);
         return null;
@@ -217,14 +181,13 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         applyTimerForMode(mode, false);
     };
 
-    // 将计时器状态持久化到 sessionStorage
+    // 将计时器状态持久化到 sessionStorage（仅跟计时状态走，避免无关 settings 改写 startTs）
     useEffect(() => {
         try {
             const payload: TimerPayload = { mode, timeLeft, isActive };
             if (isActive) {
-                const total = durationSecondsForMode(mode, settings);
-                const elapsed = total - timeLeft;
-                payload.startTs = Date.now() - elapsed * MS_PER_SECOND;
+                // 快照语义：当前剩余 timeLeft，采样时刻为 now（恢复时再扣经过秒数）
+                payload.startTs = Date.now();
             }
             sessionStorage.setItem(STORAGE_KEYS.TIMER, JSON.stringify(payload));
         } catch (err) {
@@ -239,15 +202,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                 );
             }
         }
-    }, [
-        mode,
-        timeLeft,
-        isActive,
-        settings,
-        settings.workDuration,
-        settings.shortBreakDuration,
-        settings.longBreakDuration,
-    ]);
+    }, [mode, timeLeft, isActive]);
 
     // 设置页改了时长：按当前模式重算剩余时间（签名未变则跳过，兼容 StrictMode 二次 effect）
     const lastDurationKeyRef = useRef(

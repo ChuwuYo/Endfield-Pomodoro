@@ -85,4 +85,42 @@ describe("fetchWithTimeout", () => {
             ),
         ).rejects.toMatchObject({ name: "AbortError" });
     });
+
+    it("aborts in-flight fetch when externalSignal aborts later", async () => {
+        const fetchMock = vi.fn(
+            (_url: string, init?: RequestInit) =>
+                new Promise<Response>((_resolve, reject) => {
+                    if (init?.signal?.aborted) {
+                        reject(
+                            new DOMException(
+                                "The operation was aborted.",
+                                "AbortError",
+                            ),
+                        );
+                        return;
+                    }
+                    init?.signal?.addEventListener("abort", () => {
+                        reject(
+                            new DOMException(
+                                "The operation was aborted.",
+                                "AbortError",
+                            ),
+                        );
+                    });
+                }),
+        );
+        vi.stubGlobal("fetch", fetchMock);
+
+        const external = new AbortController();
+        const pending = fetchWithTimeout(
+            "https://example.test",
+            {},
+            { timeoutMs: 5000, externalSignal: external.signal },
+        );
+
+        expect(fetchMock).toHaveBeenCalled();
+        external.abort();
+
+        await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    });
 });

@@ -108,6 +108,8 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                         throw new Error(`HTTP ${response.status}`);
 
                     const data = await response.json();
+                    if (controller.signal.aborted) return;
+
                     const tracks = adapter.parseResponse(data);
 
                     setAudioList(tracks);

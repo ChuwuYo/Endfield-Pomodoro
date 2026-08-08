@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TimerMode } from "../types";
-import { advancePomodoroState } from "./pomodoroState";
+import { advancePomodoroState, parseStoredTimerPayload } from "./pomodoroState";
 
 describe("advancePomodoroState", () => {
     it("moves work completion to short break and increments session", () => {
@@ -33,6 +33,38 @@ describe("advancePomodoroState", () => {
         expect(advancePomodoroState(TimerMode.LONG_BREAK, 4)).toEqual({
             nextMode: TimerMode.WORK,
             nextSessionCount: 4,
+        });
+    });
+});
+
+describe("parseStoredTimerPayload", () => {
+    it("rejects unknown mode so callers fall back to WORK/default duration", () => {
+        expect(
+            parseStoredTimerPayload({
+                mode: "FOCUS",
+                timeLeft: 120,
+                isActive: true,
+                startTs: 1,
+            }),
+        ).toBeNull();
+    });
+
+    it("accepts valid modes and subtracts elapsed while active", () => {
+        const now = 10_000;
+        expect(
+            parseStoredTimerPayload(
+                {
+                    mode: TimerMode.SHORT_BREAK,
+                    timeLeft: 90,
+                    isActive: true,
+                    startTs: now - 5_500,
+                },
+                now,
+            ),
+        ).toEqual({
+            mode: TimerMode.SHORT_BREAK,
+            timeLeft: 85,
+            isActive: true,
         });
     });
 });
