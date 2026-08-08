@@ -7,8 +7,12 @@ import {
 } from "./musicApiAdapters";
 
 /**
- * 以下载荷取自两个上游的真实响应（2026-08 实测）：
+ * 以下载荷复刻两个上游真实响应的结构（2026-08 实测）：
  * 两者都不返回 id/song_id，歌曲 id 只存在于 url 的查询参数中。
+ *
+ * i-meto 会在 id 之后再附加一个签名参数，这个「id 不在末尾」的形状正是夹具要保住的
+ * 属性——它能挡住用贪婪正则截取 id 的错误实现。签名值本身不参与断言，
+ * 故用占位符代替真实签名（真实签名有时效，写死进仓库既无意义也会触发密钥扫描）。
  */
 const injahowPlaylistItem = {
     name: "ヨヅリナ - STUDY WITH MIKU ver. -",
@@ -21,9 +25,9 @@ const injahowPlaylistItem = {
 const imetoPlaylistItem = {
     title: "三日月ステップ - STUDY WITH MIKU ver. -",
     author: "STUDY WITH MIKU",
-    url: "https://api.i-meto.com/meting/api?server=netease&type=url&id=3406945542&auth=23759078c5684352b4edf721eeacb436aca1a20e",
-    pic: "https://api.i-meto.com/meting/api?server=netease&type=pic&id=109951173564186500&auth=25a3dd358d47cf5d6a2f8421322022fb511ba364",
-    lrc: "https://api.i-meto.com/meting/api?server=netease&type=lrc&id=3406945542&auth=97371bf0cabce3d2495f77cbb71c8210f9aee568",
+    url: "https://api.i-meto.com/meting/api?server=netease&type=url&id=3406945542&auth=placeholder-signature",
+    pic: "https://api.i-meto.com/meting/api?server=netease&type=pic&id=109951173564186500&auth=placeholder-signature",
+    lrc: "https://api.i-meto.com/meting/api?server=netease&type=lrc&id=3406945542&auth=placeholder-signature",
 };
 
 describe("track id recovery from real upstream payloads", () => {
