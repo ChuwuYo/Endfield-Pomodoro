@@ -52,13 +52,13 @@
 
 ## 阶段 5：重构（依赖阶段 1 的测试兜底）
 
-- [ ] **#17 合并 PlayMode/AudioMode** —— 统一为单枚举，删除两份 `mapPlayMode`（保留 never 穷尽检查版语义）。*S*
-- [ ] **#18 统一 musicConfig 契约** —— `Settings.musicConfig` 直接引用 `MusicConfig` 类型。*S*
-- [ ] **#19 THEMES 键类型收紧** —— 抽出 `ThemeColors` 接口（10 个 `--color-*` 键必填）。*S*
-- [ ] **#21 Pomodoro 重置语义收敛** —— 消除 `lastResetKeyRef` 签名 hack 与 4 处 exhaustive-deps 豁免，改为显式事件驱动。*M*
-- [ ] **#20 useOnlinePlayer 重构** —— 按源码注释既定方向：音频实例改 ref + 版本号 state，移除 `"use no memo"` 与 ESLint 豁免。*L*
-- [ ] **#25 抽取 `fetchWithTimeout`** —— 消除 useMusicData 中两处重复。*S*
-- [ ] **#36 TerminalUI 主题注册表化** —— switch → `Record<ThemePreset, FC>` 映射。*S*
+- [x] **#17 合并 PlayMode/AudioMode** —— 统一为单枚举，删除两份 `mapPlayMode`（保留 never 穷尽检查版语义）。*S*
+- [x] **#18 统一 musicConfig 契约** —— `Settings.musicConfig` 直接引用 `MusicConfig` 类型。*S*
+- [x] **#19 THEMES 键类型收紧** —— 抽出 `ThemeColors` 接口（10 个 `--color-*` 键必填）。*S*
+- [x] **#21 Pomodoro 重置语义收敛** —— 消除 `lastResetKeyRef` 签名 hack 与 4 处 exhaustive-deps 豁免，改为显式事件驱动。*M*
+- [x] **#20 useOnlinePlayer 重构** —— 按源码注释既定方向：音频实例改 ref + 版本号 state，移除 `"use no memo"` 与 ESLint 豁免。*L*
+- [x] **#25 抽取 `fetchWithTimeout`** —— 消除 useMusicData 中两处重复。*S*
+- [x] **#36 TerminalUI 主题注册表化** —— switch → `Record<ThemePreset, FC>` 映射。*S*
 
 ## 阶段 6：性能与工程打磨
 

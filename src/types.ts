@@ -1,3 +1,5 @@
+import type { MusicConfig } from "./config/musicConfig";
+
 export const TimerMode = {
     WORK: "WORK",
     SHORT_BREAK: "SHORT_BREAK",
@@ -37,13 +39,6 @@ export const View = {
 } as const;
 export type View = (typeof View)[keyof typeof View];
 
-export const AudioMode = {
-    SEQUENTIAL: "SEQUENTIAL",
-    SHUFFLE: "SHUFFLE",
-    REPEAT_ONE: "REPEAT_ONE",
-} as const;
-export type AudioMode = (typeof AudioMode)[keyof typeof AudioMode];
-
 export interface Settings {
     workDuration: number; // in minutes
     shortBreakDuration: number;
@@ -55,11 +50,7 @@ export interface Settings {
     notificationsEnabled: boolean;
     language: Language;
     theme: ThemePreset;
-    musicConfig: {
-        server: string;
-        type: string;
-        id: string;
-    };
+    musicConfig: MusicConfig;
 }
 
 export interface Task {

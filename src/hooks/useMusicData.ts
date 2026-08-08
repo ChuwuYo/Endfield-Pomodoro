@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_FETCH_DELAY_MS, API_TIMEOUT_MS } from "../constants";
+import { API_FETCH_DELAY_MS } from "../constants";
+import { fetchWithTimeout, TimeoutError } from "../utils/fetchWithTimeout";
 import { getAdapters } from "../utils/musicApiAdapters";
 
 /**
@@ -24,6 +25,14 @@ interface UseMusicDataProps {
     type: string;
     id: string;
 }
+
+const withoutSignal = (fetchOptions?: RequestInit): RequestInit => {
+    const safeFetchOptions = { ...(fetchOptions || {}) };
+    if ("signal" in safeFetchOptions) {
+        delete safeFetchOptions.signal;
+    }
+    return safeFetchOptions;
+};
 
 /**
  * 获取音乐数据的 Hook
@@ -87,37 +96,13 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                 const adapter = adapters[adapterIndex];
                 if (controller.signal.aborted) return;
 
-                const requestController = new AbortController();
-                const onAbort = () => requestController.abort();
-                controller.signal.addEventListener("abort", onAbort);
-                let timeoutId: ReturnType<typeof setTimeout> | null = null;
                 try {
                     const url = adapter.buildUrl({ server, type, id });
-
-                    // 从 adapter.fetchOptions 中移除 signal，以避免覆盖 controller.signal
-                    const safeFetchOptions = {
-                        ...(adapter.fetchOptions || {}),
-                    };
-                    if ("signal" in safeFetchOptions) {
-                        delete safeFetchOptions.signal;
-                    }
-
-                    // 使用 Promise.race 来处理超时，并在完成后清理 setTimeout
-                    const response = await Promise.race([
-                        fetch(url, {
-                            signal: requestController.signal,
-                            ...safeFetchOptions,
-                        }),
-                        new Promise<never>((_, reject) => {
-                            timeoutId = setTimeout(() => {
-                                requestController.abort();
-                                reject(new Error("API request timed out"));
-                            }, API_TIMEOUT_MS);
-                        }),
-                    ]);
-
-                    // 请求成功，清理超时计时器
-                    if (timeoutId) clearTimeout(timeoutId);
+                    const response = await fetchWithTimeout(
+                        url,
+                        withoutSignal(adapter.fetchOptions),
+                        { externalSignal: controller.signal },
+                    );
 
                     if (!response.ok)
                         throw new Error(`HTTP ${response.status}`);
@@ -130,24 +115,19 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     setLoading(false);
                     return;
                 } catch (err) {
-                    // 清理超时计时器
-                    if (timeoutId) clearTimeout(timeoutId);
-
                     // 如果是外部中止（组件卸载），则直接返回
                     if (controller.signal.aborted) {
                         return;
                     }
-                    // 内部中止（超时）直接尝试下一个适配器
+                    // 超时或内部中止：尝试下一个适配器
                     if (
-                        err instanceof DOMException &&
-                        err.name === "AbortError"
+                        err instanceof TimeoutError ||
+                        (err instanceof DOMException &&
+                            err.name === "AbortError")
                     ) {
                         continue;
                     }
-                    // 其他错误（如超时、网络问题），记录并尝试下一个适配器
                     console.warn(`API adapter failed:`, err);
-                } finally {
-                    controller.signal.removeEventListener("abort", onAbort);
                 }
             }
 
@@ -181,34 +161,13 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                 if (!adapter.buildTrackUrl) continue;
                 if (signal?.aborted) return null;
 
-                const requestController = new AbortController();
-                const onAbort = () => requestController.abort();
-                if (signal) {
-                    signal.addEventListener("abort", onAbort);
-                }
-
-                let timeoutId: ReturnType<typeof setTimeout> | null = null;
                 try {
                     const url = adapter.buildTrackUrl({ server, id: trackId });
-                    const safeFetchOptions = {
-                        ...(adapter.fetchOptions || {}),
-                    };
-                    if ("signal" in safeFetchOptions) {
-                        delete safeFetchOptions.signal;
-                    }
-
-                    const response = await Promise.race([
-                        fetch(url, {
-                            ...safeFetchOptions,
-                            signal: requestController.signal,
-                        }),
-                        new Promise<never>((_, reject) => {
-                            timeoutId = setTimeout(() => {
-                                requestController.abort();
-                                reject(new Error("Timeout"));
-                            }, API_TIMEOUT_MS);
-                        }),
-                    ]);
+                    const response = await fetchWithTimeout(
+                        url,
+                        withoutSignal(adapter.fetchOptions),
+                        { externalSignal: signal },
+                    );
 
                     if (!response.ok) continue;
 
@@ -218,24 +177,17 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                         return tracks[0].url;
                     }
                 } catch (err) {
+                    if (signal?.aborted) return null;
                     if (
                         err instanceof DOMException &&
                         err.name === "AbortError"
                     ) {
-                        // 外部中止信号触发，直接返回 null
-                        if (signal?.aborted) return null;
-                        // 内部超时触发的 abort，继续尝试下一个适配器
                         continue;
                     }
-                    if (err instanceof Error && err.message === "Timeout") {
+                    if (err instanceof TimeoutError) {
                         continue;
                     }
                     console.warn("Track fallback fetch failed:", err);
-                } finally {
-                    if (timeoutId) clearTimeout(timeoutId);
-                    if (signal) {
-                        signal.removeEventListener("abort", onAbort);
-                    }
                 }
             }
             return null;

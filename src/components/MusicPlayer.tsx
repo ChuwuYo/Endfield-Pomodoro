@@ -6,9 +6,10 @@ import React, {
     useRef,
     useState,
 } from "react";
+import type { MusicConfig } from "../config/musicConfig";
 import { type MusicTrack, useMusicData } from "../hooks/useMusicData";
 import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
-import { AudioMode, Language, PlayMode } from "../types";
+import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { applyAnchoredPopoverPlacement } from "../utils/placeAnchoredPopover";
 import {
@@ -22,11 +23,7 @@ import MessageDisplay from "./MessageDisplay";
 import PlayerInterface from "./PlayerInterface";
 
 interface MusicPlayerProps {
-    config: {
-        server: string;
-        type: string;
-        id: string;
-    };
+    config: MusicConfig;
     language: Language;
     enabled?: boolean;
 }
@@ -306,19 +303,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         return () => cancelAnimationFrame(rafId);
     }, [isListOpen, player.currentIndex]);
 
-    const mapPlayMode = (mode: PlayMode): AudioMode => {
-        switch (mode) {
-            case PlayMode.SEQUENCE:
-                return AudioMode.SEQUENTIAL;
-            case PlayMode.LOOP:
-                return AudioMode.REPEAT_ONE;
-            case PlayMode.RANDOM:
-                return AudioMode.SHUFFLE;
-            default:
-                return AudioMode.SEQUENTIAL;
-        }
-    };
-
     if (dataLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-full">
@@ -425,7 +409,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 coverUrl={player.currentSong.cover}
                 playlistCount={playlist.length}
                 currentIndex={player.currentIndex}
-                playMode={mapPlayMode(player.playMode)}
+                playMode={player.playMode}
                 language={language}
                 isLoading={player.isLoading}
                 onPlayPause={player.togglePlay}

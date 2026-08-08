@@ -6,10 +6,11 @@ import React, {
     useState,
 } from "react";
 import { createPortal } from "react-dom";
+import type { MusicConfig } from "../config/musicConfig";
 import { STORAGE_KEYS, TOAST_DURATION_MS } from "../constants";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
 import { useModalA11y } from "../hooks/useModalA11y";
-import { AudioMode, Language, PlayMode } from "../types";
+import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
 import MessageDisplay from "./MessageDisplay";
 import MusicPlayer from "./MusicPlayer";
@@ -18,7 +19,7 @@ import { Panel } from "./ui";
 
 const AudioPlayer: React.FC<{
     language: Language;
-    musicConfig: { server: string; type: string; id: string };
+    musicConfig: MusicConfig;
     isOnline: boolean;
 }> = ({ language, musicConfig, isOnline }) => {
     const t = useTranslation(language);
@@ -112,22 +113,6 @@ const AudioPlayer: React.FC<{
         [handleSwitchToOnline],
     );
 
-    // 映射 PlayMode 到 AudioMode
-    const mapPlayMode = (mode: PlayMode): AudioMode => {
-        switch (mode) {
-            case PlayMode.SEQUENCE:
-                return AudioMode.SEQUENTIAL;
-            case PlayMode.LOOP:
-                return AudioMode.REPEAT_ONE;
-            case PlayMode.RANDOM:
-                return AudioMode.SHUFFLE;
-            default: {
-                const exhaustiveCheck: never = mode;
-                return exhaustiveCheck;
-            }
-        }
-    };
-
     // 处理文件选择
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -205,7 +190,7 @@ const AudioPlayer: React.FC<{
                         coverUrl={localPlayer.currentTrack?.coverUrl}
                         playlistCount={localPlayer.playlist.length}
                         currentIndex={localPlayer.currentIndex}
-                        playMode={mapPlayMode(localPlayer.playMode)}
+                        playMode={localPlayer.playMode}
                         language={language}
                         isLoading={localPlayer.isLoading}
                         onPlayPause={localPlayer.togglePlay}

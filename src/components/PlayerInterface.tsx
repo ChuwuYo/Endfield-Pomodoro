@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { SECONDS_PER_MINUTE } from "../constants";
-import { AudioMode, Language } from "../types";
+import { Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
 
 export interface PlayerInterfaceProps {
@@ -14,7 +14,7 @@ export interface PlayerInterfaceProps {
     coverUrl?: string;
     playlistCount: number;
     currentIndex: number;
-    playMode: AudioMode;
+    playMode: PlayMode;
     language: Language;
     isLoading?: boolean;
 
@@ -411,17 +411,17 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         onClick={onModeToggle}
                         className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm cursor-pointer"
                         title={
-                            playMode === AudioMode.SEQUENTIAL
+                            playMode === PlayMode.SEQUENCE
                                 ? t("MODE_SEQ")
-                                : playMode === AudioMode.REPEAT_ONE
+                                : playMode === PlayMode.LOOP
                                   ? t("MODE_REPEAT_ONE")
                                   : t("MODE_SHUFFLE")
                         }
                         aria-label={t("TOGGLE_MODE")}
                     >
-                        {playMode === AudioMode.SEQUENTIAL ? (
+                        {playMode === PlayMode.SEQUENCE ? (
                             <i className="ri-repeat-line icon-ui-md"></i>
-                        ) : playMode === AudioMode.REPEAT_ONE ? (
+                        ) : playMode === PlayMode.LOOP ? (
                             <i className="ri-repeat-one-line icon-ui-md"></i>
                         ) : (
                             <i className="ri-shuffle-line icon-ui-md"></i>
