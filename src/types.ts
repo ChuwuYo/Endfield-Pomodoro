@@ -1,3 +1,5 @@
+import type { MusicConfig } from "./config/musicConfig";
+
 export const TimerMode = {
     WORK: "WORK",
     SHORT_BREAK: "SHORT_BREAK",
@@ -31,18 +33,25 @@ export const ThemePreset = {
 } as const;
 export type ThemePreset = (typeof ThemePreset)[keyof typeof ThemePreset];
 
+/** 主题颜色配置：每个主题预设的 CSS 变量值（10 个 `--color-*` 键必填） */
+export interface ThemeColors {
+    "--color-base": string;
+    "--color-surface": string;
+    "--color-highlight": string;
+    "--color-primary": string;
+    "--color-secondary": string;
+    "--color-accent": string;
+    "--color-text": string;
+    "--color-dim": string;
+    "--color-success": string;
+    "--color-error": string;
+}
+
 export const View = {
     DASHBOARD: "DASHBOARD",
     SETTINGS: "SETTINGS",
 } as const;
 export type View = (typeof View)[keyof typeof View];
-
-export const AudioMode = {
-    SEQUENTIAL: "SEQUENTIAL",
-    SHUFFLE: "SHUFFLE",
-    REPEAT_ONE: "REPEAT_ONE",
-} as const;
-export type AudioMode = (typeof AudioMode)[keyof typeof AudioMode];
 
 export interface Settings {
     workDuration: number; // in minutes
@@ -55,11 +64,7 @@ export interface Settings {
     notificationsEnabled: boolean;
     language: Language;
     theme: ThemePreset;
-    musicConfig: {
-        server: string;
-        type: string;
-        id: string;
-    };
+    musicConfig: MusicConfig;
 }
 
 export interface Task {

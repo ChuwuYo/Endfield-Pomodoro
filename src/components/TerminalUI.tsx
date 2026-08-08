@@ -25,6 +25,27 @@ import {
     TacticalGrid,
 } from "./themes";
 
+const BACKGROUND_LAYERS: Record<ThemePreset, React.FC> = {
+    [ThemePreset.ORIGIN]: OriginGrid,
+    [ThemePreset.ABYSSAL]: AbyssalGrid,
+    [ThemePreset.NEON]: NeonGrid,
+    [ThemePreset.MATRIX]: MatrixRain,
+    [ThemePreset.TACTICAL]: TacticalGrid,
+    [ThemePreset.ROYAL]: RoyalParticles,
+    [ThemePreset.INDUSTRIAL]: IndustrialGrid,
+    [ThemePreset.AZURE]: AzureGrid,
+    [ThemePreset.MIKU]: MikuBackgroundLayer,
+};
+
+/** 仅部分主题有鼠标交互前景；缺失项渲染 null */
+const FOREGROUND_LAYERS: Partial<Record<ThemePreset, React.FC>> = {
+    [ThemePreset.ORIGIN]: OriginForeground,
+    [ThemePreset.TACTICAL]: TacticalForeground,
+    [ThemePreset.ABYSSAL]: AbyssalForeground,
+    [ThemePreset.INDUSTRIAL]: IndustrialForeground,
+    [ThemePreset.AZURE]: AzureForeground,
+};
+
 /**
  * 背景层容器 (Z-0)
  * 根据主题渲染对应的静态背景效果
@@ -32,32 +53,11 @@ import {
 export const BackgroundLayer: React.FC<{ theme?: ThemePreset }> = ({
     theme = ThemePreset.ORIGIN,
 }) => {
-    const renderContent = () => {
-        switch (theme) {
-            case ThemePreset.ABYSSAL:
-                return <AbyssalGrid />;
-            case ThemePreset.NEON:
-                return <NeonGrid />;
-            case ThemePreset.MATRIX:
-                return <MatrixRain />;
-            case ThemePreset.TACTICAL:
-                return <TacticalGrid />;
-            case ThemePreset.ROYAL:
-                return <RoyalParticles />;
-            case ThemePreset.INDUSTRIAL:
-                return <IndustrialGrid />;
-            case ThemePreset.AZURE:
-                return <AzureGrid />;
-            case ThemePreset.MIKU:
-                return <MikuBackgroundLayer />;
-            default:
-                return <OriginGrid />;
-        }
-    };
+    const Background = BACKGROUND_LAYERS[theme] ?? OriginGrid;
 
     return (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-            {renderContent()}
+            <Background />
         </div>
     );
 };
@@ -76,18 +76,6 @@ export const ForegroundLayer: React.FC<{ theme?: ThemePreset }> = ({
 
     // 所有鼠标跟随主题均在组件内部以 ref 直写 transform 跟踪光标，
     // 不再经由 React state 逐帧重渲染
-    switch (theme) {
-        case ThemePreset.ORIGIN:
-            return <OriginForeground />;
-        case ThemePreset.TACTICAL:
-            return <TacticalForeground />;
-        case ThemePreset.ABYSSAL:
-            return <AbyssalForeground />;
-        case ThemePreset.INDUSTRIAL:
-            return <IndustrialForeground />;
-        case ThemePreset.AZURE:
-            return <AzureForeground />;
-        default:
-            return null;
-    }
+    const Foreground = FOREGROUND_LAYERS[theme];
+    return Foreground ? <Foreground /> : null;
 };

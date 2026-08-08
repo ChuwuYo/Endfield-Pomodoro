@@ -95,4 +95,22 @@ describe("parseStoredSettings", () => {
         });
         expect(result.autoStartBreaks).toBe(defaults.autoStartBreaks);
     });
+
+    it("falls back invalid musicConfig string literals to defaults", () => {
+        const result = parseStoredSettings(
+            JSON.stringify({
+                musicConfig: {
+                    server: "spotify",
+                    type: "album",
+                    id: "keep-me",
+                },
+            }),
+            defaults,
+        );
+        expect(result.musicConfig).toEqual({
+            server: defaults.musicConfig.server,
+            type: defaults.musicConfig.type,
+            id: "keep-me",
+        });
+    });
 });

@@ -1,10 +1,6 @@
-import { ThemePreset } from "../types";
+import { type ThemeColors, ThemePreset } from "../types";
 
-/**
- * 主题颜色配置
- * 定义每个主题预设的 CSS 变量值
- */
-export const THEMES: Record<ThemePreset, Record<string, string>> = {
+export const THEMES: Record<ThemePreset, ThemeColors> = {
     [ThemePreset.ORIGIN]: {
         "--color-base": "#111113",
         "--color-surface": "#1c1c1f",

@@ -27,16 +27,15 @@ export const useOnlinePlayer = (
     enabled: boolean = true,
     onTrackFix?: (index: number, currentUrl: string) => Promise<string | null>,
 ) => {
-    // 本 hook 将 HTMLAudioElement 存于 state（实例交换 Swap 需要触发重渲染），
-    // 并在事件回调/Effect 中直接修改音频对象属性，与 React Compiler 的不可变性
-    // 假设冲突（编译器本就会因此跳过本函数）。显式退出编译；若要移除该指令，
-    // 需先把音频实例管理重构为 ref + 版本号 state。
-    "use no memo";
-
-    // 使用 State 管理当前的 Audio 实例，以便在实例切换（Swap）时触发重渲染
-    const [audioInstance, setAudioInstance] = useState<HTMLAudioElement>(
-        () => new Audio(),
-    );
+    // 音频实例用 ref 持有；Swap 时递增 generation，驱动监听器/加载 effect 重跑
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const getAudio = (): HTMLAudioElement => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio();
+        }
+        return audioRef.current;
+    };
+    const [audioGeneration, setAudioGeneration] = useState(0);
 
     // 预加载的 Audio 实例引用
     const preloadAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -155,9 +154,10 @@ export const useOnlinePlayer = (
                 nextIndex = getNextRandomIndex();
             } else if (playMode === PlayMode.LOOP && isAuto) {
                 // 单曲循环模式下自动切歌（播放结束），只需重置进度
-                if (audioInstance) {
-                    audioInstance.currentTime = 0;
-                    audioInstance.play().catch(console.error);
+                const audio = getAudio();
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(console.error);
                 }
                 return;
             } else {
@@ -167,22 +167,16 @@ export const useOnlinePlayer = (
             setCurrentIndex(nextIndex);
             // 不调用 setIsPlaying，保持当前播放状态
         },
-        [
-            currentIndex,
-            playMode,
-            playlist.length,
-            getNextRandomIndex,
-            audioInstance,
-        ],
+        [currentIndex, playMode, playlist.length, getNextRandomIndex],
     );
 
     useEffect(() => {
         handleNextRef.current = handleNext;
     }, [handleNext]);
 
-    // 初始化 Audio 对象事件监听 (当 audioInstance 变化时重新绑定)
+    // 初始化 Audio 对象事件监听 (当 audioGeneration 变化时重新绑定)
     useEffect(() => {
-        const audio = audioInstance;
+        const audio = getAudio();
         let isMounted = true;
 
         const handleTimeUpdate = () => {
@@ -344,14 +338,12 @@ export const useOnlinePlayer = (
             audio.removeEventListener("error", handleError);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps -- volume 的变化由单独的 effect 处理，以避免每次音量变化都重新绑定所有事件监听器
-    }, [audioInstance]);
+    }, [audioGeneration]);
 
     // 监听音量变化
     useEffect(() => {
-        if (audioInstance) {
-            audioInstance.volume = volume;
-        }
-    }, [volume, audioInstance]);
+        getAudio().volume = volume;
+    }, [volume, audioGeneration]);
 
     useEffect(() => {
         try {
@@ -371,11 +363,11 @@ export const useOnlinePlayer = (
 
     // 当禁用时暂停播放
     useEffect(() => {
-        if (!enabled && audioInstance) {
-            audioInstance.pause();
+        if (!enabled) {
+            getAudio().pause();
             queueMicrotask(() => setIsPlaying(false));
         }
-    }, [enabled, audioInstance]);
+    }, [enabled, audioGeneration]);
 
     // 预加载下一首（延迟执行以优化性能）
     useEffect(() => {
@@ -430,7 +422,7 @@ export const useOnlinePlayer = (
 
     // 监听播放列表和索引变化 - 加载当前音频（含无缝切换逻辑）
     useEffect(() => {
-        const audio = audioInstance;
+        const audio = getAudio();
         if (!audio || playlist.length === 0) return;
 
         const currentSong = playlist[currentIndex];
@@ -442,17 +434,15 @@ export const useOnlinePlayer = (
             preloadAudioRef.current.src === currentSong.url
         ) {
             const newMain = preloadAudioRef.current;
-            const oldMain = audioInstance;
+            const oldMain = getAudio();
 
-            // 交换实例
-            // 1. 设置新实例为 State (触发重渲染)
-            setAudioInstance(newMain);
-            // 2. 将旧实例回收给预加载 Ref
+            // 交换实例：新实例进 ref，旧实例回收为 preload；bump generation 重绑监听
+            audioRef.current = newMain;
             preloadAudioRef.current = oldMain;
+            setAudioGeneration((g) => g + 1);
 
-            // 注意：这里 return 后，State 更新会触发组件重渲染
-            // 下一次 render 时，effect 会再次运行，但此时 audioInstance 已经是 newMain
-            // 且 newMain.src 已经等于 currentSong.url，所以会进入下方的 play 逻辑
+            // return 后 generation 更新会触发本 effect 再跑；此时 audioRef 已是 newMain
+            // 且 newMain.src === currentSong.url，会进入下方的 play 逻辑
             return;
         }
 
@@ -515,11 +505,11 @@ export const useOnlinePlayer = (
                 });
             }
         }
-    }, [currentIndex, playlist, autoPlay, isPlaying, audioInstance]);
+    }, [currentIndex, playlist, autoPlay, isPlaying, audioGeneration]);
 
     // 监听播放状态变化 (Play/Pause 控制)
     useEffect(() => {
-        const audio = audioInstance;
+        const audio = getAudio();
         if (!audio || playlist.length === 0) return;
 
         if (isPlaying) {
@@ -541,7 +531,7 @@ export const useOnlinePlayer = (
                     });
 
                     const timeoutId = setTimeout(() => {
-                        if (audioInstance && audioInstance.readyState < 2) {
+                        if (getAudio().readyState < 2) {
                             console.warn("Audio loading timeout");
                             setIsPlaying(false);
                         }
@@ -558,17 +548,18 @@ export const useOnlinePlayer = (
                 audio.pause();
             }
         }
-    }, [isPlaying, playlist.length, audioInstance]);
+    }, [isPlaying, playlist.length, audioGeneration]);
 
     // 播放控制
     const togglePlay = () => {
-        if (!audioInstance) return;
+        const audio = getAudio();
+        if (!audio) return;
 
         if (isPlaying) {
-            audioInstance.pause();
+            audio.pause();
             setIsPlaying(false);
         } else {
-            const playPromise = audioInstance.play();
+            const playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => setIsPlaying(true))
@@ -592,10 +583,11 @@ export const useOnlinePlayer = (
         if (playlist.length === 0) return;
 
         if (playMode === PlayMode.LOOP) {
-            if (audioInstance) {
-                audioInstance.currentTime = 0;
+            const audio = getAudio();
+            if (audio) {
+                audio.currentTime = 0;
                 if (isPlaying) {
-                    audioInstance.play();
+                    audio.play();
                 }
             }
             return;
@@ -616,14 +608,14 @@ export const useOnlinePlayer = (
         playlist.length,
         getPrevRandomIndex,
         isPlaying,
-        audioInstance,
     ]);
 
     // 进度跳转
     const seek = (time: number) => {
-        if (audioInstance) {
+        const audio = getAudio();
+        if (audio) {
             const newTime = Math.max(0, Math.min(time, duration));
-            audioInstance.currentTime = newTime;
+            audio.currentTime = newTime;
             lastTimeRef.current = newTime;
             setCurrentTime(newTime);
         }

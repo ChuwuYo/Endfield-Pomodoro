@@ -1,3 +1,4 @@
+import type { MusicConfig } from "../config/musicConfig";
 import type { Settings } from "../types";
 import { Language, ThemePreset } from "../types";
 
@@ -16,6 +17,13 @@ export type ParseStoredSettingsOptions = {
 
 const THEME_VALUES = new Set<string>(Object.values(ThemePreset));
 const LANGUAGE_VALUES = new Set<string>(Object.values(Language));
+const MUSIC_SERVERS = new Set<MusicConfig["server"]>([
+    "netease",
+    "tencent",
+    "kugou",
+    "baidu",
+    "kuwo",
+]);
 
 const asPositiveIntMinutes = (value: unknown, fallback: number): number => {
     if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
@@ -45,17 +53,27 @@ const asLanguage = (value: unknown, fallback: Language): Language => {
     return fallback;
 };
 
-const asMusicConfig = (
+const asMusicServer = (
     value: unknown,
-    fallback: Settings["musicConfig"],
-): Settings["musicConfig"] => {
+    fallback: MusicConfig["server"],
+): MusicConfig["server"] => {
+    if (
+        typeof value === "string" &&
+        MUSIC_SERVERS.has(value as MusicConfig["server"])
+    ) {
+        return value as MusicConfig["server"];
+    }
+    return fallback;
+};
+
+const asMusicConfig = (value: unknown, fallback: MusicConfig): MusicConfig => {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
         return { ...fallback };
     }
     const raw = value as Record<string, unknown>;
     return {
-        server: typeof raw.server === "string" ? raw.server : fallback.server,
-        type: typeof raw.type === "string" ? raw.type : fallback.type,
+        server: asMusicServer(raw.server, fallback.server),
+        type: raw.type === "playlist" ? "playlist" : fallback.type,
         id: typeof raw.id === "string" ? raw.id : fallback.id,
     };
 };
