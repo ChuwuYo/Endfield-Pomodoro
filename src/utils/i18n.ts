@@ -42,6 +42,7 @@ export const translations = {
         ONLINE_STREAM: "ONLINE STREAM",
         CONNECTING: "CONNECTING TO SATELLITE...",
         CONNECTION_LOST: "CONNECTION LOST",
+        PLAYLIST_UNAVAILABLE: "PLAYLIST UNAVAILABLE",
         PLAYLIST_TITLE: "PLAYLIST",
 
         // Themes
@@ -183,6 +184,7 @@ export const translations = {
         ONLINE_STREAM: "在线流媒体",
         CONNECTING: "正在连接卫星信号...",
         CONNECTION_LOST: "连接丢失",
+        PLAYLIST_UNAVAILABLE: "歌单无效或为空",
         PLAYLIST_TITLE: "播放列表",
 
         // Themes

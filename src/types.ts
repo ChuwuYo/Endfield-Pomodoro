@@ -20,6 +20,21 @@ export const PlayMode = {
 } as const;
 export type PlayMode = (typeof PlayMode)[keyof typeof PlayMode];
 
+/**
+ * 在线音乐数据获取的失败类别
+ *
+ * 上游对无效歌单同样返回 HTTP 200（`[]` 或 `{ error: ... }`），
+ * 因此必须按响应内容而非状态码区分这两种失败。
+ */
+export const MusicDataError = {
+    /** 所有数据源都表示该歌单不存在、私密或为空 */
+    PLAYLIST_UNAVAILABLE: "playlist-unavailable",
+    /** 至少一个数据源出现网络错误、超时或非 2xx 响应 */
+    SERVICE_UNAVAILABLE: "service-unavailable",
+} as const;
+export type MusicDataError =
+    (typeof MusicDataError)[keyof typeof MusicDataError];
+
 export const ThemePreset = {
     ORIGIN: "ORIGIN",
     ABYSSAL: "ABYSSAL",

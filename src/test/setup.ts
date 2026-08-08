@@ -1,4 +1,15 @@
 import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+/**
+ * 本仓库未开启 vitest 的 globals，RTL 因此不会自动注册 cleanup
+ * （它依赖全局 afterEach 存在）。在此统一兜底，避免每个测试文件各写一份，
+ * 也避免漏写导致组件/hook 实例跨用例存活。
+ */
+afterEach(() => {
+    cleanup();
+});
 
 /**
  * Node 22+/26 可能抢占全局 localStorage 名但未启用实现，

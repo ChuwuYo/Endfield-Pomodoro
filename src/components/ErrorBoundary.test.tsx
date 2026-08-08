@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { STORAGE_KEYS } from "../constants";
 import { Language } from "../types";
@@ -10,7 +10,6 @@ const ThrowingChild = ({ message }: { message: string }) => {
 
 describe("ErrorBoundary", () => {
     afterEach(() => {
-        cleanup();
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
         window.localStorage.clear();
@@ -80,7 +79,6 @@ describe("ErrorBoundary", () => {
 
 describe("ErrorFallback", () => {
     afterEach(() => {
-        cleanup();
         vi.restoreAllMocks();
         window.localStorage.clear();
         document.documentElement.lang = "zh-CN";

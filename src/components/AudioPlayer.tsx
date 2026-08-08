@@ -6,7 +6,7 @@ import React, {
     useState,
 } from "react";
 import { createPortal } from "react-dom";
-import type { MusicConfig } from "../config/musicConfig";
+import { type MusicConfig, musicSourceKey } from "../config/musicConfig";
 import { STORAGE_KEYS, TOAST_DURATION_MS } from "../constants";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
 import { useModalA11y } from "../hooks/useModalA11y";
@@ -166,7 +166,14 @@ const AudioPlayer: React.FC<{
             )}
 
             {audioSource === "online" ? (
-                <MusicPlayer config={musicConfig} language={language} enabled />
+                <MusicPlayer
+                    // 换歌单即换播放上下文：用 key 重建播放器，
+                    // 让播放位置/进度/播放状态一并重置（React 官方推荐的状态重置方式）
+                    key={musicSourceKey(musicConfig)}
+                    config={musicConfig}
+                    language={language}
+                    enabled
+                />
             ) : (
                 <>
                     <input

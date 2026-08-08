@@ -9,6 +9,23 @@ export interface MusicConfig {
 }
 
 /**
+ * 音乐数据源的唯一标识
+ *
+ * 同时用于：
+ * - useMusicData：数据源变化时重置适配器起始索引
+ * - AudioPlayer：作为 MusicPlayer 的 key，换歌单时重置播放器全部内部状态
+ */
+export const musicSourceKey = ({
+    server,
+    type,
+    id,
+}: {
+    server: string;
+    type: string;
+    id: string;
+}): string => `${server}|${type}|${id}`;
+
+/**
  * 默认音乐配置
  * 用于 App.tsx 中的 DEFAULT_SETTINGS
  */

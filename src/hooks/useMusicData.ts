@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { musicSourceKey } from "../config/musicConfig";
 import { API_FETCH_DELAY_MS } from "../constants";
+import { MusicDataError } from "../types";
 import { fetchWithTimeout, TimeoutError } from "../utils/fetchWithTimeout";
-import { getAdapters } from "../utils/musicApiAdapters";
+import { EmptyPlaylistError, getAdapters } from "../utils/musicApiAdapters";
 
 /**
  * 音乐曲目数据结构
@@ -50,7 +52,7 @@ const withoutSignal = (fetchOptions?: RequestInit): RequestInit => {
 export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
     const [audioList, setAudioList] = useState<MusicTrack[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<MusicDataError | null>(null);
     const [adapterStartIndex, setAdapterStartIndex] = useState(0);
     const [activeAdapterIndex, setActiveAdapterIndex] = useState<number | null>(
         null,
@@ -68,7 +70,7 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
 
     // 数据源变化时在渲染期间重置适配器起始索引
     // （React 官方 "adjusting state when props change" 模式，替代 effect 中的同步 setState）
-    const sourceKey = `${server}|${type}|${id}`;
+    const sourceKey = musicSourceKey({ server, type, id });
     const [prevSourceKey, setPrevSourceKey] = useState(sourceKey);
     if (prevSourceKey !== sourceKey) {
         setPrevSourceKey(sourceKey);
@@ -90,6 +92,10 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
             setActiveAdapterIndex(null);
 
             const adapters = getAdapters();
+            // 只有在没有任何数据源发生网络/超时/HTTP 失败时，才敢断言「歌单无效」。
+            // 混合失败（一源故障、另一源称歌单为空）会保守地归为服务问题：
+            // 误报服务问题只会让用户重试，而误报歌单无效会让用户去改一个本来正确的 ID。
+            let sawServiceFailure = false;
 
             for (let i = 0; i < adapters.length; i += 1) {
                 const adapterIndex = (adapterStartIndex + i) % adapters.length;
@@ -101,7 +107,10 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     const response = await fetchWithTimeout(
                         url,
                         withoutSignal(adapter.fetchOptions),
-                        { externalSignal: controller.signal },
+                        {
+                            externalSignal: controller.signal,
+                            timeoutMs: adapter.timeoutMs,
+                        },
                     );
 
                     if (!response.ok)
@@ -121,6 +130,11 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     if (controller.signal.aborted) {
                         return;
                     }
+                    // 上游以 200 表示歌单无效/为空：不是服务故障，继续问下一个源
+                    if (err instanceof EmptyPlaylistError) {
+                        continue;
+                    }
+                    sawServiceFailure = true;
                     // 超时或内部中止：尝试下一个适配器
                     if (
                         err instanceof TimeoutError ||
@@ -133,7 +147,11 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                 }
             }
 
-            setError("All APIs failed");
+            setError(
+                sawServiceFailure
+                    ? MusicDataError.SERVICE_UNAVAILABLE
+                    : MusicDataError.PLAYLIST_UNAVAILABLE,
+            );
             setLoading(false);
         };
 
@@ -168,7 +186,10 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     const response = await fetchWithTimeout(
                         url,
                         withoutSignal(adapter.fetchOptions),
-                        { externalSignal: signal },
+                        {
+                            externalSignal: signal,
+                            timeoutMs: adapter.timeoutMs,
+                        },
                     );
 
                     if (!response.ok) continue;

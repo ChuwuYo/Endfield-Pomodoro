@@ -26,6 +26,8 @@ export const useOnlinePlayer = (
     autoPlay: boolean = false,
     enabled: boolean = true,
     onTrackFix?: (index: number, currentUrl: string) => Promise<string | null>,
+    /** 曲目已可播放时触发，供调用方清空自己的连续失败计数 */
+    onTrackPlayable?: () => void,
 ) => {
     // 音频实例用 ref 持有；Swap 时递增 generation，驱动监听器/加载 effect 重跑
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -112,6 +114,12 @@ export const useOnlinePlayer = (
         onTrackFixRef.current = onTrackFix;
     }, [onTrackFix]);
 
+    const onTrackPlayableRef = useRef(onTrackPlayable);
+
+    useEffect(() => {
+        onTrackPlayableRef.current = onTrackPlayable;
+    }, [onTrackPlayable]);
+
     // 初始化随机索引逻辑
     const initializedRef = useRef(false);
 
@@ -133,6 +141,13 @@ export const useOnlinePlayer = (
             }
         }
     }, [playlist.length, playMode]);
+
+    // 同一歌单来源下切换 API 适配器会换来长度不同的列表，此时 currentIndex 可能越界。
+    // 渲染期收敛到合法范围（React "adjusting state when props change"），
+    // 避免 currentSong 变成 undefined 而让 UI 误报「无信号」。
+    if (playlist.length > 0 && currentIndex > playlist.length - 1) {
+        setCurrentIndex(playlist.length - 1);
+    }
 
     // 使用提取的洗牌逻辑 Hook
     const { getNextRandomIndex, getPrevRandomIndex, peekNextRandomIndex } =
@@ -195,6 +210,7 @@ export const useOnlinePlayer = (
             setIsLoading(false);
             setError(null); // Clear error on success
             consecutiveErrorsRef.current = 0; // 重置连续错误计数
+            onTrackPlayableRef.current?.();
             if (retryTimerRef.current !== null) {
                 clearTimeout(retryTimerRef.current);
                 retryTimerRef.current = null;

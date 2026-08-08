@@ -7,9 +7,10 @@ import React, {
     useState,
 } from "react";
 import type { MusicConfig } from "../config/musicConfig";
+import { TRACK_FIX_FAILURE_LIMIT } from "../constants";
 import { type MusicTrack, useMusicData } from "../hooks/useMusicData";
 import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
-import { Language } from "../types";
+import { Language, MusicDataError } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { applyAnchoredPopoverPlacement } from "../utils/placeAnchoredPopover";
 import {
@@ -71,11 +72,34 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             id: item.id,
             name: item.name,
             artist: item.artist,
-            url: (item.id && urlOverrides[item.id]) || item.url,
+            // 以原始 url 作为覆盖键：它必然存在且唯一，不依赖上游是否返回 id
+            url: urlOverrides[item.url] || item.url,
             cover: item.cover,
             lrc: item.lrc,
         }));
     }, [metingData, urlOverrides]);
+
+    // 有曲目成功播放，说明数据源整体可用：清空计数，
+    // 使阈值只对「连续」失败生效，而不会把相隔很远的偶发失败累加成换源
+    const handleTrackPlayable = useCallback(() => {
+        errorCountRef.current = 0;
+    }, []);
+
+    /** 记录一次单曲回退失败；连续失败足够多次就整单切换数据源 */
+    const registerTrackFixFailure = useCallback((): null => {
+        errorCountRef.current += 1;
+
+        if (errorCountRef.current >= TRACK_FIX_FAILURE_LIMIT) {
+            console.warn(
+                "[MusicPlayer] Playlist playback failed consistently, switching to next API adapter for entire playlist...",
+            );
+            setUrlOverrides({});
+            retryWithNextAdapter();
+            errorCountRef.current = 0;
+        }
+
+        return null;
+    }, [retryWithNextAdapter]);
 
     const handleTrackFix = useCallback(
         async (index: number): Promise<string | null> => {
@@ -86,7 +110,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             trackFixAbortRef.current = controller;
 
             const track = metingData[index];
-            if (!track || !track.id) return null;
+            if (!track) return null;
+
+            // 缺少 id/url 时无法做单曲回退，但这依然是一次播放失败：
+            // 必须计入，否则整单切换数据源的降级路径永远不会触发
+            if (!track.id || !track.url) {
+                return registerTrackFixFailure();
+            }
 
             const newUrl = await fetchTrackUrl(track.id, controller.signal);
 
@@ -96,7 +126,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 errorCountRef.current = 0;
                 setUrlOverrides((prev) => ({
                     ...prev,
-                    [track.id]: newUrl,
+                    [track.url]: newUrl,
                 }));
                 return newUrl;
             }
@@ -105,23 +135,20 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 `[MusicPlayer] Track fallback failed for: ${track.name}`,
             );
 
-            errorCountRef.current += 1;
-
-            if (errorCountRef.current >= 2) {
-                console.warn(
-                    "[MusicPlayer] Playlist playback failed consistently, switching to next API adapter for entire playlist...",
-                );
-                setUrlOverrides({});
-                retryWithNextAdapter();
-                errorCountRef.current = 0;
-            }
-
-            return null;
+            return registerTrackFixFailure();
         },
-        [metingData, fetchTrackUrl, retryWithNextAdapter],
+        [metingData, fetchTrackUrl, registerTrackFixFailure],
     );
 
-    const player = useOnlinePlayer(playlist, false, enabled, handleTrackFix);
+    // 切换适配器会重新拉取歌单，此时界面已切到 CONNECTING；
+    // 一并停掉音频，避免出现「显示正在连接、却还在播放旧数据源」的状态分裂
+    const player = useOnlinePlayer(
+        playlist,
+        false,
+        enabled && !dataLoading,
+        handleTrackFix,
+        handleTrackPlayable,
+    );
 
     const applyPlaylistPlacement = useCallback(() => {
         const popover = popoverRef.current;
@@ -312,11 +339,20 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
 
     if (dataError) {
+        // 歌单不存在/私密与服务故障是两回事，提示不同才能指导用户下一步
+        const isPlaylistProblem =
+            dataError === MusicDataError.PLAYLIST_UNAVAILABLE;
         return (
             <div className="flex flex-col items-center justify-center h-full text-red-500">
-                <i className="ri-error-warning-line icon-ui-xl mb-1"></i>
+                <i
+                    className={`${isPlaylistProblem ? "ri-play-list-line" : "ri-error-warning-line"} icon-ui-xl mb-1`}
+                ></i>
                 <div className="text-ui-xs font-ui-mono">
-                    {t("CONNECTION_LOST")}
+                    {t(
+                        isPlaylistProblem
+                            ? "PLAYLIST_UNAVAILABLE"
+                            : "CONNECTION_LOST",
+                    )}
                 </div>
             </div>
         );
