@@ -26,6 +26,8 @@ export const useOnlinePlayer = (
     autoPlay: boolean = false,
     enabled: boolean = true,
     onTrackFix?: (index: number, currentUrl: string) => Promise<string | null>,
+    /** 曲目已可播放时触发，供调用方清空自己的连续失败计数 */
+    onTrackPlayable?: () => void,
 ) => {
     // 音频实例用 ref 持有；Swap 时递增 generation，驱动监听器/加载 effect 重跑
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -111,6 +113,12 @@ export const useOnlinePlayer = (
     useEffect(() => {
         onTrackFixRef.current = onTrackFix;
     }, [onTrackFix]);
+
+    const onTrackPlayableRef = useRef(onTrackPlayable);
+
+    useEffect(() => {
+        onTrackPlayableRef.current = onTrackPlayable;
+    }, [onTrackPlayable]);
 
     // 初始化随机索引逻辑
     const initializedRef = useRef(false);
@@ -202,6 +210,7 @@ export const useOnlinePlayer = (
             setIsLoading(false);
             setError(null); // Clear error on success
             consecutiveErrorsRef.current = 0; // 重置连续错误计数
+            onTrackPlayableRef.current?.();
             if (retryTimerRef.current !== null) {
                 clearTimeout(retryTimerRef.current);
                 retryTimerRef.current = null;

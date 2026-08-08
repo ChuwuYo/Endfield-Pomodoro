@@ -79,6 +79,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         }));
     }, [metingData, urlOverrides]);
 
+    // 有曲目成功播放，说明数据源整体可用：清空计数，
+    // 使阈值只对「连续」失败生效，而不会把相隔很远的偶发失败累加成换源
+    const handleTrackPlayable = useCallback(() => {
+        errorCountRef.current = 0;
+    }, []);
+
     /** 记录一次单曲回退失败；连续失败足够多次就整单切换数据源 */
     const registerTrackFixFailure = useCallback((): null => {
         errorCountRef.current += 1;
@@ -141,6 +147,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         false,
         enabled && !dataLoading,
         handleTrackFix,
+        handleTrackPlayable,
     );
 
     const applyPlaylistPlacement = useCallback(() => {

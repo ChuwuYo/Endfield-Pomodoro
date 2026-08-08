@@ -31,6 +31,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
 });
 
@@ -84,6 +85,39 @@ describe("useOnlinePlayer playlist shrink", () => {
 
         expect(result.current.currentIndex).toBe(3);
         expect(result.current.currentSong?.name).toBe("other track 3");
+    });
+
+    it("notifies the caller when a track becomes playable", () => {
+        const created: HTMLAudioElement[] = [];
+        const OriginalAudio = window.Audio;
+        vi.stubGlobal(
+            "Audio",
+            class extends OriginalAudio {
+                constructor(src?: string) {
+                    super(src);
+                    created.push(this);
+                }
+            },
+        );
+
+        const onTrackPlayable = vi.fn();
+        renderHook(() =>
+            useOnlinePlayer(
+                makePlaylist(3, "list"),
+                false,
+                true,
+                undefined,
+                onTrackPlayable,
+            ),
+        );
+
+        expect(created.length).toBeGreaterThan(0);
+
+        act(() => {
+            created[0].dispatchEvent(new Event("canplay"));
+        });
+
+        expect(onTrackPlayable).toHaveBeenCalled();
     });
 
     it("still exposes no song for a genuinely empty playlist", () => {

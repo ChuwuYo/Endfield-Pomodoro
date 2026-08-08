@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
     retryWithNextAdapter: vi.fn(),
     fetchTrackUrl: vi.fn<() => Promise<string | null>>(),
     capturedTrackFix: undefined as TrackFix | undefined,
+    capturedTrackPlayable: undefined as (() => void) | undefined,
     capturedEnabled: undefined as boolean | undefined,
 }));
 
@@ -33,8 +34,10 @@ vi.mock("../hooks/useOnlinePlayer", () => ({
         _autoPlay: boolean,
         enabled: boolean,
         onTrackFix?: TrackFix,
+        onTrackPlayable?: () => void,
     ) => {
         mocks.capturedTrackFix = onTrackFix;
+        mocks.capturedTrackPlayable = onTrackPlayable;
         mocks.capturedEnabled = enabled;
         return {
             currentSong: playlist[0],
@@ -67,6 +70,7 @@ const renderPlayer = () =>
 
 beforeEach(() => {
     mocks.capturedTrackFix = undefined;
+    mocks.capturedTrackPlayable = undefined;
     mocks.capturedEnabled = undefined;
     mocks.loading = false;
     mocks.retryWithNextAdapter.mockClear();
@@ -123,6 +127,32 @@ describe("MusicPlayer adapter downgrade path", () => {
 
         expect(mocks.fetchTrackUrl).toHaveBeenCalled();
         expect(mocks.retryWithNextAdapter).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not carry a stale failure across a track that played fine", async () => {
+        mocks.audioList = [
+            {
+                id: "",
+                name: "No id track",
+                artist: "Artist",
+                url: "https://example.test/opaque.mp3",
+                cover: "",
+                lrc: "",
+            },
+        ];
+
+        renderPlayer();
+
+        // 偶发的单曲失败：某首歌下架、某个链接坏掉
+        await mocks.capturedTrackFix?.(0, "https://example.test/opaque.mp3");
+
+        // 之后有曲目正常播放，说明数据源本身是好的
+        mocks.capturedTrackPlayable?.();
+
+        // 很久以后又有一首歌坏了——这不该被算作「连续」失败而整单换源
+        await mocks.capturedTrackFix?.(0, "https://example.test/opaque.mp3");
+
+        expect(mocks.retryWithNextAdapter).not.toHaveBeenCalled();
     });
 
     it("disables the audio player while a playlist refetch is in flight", () => {
