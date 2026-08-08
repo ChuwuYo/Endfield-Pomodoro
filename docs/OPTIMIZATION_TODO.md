@@ -70,7 +70,7 @@
 - [ ] **#32 keyframes 收敛** —— 重复 `scan` 及散落 `<style>` 统一迁入 index.css。*S*
 - [ ] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`。*S*
 - [ ] **#39 统计语义确认** —— sessionStorage vs localStorage 的"累计时长"语义，确认后写入 README/注释。*S*
-- [ ] **#40 CHANGELOG.md** —— 建立变更记录（可从 git tag 历史回填）。*S*
+
 
 ## 专项（全部阶段之后）：统一消息系统
 

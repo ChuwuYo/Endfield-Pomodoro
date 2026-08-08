@@ -1,5 +1,99 @@
 import { describe, expect, it } from "vitest";
-import { metingAdapter, metingFallbackAdapter } from "./musicApiAdapters";
+import {
+    EmptyPlaylistError,
+    getAdapters,
+    metingAdapter,
+    metingFallbackAdapter,
+} from "./musicApiAdapters";
+
+/**
+ * 以下载荷取自两个上游的真实响应（2026-08 实测）：
+ * 两者都不返回 id/song_id，歌曲 id 只存在于 url 的查询参数中。
+ */
+const injahowPlaylistItem = {
+    name: "ヨヅリナ - STUDY WITH MIKU ver. -",
+    artist: "STUDY WITH MIKU",
+    url: "https://api.injahow.cn/meting/?server=netease&type=url&id=3322640395",
+    pic: "https://api.injahow.cn/meting/?server=netease&type=pic&id=109951172354364941",
+    lrc: "https://api.injahow.cn/meting/?server=netease&type=lrc&id=3322640395",
+};
+
+const imetoPlaylistItem = {
+    title: "三日月ステップ - STUDY WITH MIKU ver. -",
+    author: "STUDY WITH MIKU",
+    url: "https://api.i-meto.com/meting/api?server=netease&type=url&id=3406945542&auth=23759078c5684352b4edf721eeacb436aca1a20e",
+    pic: "https://api.i-meto.com/meting/api?server=netease&type=pic&id=109951173564186500&auth=25a3dd358d47cf5d6a2f8421322022fb511ba364",
+    lrc: "https://api.i-meto.com/meting/api?server=netease&type=lrc&id=3406945542&auth=97371bf0cabce3d2495f77cbb71c8210f9aee568",
+};
+
+describe("track id recovery from real upstream payloads", () => {
+    it("recovers the song id from the injahow url when no id field is present", () => {
+        const [track] = metingFallbackAdapter.parseResponse([
+            injahowPlaylistItem,
+        ]);
+
+        expect(track.id).toBe("3322640395");
+        expect(track.name).toBe("ヨヅリナ - STUDY WITH MIKU ver. -");
+    });
+
+    it("recovers the song id from the i-meto signed url", () => {
+        const [track] = metingAdapter.parseResponse([imetoPlaylistItem]);
+
+        expect(track.id).toBe("3406945542");
+        expect(track.name).toBe("三日月ステップ - STUDY WITH MIKU ver. -");
+    });
+
+    it("prefers an explicit id field over the url derived one", () => {
+        const [track] = metingAdapter.parseResponse([
+            { ...injahowPlaylistItem, id: "explicit" },
+        ]);
+
+        expect(track.id).toBe("explicit");
+    });
+
+    it("yields an empty id rather than throwing on an unparsable url", () => {
+        const [track] = metingAdapter.parseResponse([
+            { name: "No url", artist: "A", url: "not-a-url" },
+        ]);
+
+        expect(track.id).toBe("");
+    });
+});
+
+describe("empty playlist is distinguishable from service failure", () => {
+    it("throws EmptyPlaylistError for the upstream 200 + error object", () => {
+        expect(() =>
+            metingFallbackAdapter.parseResponse({
+                error: "unknown playlist id",
+            }),
+        ).toThrow(EmptyPlaylistError);
+    });
+
+    it("throws EmptyPlaylistError for an empty array", () => {
+        expect(() => metingAdapter.parseResponse([])).toThrow(
+            EmptyPlaylistError,
+        );
+    });
+});
+
+describe("adapter priority", () => {
+    it("queries the documented primary API before the fallback", () => {
+        const [primary, fallback] = getAdapters();
+        const primaryUrl = primary.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "1",
+        });
+        const fallbackUrl = fallback.buildUrl({
+            server: "netease",
+            type: "playlist",
+            id: "1",
+        });
+
+        expect(new URL(primaryUrl).hostname).toBe("api.i-meto.com");
+        expect(new URL(fallbackUrl).hostname).toBe("api.injahow.cn");
+    });
+});
 
 describe("metingAdapter.parseResponse", () => {
     it("maps primary fields", () => {

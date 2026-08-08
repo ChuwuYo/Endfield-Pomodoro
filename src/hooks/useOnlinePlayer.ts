@@ -134,6 +134,13 @@ export const useOnlinePlayer = (
         }
     }, [playlist.length, playMode]);
 
+    // 同一歌单来源下切换 API 适配器会换来长度不同的列表，此时 currentIndex 可能越界。
+    // 渲染期收敛到合法范围（React "adjusting state when props change"），
+    // 避免 currentSong 变成 undefined 而让 UI 误报「无信号」。
+    if (playlist.length > 0 && currentIndex > playlist.length - 1) {
+        setCurrentIndex(playlist.length - 1);
+    }
+
     // 使用提取的洗牌逻辑 Hook
     const { getNextRandomIndex, getPrevRandomIndex, peekNextRandomIndex } =
         useShuffle(playlist.length, playMode, currentIndex);
