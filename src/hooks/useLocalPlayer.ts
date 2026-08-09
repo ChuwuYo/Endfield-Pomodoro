@@ -1,4 +1,3 @@
-import { parseBlob } from "music-metadata";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_MUSIC_VOLUME } from "../config/musicConfig";
 import {
@@ -321,10 +320,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             return updated;
         });
 
-        // 定义单个文件解析函数
+        // 定义单个文件解析函数（动态导入 music-metadata，避免进入首屏主包）
         const parseFile = async (file: File) => {
             const trackId = `${file.name}-${file.size}-${file.lastModified}`;
             try {
+                const { parseBlob } = await import("music-metadata");
                 const metadata = await parseBlob(file);
                 const title =
                     metadata.common.title || file.name.replace(/\.[^/.]+$/, "");
