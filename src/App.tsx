@@ -1,11 +1,17 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, {
+    type MutableRefObject,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react";
 import pkg from "../package.json";
 import Dashboard from "./components/Dashboard";
 import FooterStats from "./components/FooterStats";
 import HeaderBar from "./components/HeaderBar";
 import { PWAPrompt } from "./components/PWAPrompt";
 import SettingsPanel from "./components/SettingsPanel";
-import { SnackbarProvider } from "./components/snackbar";
+import { SnackbarProvider, useSnackbar } from "./components/snackbar";
 import { BackgroundLayer, ForegroundLayer } from "./components/TerminalUI";
 import { MikuDecorations } from "./components/themes";
 import { defaultMusicConfig } from "./config/musicConfig";
@@ -25,6 +31,44 @@ import {
     languageToHtmlLang,
 } from "./utils/languageLocale";
 import { parseStoredSettings } from "./utils/settings";
+
+/** 设置持久化：成功时兑现「应用配置」success；失败时 warning（在 SnackbarProvider 内） */
+function SettingsPersistence({
+    settings,
+    pendingMusicConfigFeedbackRef,
+}: {
+    settings: Settings;
+    pendingMusicConfigFeedbackRef: MutableRefObject<boolean>;
+}) {
+    const snackbar = useSnackbar();
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                STORAGE_KEYS.SETTINGS,
+                JSON.stringify(settings),
+            );
+            if (pendingMusicConfigFeedbackRef.current) {
+                pendingMusicConfigFeedbackRef.current = false;
+                snackbar.show({
+                    id: "music-config-applied",
+                    messageKey: "MUSIC_CONFIG_APPLIED",
+                    tone: "success",
+                });
+            }
+        } catch (e) {
+            console.error("Failed to persist settings", e);
+            pendingMusicConfigFeedbackRef.current = false;
+            snackbar.show({
+                id: "settings-persist-failed",
+                messageKey: "SETTINGS_PERSIST_FAILED",
+                tone: "warning",
+            });
+        }
+    }, [settings, snackbar, pendingMusicConfigFeedbackRef]);
+
+    return null;
+}
 
 const DEFAULT_SETTINGS: Settings = {
     workDuration: 25,
@@ -87,8 +131,11 @@ const App: React.FC = () => {
         }));
     };
 
-    // 应用音乐配置
+    const pendingMusicConfigFeedbackRef = useRef(false);
+
+    // 应用音乐配置；成功/失败反馈由 SettingsPersistence 在写入后发出
     const applyMusicConfig = () => {
+        pendingMusicConfigFeedbackRef.current = true;
         setSettings((prev) => ({
             ...prev,
             musicConfig: tempMusicConfig,
@@ -136,18 +183,6 @@ const App: React.FC = () => {
         };
     }, [isTimerRunning, remainingSeconds, remainingMode, t]);
 
-    // 持久化设置
-    useEffect(() => {
-        try {
-            localStorage.setItem(
-                STORAGE_KEYS.SETTINGS,
-                JSON.stringify(settings),
-            );
-        } catch (e) {
-            console.error("Failed to persist settings", e);
-        }
-    }, [settings]);
-
     // 应用主题
     useLayoutEffect(() => {
         const root = document.documentElement;
@@ -177,6 +212,10 @@ const App: React.FC = () => {
 
     return (
         <SnackbarProvider language={settings.language}>
+            <SettingsPersistence
+                settings={settings}
+                pendingMusicConfigFeedbackRef={pendingMusicConfigFeedbackRef}
+            />
             <div className="h-[100dvh] bg-theme-base text-theme-text font-ui-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
                 {/* 背景视觉效果 (Z-0) */}
                 <BackgroundLayer theme={settings.theme} />

@@ -81,7 +81,9 @@ export function SnackbarProvider({
             const id = options.id ?? createId();
             const durationMs =
                 options.durationMs === undefined
-                    ? SNACKBAR_DEFAULT_DURATION_MS
+                    ? options.action
+                        ? null
+                        : SNACKBAR_DEFAULT_DURATION_MS
                     : options.durationMs;
 
             const record: SnackbarRecord = {

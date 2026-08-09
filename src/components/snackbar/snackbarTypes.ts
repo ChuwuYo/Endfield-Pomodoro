@@ -16,8 +16,8 @@ export type SnackbarShowOptions = {
     action?: SnackbarAction;
     /**
      * 自动关闭时长。
-     * - 省略：使用 SNACKBAR_DEFAULT_DURATION_MS
-     * - null：持久，直到用户关闭或 dismiss
+     * - 省略：无 action → SNACKBAR_DEFAULT_DURATION_MS；有 action → 常驻（null）
+     * - null：持久，直到用户关闭、点 action 或 dismiss
      */
     durationMs?: number | null;
     onDismiss?: () => void;
