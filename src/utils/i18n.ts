@@ -3,7 +3,7 @@ import { Language } from "../types";
 export const translations = {
     [Language.EN]: {
         // App
-        APP_TITLE: "Endfield Protocol",
+        APP_TITLE: "Endfield Pomodoro",
         DASHBOARD: "DASHBOARD",
         SYSTEM_CONFIG: "SYSTEM CONFIG",
         SYSTEM_TIME: "SYS.TIME",
@@ -149,7 +149,7 @@ export const translations = {
     },
     [Language.CN]: {
         // App
-        APP_TITLE: "末端协议-番茄钟",
+        APP_TITLE: "末端番茄钟",
         DASHBOARD: "总控台",
         SYSTEM_CONFIG: "系统设置",
         SYSTEM_TIME: "系统时间",

@@ -20,7 +20,7 @@ export default defineConfig({
                 "apple-touch-icon-180x180.png",
             ],
             manifest: {
-                name: "Endfield Protocol - Pomodoro Terminal",
+                name: "Endfield Pomodoro",
                 short_name: "Endfield",
                 description: "融合 Cyber UI 和《终末地》风格的沉浸式番茄钟应用",
                 theme_color: "#fff7d0",
