@@ -8,10 +8,10 @@ import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
 import MusicPlayer from "./MusicPlayer";
 import PlayerInterface from "./PlayerInterface";
-import { useToast } from "./toast";
+import { useSnackbar } from "./snackbar";
 import { Panel } from "./ui";
 
-const NETWORK_RESTORED_TOAST_ID = "network-restored";
+const NETWORK_RESTORED_SNACKBAR_ID = "network-restored";
 
 const AudioPlayer: React.FC<{
     language: Language;
@@ -19,7 +19,7 @@ const AudioPlayer: React.FC<{
     isOnline: boolean;
 }> = ({ language, musicConfig, isOnline }) => {
     const t = useTranslation(language);
-    const toast = useToast();
+    const snackbar = useSnackbar();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
 
@@ -54,8 +54,8 @@ const AudioPlayer: React.FC<{
             !prevOnlineRef.current &&
             audioSource === "local"
         ) {
-            toast.show({
-                id: NETWORK_RESTORED_TOAST_ID,
+            snackbar.show({
+                id: NETWORK_RESTORED_SNACKBAR_ID,
                 messageKey: "NETWORK_RESTORED",
                 tone: "info",
                 action: {
@@ -66,7 +66,7 @@ const AudioPlayer: React.FC<{
         }
 
         prevOnlineRef.current = isOnline;
-    }, [isOnline, audioSource, toast]);
+    }, [isOnline, audioSource, snackbar]);
 
     const [showPlaylist, setShowPlaylist] = useState(false);
     const playlistModalRef = useRef<HTMLDivElement>(null);

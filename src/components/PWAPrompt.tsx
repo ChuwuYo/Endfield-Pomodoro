@@ -4,16 +4,16 @@ import {
     HOURLY_CHECK_INTERVAL_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
-import { useToast } from "./toast";
+import { useSnackbar } from "./snackbar";
 
-const PWA_UPDATED_TOAST_ID = "pwa-updated";
+const PWA_UPDATED_SNACKBAR_ID = "pwa-updated";
 
 /**
  * SW 注册 / 轮询 / 可见性检查所有权在此。
  *
  * 本项目 `registerType: "autoUpdate"`：vite-plugin-pwa 会 skipWaiting + clientsClaim。
  * 官方客户端在 `activated(isUpdate)` 时默认 `location.reload()`；
- * 传入 `onNeedReload` 可接管该时机，改为应用内 Toast，避免与自写
+ * 传入 `onNeedReload` 可接管该时机，改为应用内 Snackbar，避免与自写
  * `controllerchange` 监听打架，也避免「已自动刷新却还提示手动刷新」的假提示。
  *
  * @see https://vite-pwa-org.netlify.app/guide/auto-update.html
@@ -24,7 +24,7 @@ export function PWAPrompt() {
     const intervalRef = useRef<number | null>(null);
     const lastVisibilityCheckRef = useRef<number>(0);
     const [showUpdated, setShowUpdated] = useState(false);
-    const toast = useToast();
+    const snackbar = useSnackbar();
 
     useRegisterSW({
         onNeedReload() {
@@ -83,12 +83,12 @@ export function PWAPrompt() {
 
     useEffect(() => {
         if (!showUpdated) {
-            toast.dismiss(PWA_UPDATED_TOAST_ID);
+            snackbar.dismiss(PWA_UPDATED_SNACKBAR_ID);
             return;
         }
 
-        toast.show({
-            id: PWA_UPDATED_TOAST_ID,
+        snackbar.show({
+            id: PWA_UPDATED_SNACKBAR_ID,
             messageKey: "pwa_updated",
             tone: "success",
             durationMs: null,
@@ -100,7 +100,7 @@ export function PWAPrompt() {
             },
             onDismiss: () => setShowUpdated(false),
         });
-    }, [showUpdated, toast]);
+    }, [showUpdated, snackbar]);
 
     return null;
 }

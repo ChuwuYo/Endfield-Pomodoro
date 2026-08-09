@@ -345,8 +345,8 @@ body {
   }
 }
 
-/* Toast 入场：替代未配置的 tailwindcss-animate（animate-in / slide-in-from-bottom-*） */
-@keyframes toast-in {
+/* Snackbar 入场：替代未配置的 tailwindcss-animate（animate-in / slide-in-from-bottom-*） */
+@keyframes snackbar-in {
   from {
     opacity: 0;
     transform: translateY(0.5rem);
@@ -358,8 +358,8 @@ body {
   }
 }
 
-.animate-toast-in {
-  animation: toast-in 300ms ease-out both;
+.animate-snackbar-in {
+  animation: snackbar-in 300ms ease-out both;
 }
 
 /* 主题装饰动画（原散落在组件内联 <style>） */

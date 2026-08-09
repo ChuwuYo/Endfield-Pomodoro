@@ -8,26 +8,33 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
-    TOAST_DEFAULT_DURATION_MS,
-    TOAST_MAX_VISIBLE,
-} from "../../config/toastConfig";
+    SNACKBAR_DEFAULT_DURATION_MS,
+    SNACKBAR_MAX_VISIBLE,
+} from "../../config/snackbarConfig";
 import { Language } from "../../types";
 import { createId } from "../../utils/createId";
 import { useTranslation } from "../../utils/i18n";
-import { ToastItem } from "./ToastItem";
-import { upsertToast } from "./toastQueue";
-import type { ToastApi, ToastRecord, ToastShowOptions } from "./toastTypes";
-import { ToastContext } from "./useToast";
+import { SnackbarItem } from "./SnackbarItem";
+import { upsertSnackbar } from "./snackbarQueue";
+import type {
+    SnackbarApi,
+    SnackbarRecord,
+    SnackbarShowOptions,
+} from "./snackbarTypes";
+import { SnackbarContext } from "./useSnackbar";
 
-type ToastProviderProps = {
+type SnackbarProviderProps = {
     language: Language;
     children: ReactNode;
 };
 
-export function ToastProvider({ language, children }: ToastProviderProps) {
-    const [toasts, setToasts] = useState<ToastRecord[]>([]);
+export function SnackbarProvider({
+    language,
+    children,
+}: SnackbarProviderProps) {
+    const [items, setItems] = useState<SnackbarRecord[]>([]);
     /** 队列权威快照：连续 show/dismiss 在重渲染前也保持正确衔接 */
-    const toastsRef = useRef<ToastRecord[]>([]);
+    const itemsRef = useRef<SnackbarRecord[]>([]);
     const timersRef = useRef<Map<string, number>>(new Map());
     const onDismissRef = useRef<Map<string, (() => void) | undefined>>(
         new Map(),
@@ -43,7 +50,7 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
     }, []);
 
     const releaseDropped = useCallback(
-        (dropped: ToastRecord[]) => {
+        (dropped: SnackbarRecord[]) => {
             for (const old of dropped) {
                 clearTimer(old.id);
                 const onDismiss = onDismissRef.current.get(old.id);
@@ -61,23 +68,25 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
             clearTimer(id);
             const onDismiss = onDismissRef.current.get(id);
             onDismissRef.current.delete(id);
-            const next = toastsRef.current.filter((toast) => toast.id !== id);
-            toastsRef.current = next;
-            setToasts(next);
+            const next = itemsRef.current.filter((item) => item.id !== id);
+            itemsRef.current = next;
+            setItems(next);
             onDismiss?.();
         },
         [clearTimer],
     );
 
     const show = useCallback(
-        (options: ToastShowOptions) => {
+        (options: SnackbarShowOptions) => {
             const id = options.id ?? createId();
             const durationMs =
                 options.durationMs === undefined
-                    ? TOAST_DEFAULT_DURATION_MS
+                    ? options.action
+                        ? null
+                        : SNACKBAR_DEFAULT_DURATION_MS
                     : options.durationMs;
 
-            const record: ToastRecord = {
+            const record: SnackbarRecord = {
                 id,
                 messageKey: options.messageKey,
                 tone: options.tone ?? "info",
@@ -88,13 +97,13 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
 
             onDismissRef.current.set(id, options.onDismiss);
 
-            const prev = toastsRef.current;
-            const next = upsertToast(prev, record, TOAST_MAX_VISIBLE);
+            const prev = itemsRef.current;
+            const next = upsertSnackbar(prev, record, SNACKBAR_MAX_VISIBLE);
             const dropped = prev.filter(
-                (old) => !next.some((toast) => toast.id === old.id),
+                (old) => !next.some((item) => item.id === old.id),
             );
-            toastsRef.current = next;
-            setToasts(next);
+            itemsRef.current = next;
+            setItems(next);
             releaseDropped(dropped);
 
             clearTimer(id);
@@ -122,43 +131,46 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
         };
     }, []);
 
-    const api = useMemo<ToastApi>(() => ({ show, dismiss }), [show, dismiss]);
+    const api = useMemo<SnackbarApi>(
+        () => ({ show, dismiss }),
+        [show, dismiss],
+    );
 
     return (
-        <ToastContext.Provider value={api}>
+        <SnackbarContext.Provider value={api}>
             {children}
             {createPortal(
                 <div
                     className="fixed bottom-4 right-4 z-[10000] flex flex-col gap-2 max-w-xs pointer-events-none"
-                    data-toast-viewport
+                    data-snackbar-viewport
                 >
-                    {toasts.map((toast) => (
-                        <div key={toast.id} className="pointer-events-auto">
-                            <ToastItem
-                                message={t(toast.messageKey)}
-                                tone={toast.tone}
-                                action={toast.action}
+                    {items.map((item) => (
+                        <div key={item.id} className="pointer-events-auto">
+                            <SnackbarItem
+                                message={t(item.messageKey)}
+                                tone={item.tone}
+                                action={item.action}
                                 actionLabel={
-                                    toast.action
-                                        ? t(toast.action.textKey)
+                                    item.action
+                                        ? t(item.action.textKey)
                                         : undefined
                                 }
                                 dismissLabel={t("CLOSE")}
                                 onAction={
-                                    toast.action
+                                    item.action
                                         ? () => {
-                                              toast.action?.onClick();
-                                              dismiss(toast.id);
+                                              item.action?.onClick();
+                                              dismiss(item.id);
                                           }
                                         : undefined
                                 }
-                                onDismiss={() => dismiss(toast.id)}
+                                onDismiss={() => dismiss(item.id)}
                             />
                         </div>
                     ))}
                 </div>,
                 document.body,
             )}
-        </ToastContext.Provider>
+        </SnackbarContext.Provider>
     );
 }
