@@ -47,6 +47,10 @@ type UseSessionStatsResult = {
  * 3. 数据持久化（sessionStorage）
  * 4. 计时器状态同步
  *
+ * 存储语义（与 README「专注统计仅在当前标签页会话生效」一致）：
+ * - `SESSIONS` / `TOTAL_SECONDS` 使用 sessionStorage，关标签页即清空；
+ * - 不是跨天/跨设备累计；设置与任务仍走 localStorage。
+ *
  * @param workDuration 单个工作会话的设定时长（分钟）
  */
 export const useSessionStats = (

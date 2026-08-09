@@ -66,10 +66,10 @@
 - [ ] **#16 music-metadata 动态导入** —— `addFiles` 内 `await import("music-metadata")`，移出主包。*S*
 - [ ] **#31 Google Fonts 加载优化** —— CSS `@import` → index.html `preconnect` + `<link>`，或自托管字体。*S*
 - [ ] **#37 bundle 可视化 + 体积预算** —— 接入 rollup-plugin-visualizer，CI 加体积门禁。*S*
-- [ ] **#35 标题模式标签走 i18n** —— 新增 `MODE_BREAK_SHORT` 键替代内联三元。*S*
+- [x] **#35 标题模式标签走 i18n** —— 新增 `MODE_BREAK_SHORT` 键替代内联三元。*S*
 - [ ] **#32 keyframes 收敛** —— 重复 `scan` 及散落 `<style>` 统一迁入 index.css。*S*
-- [ ] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`。*S*
-- [ ] **#39 统计语义确认** —— sessionStorage vs localStorage 的"累计时长"语义，确认后写入 README/注释。*S*
+- [x] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`。*S*
+- [x] **#39 统计语义确认** —— sessionStorage vs localStorage 的"累计时长"语义，确认后写入 README/注释。*S*
 
 
 ## 专项（全部阶段之后）：统一消息系统

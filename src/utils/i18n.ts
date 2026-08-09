@@ -66,6 +66,8 @@ export const translations = {
         MODE_WORK: "OPERATIONAL",
         MODE_SHORT: "COOLDOWN",
         MODE_LONG: "HIBERNATION",
+        /** 隐藏标签页标题里短休/长休共用的短标签 */
+        MODE_BREAK_SHORT: "Break",
         STANDBY: "STANDBY",
         PAUSED_STATUS: "PAUSED",
         NOTIFICATION_WORK_COMPLETE_TITLE: "WORK CYCLE COMPLETE",
@@ -208,6 +210,8 @@ export const translations = {
         MODE_WORK: "作业中",
         MODE_SHORT: "冷却模式",
         MODE_LONG: "深度休眠",
+        /** 隐藏标签页标题里短休/长休共用的短标签 */
+        MODE_BREAK_SHORT: "休息",
         STANDBY: "待机中",
         PAUSED_STATUS: "已暂停",
         NOTIFICATION_WORK_COMPLETE_TITLE: "作业周期结束",
