@@ -415,7 +415,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </Button>
                             <Button
                                 variant="primary"
-                                onClick={onApplyMusicConfig}
+                                onClick={() => {
+                                    onApplyMusicConfig();
+                                    toast.show({
+                                        id: "music-config-applied",
+                                        messageKey: "MUSIC_CONFIG_APPLIED",
+                                        tone: "success",
+                                    });
+                                }}
                                 className="px-6 py-1.5 text-ui-xs font-ui-mono tracking-ui-wider"
                             >
                                 {t("APPLY_SETTINGS")}
