@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { Button } from "./ui";
@@ -6,16 +6,53 @@ import { Button } from "./ui";
 type HeaderBarProps = {
     currentView: View;
     onViewChange: (view: View) => void;
-    now: Date;
     isOnline: boolean;
     version: string;
     t: ReturnType<typeof useTranslation>;
 };
 
+/** Wall clock isolated so App (and siblings) do not re-render every second.
+ *  Interval runs only at Tailwind `md`+ — matches the previous `hidden md:flex` visibility. */
+const MD_UP_QUERY = "(min-width: 768px)";
+
+const HeaderClock: React.FC = () => {
+    const [now, setNow] = useState(() => new Date());
+    const [isMdUp, setIsMdUp] = useState(
+        () => window.matchMedia(MD_UP_QUERY).matches,
+    );
+
+    useEffect(() => {
+        const media = window.matchMedia(MD_UP_QUERY);
+        const onChange = () => {
+            const matches = media.matches;
+            setIsMdUp(matches);
+            if (matches) setNow(new Date());
+        };
+        media.addEventListener("change", onChange);
+        return () => media.removeEventListener("change", onChange);
+    }, []);
+
+    useEffect(() => {
+        if (!isMdUp) return;
+        const timer = window.setInterval(() => setNow(new Date()), 1000);
+        return () => window.clearInterval(timer);
+    }, [isMdUp]);
+
+    if (!isMdUp) return null;
+
+    return (
+        <div className="flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
+            <span className="text-theme-primary text-ui-base leading-ui-none tracking-ui-widest">
+                {now.toLocaleTimeString("en-US", { hour12: false })}
+            </span>
+            <span className="opacity-70">{now.toLocaleDateString()}</span>
+        </div>
+    );
+};
+
 const HeaderBar: React.FC<HeaderBarProps> = ({
     currentView,
     onViewChange,
-    now,
     isOnline,
     version,
     t,
@@ -119,14 +156,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                         </Button>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
-                        <span className="text-theme-primary text-ui-base leading-ui-none tracking-ui-widest">
-                            {now.toLocaleTimeString("en-US", { hour12: false })}
-                        </span>
-                        <span className="opacity-70">
-                            {now.toLocaleDateString()}
-                        </span>
-                    </div>
+                    <HeaderClock />
                 </div>
             </div>
         </header>

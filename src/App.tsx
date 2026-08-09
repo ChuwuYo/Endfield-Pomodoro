@@ -68,7 +68,6 @@ const App: React.FC = () => {
     } = useSessionStats(settings.workDuration);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
-    const [now, setNow] = useState(new Date());
     const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     // Footer ref 和高度 - 用于 footer 元素和 Miku 装饰组件
@@ -163,8 +162,6 @@ const App: React.FC = () => {
     }, [settings.language]);
 
     useEffect(() => {
-        const timer = setInterval(() => setNow(new Date()), 1000);
-
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
 
@@ -172,7 +169,6 @@ const App: React.FC = () => {
         window.addEventListener("offline", handleOffline);
 
         return () => {
-            clearInterval(timer);
             window.removeEventListener("online", handleOnline);
             window.removeEventListener("offline", handleOffline);
         };
@@ -195,7 +191,6 @@ const App: React.FC = () => {
             <HeaderBar
                 currentView={currentView}
                 onViewChange={setCurrentView}
-                now={now}
                 isOnline={isOnline}
                 version={pkg.version}
                 t={t}

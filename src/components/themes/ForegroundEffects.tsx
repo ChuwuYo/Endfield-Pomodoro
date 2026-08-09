@@ -108,7 +108,6 @@ export const TacticalForeground: React.FC = () => {
 export const AbyssalForeground: React.FC = () => (
     <div className="fixed inset-0 pointer-events-none z-50">
         <div className="absolute top-0 left-0 w-full h-[5px] bg-theme-primary/20 blur-sm animate-[scan_3s_ease-in-out_infinite]"></div>
-        <style>{`@keyframes scan { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
     </div>
 );
 
@@ -219,8 +218,6 @@ export const AzureForeground: React.FC = () => {
                 <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 -left-4"></div>
                 <div className="w-4 h-[1px] bg-theme-primary/30 absolute top-0 left-0"></div>
             </div>
-            {/* 扫描线 keyframes：同 Abyssal，top 布局动画改为合成器 transform */}
-            <style>{`@keyframes scan { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
         </div>
     );
 };

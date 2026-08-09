@@ -345,6 +345,102 @@ body {
   }
 }
 
+/* 主题装饰动画（原散落在组件内联 <style>） */
+@keyframes scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes neon-grid-scroll {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(40px);
+  }
+}
+
+@keyframes rain {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes equalizer {
+  0% {
+    transform: scaleY(0.16);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 0.8;
+  }
+}
+
+.animate-equalizer {
+  height: 60%;
+  transform-origin: bottom center;
+  animation: equalizer 1s infinite ease-in-out alternate;
+  animation-delay: calc(var(--bar-index) * -0.12s);
+}
+
+.synthwave-sun {
+  background: linear-gradient(180deg, #ffe53b 0%, #ff9800 45%, #ff5722 75%, #e91e63 100%);
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%, black 50%,
+    transparent 50%, transparent 53%,
+    black 53%, black 60%,
+    transparent 60%, transparent 64%,
+    black 64%, black 70%,
+    transparent 70%, transparent 75%,
+    black 75%, black 80%,
+    transparent 80%, transparent 86%,
+    black 86%, black 90%,
+    transparent 90%, transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%, black 50%,
+    transparent 50%, transparent 53%,
+    black 53%, black 60%,
+    transparent 60%, transparent 64%,
+    black 64%, black 70%,
+    transparent 70%, transparent 75%,
+    black 75%, black 80%,
+    transparent 80%, transparent 86%,
+    black 86%, black 90%,
+    transparent 90%, transparent 100%
+  );
+}
+
 /* 流光效果 */
 .glow-conic-secondary {
   background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--color-secondary) 180deg, transparent 300deg);
