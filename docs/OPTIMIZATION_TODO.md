@@ -1,8 +1,8 @@
 # 优化 TODO（推荐执行顺序）
 
-> 来源：`docs/QUALITY_ASSESSMENT.md`（编号对应评估报告"待优化事项总表"第 # 列）
+> 来源：`docs/QUALITY_ASSESSMENT.md`（编号对应评估报告「待优化事项总表」第 # 列）
 > 排序原则：**先修真实 Bug → 再建安全网（测试+CI）→ 然后低成本清理 → 再做有测试兜底的重构 → 最后打磨**。
-> 前置项阻塞后置项：测试基建（阶段 1）必须先于重构（阶段 5）完成；统一消息系统（#11）排到全部阶段之后，见文末专项。
+> 前置项阻塞后置项：测试基建（阶段 1）必须先于重构（阶段 5）完成；通知通道治理（#11）排到阶段 0–6 之后，见文末专项与 `docs/TODO.md`。
 
 ---
 
@@ -18,7 +18,7 @@
   - [x] `asyncPool`（并发上限、结果保序、异常传播）
   - [x] `musicApiAdapters.parseResponse`（字段回退、空数组抛错）
   - [x] `SettingsPanel.parseDurationInput`、设置反序列化校验（与 #10 联动）
-  - [x] `Pomodoro` 状态机（完成流转纯函数 `advancePomodoroState`；重置/跳过组件级留待后续）
+  - [x] `Pomodoro` 状态机（完成流转纯函数 `advancePomodoroState`；重置语义后续由 #21 收敛）
   - [x] 将 `pnpm test` 挂入 CI。*L*
 
 ## 阶段 2：低成本清理（快速胜利，不改行为）
@@ -65,22 +65,32 @@
 - [x] **#15 App 重渲染隔离** —— 时钟状态下沉到 HeaderBar 内部独立 `HeaderClock`（`useTranslation` 的 `useCallback` 稳定化交由 React Compiler，不额外手写）。*S*
 - [x] **#16 music-metadata 动态导入** —— `addFiles` 内 `await import("music-metadata")`，移出主包。*S*
 - [x] **#31 Google Fonts 加载优化** —— CSS `@import` → index.html `preconnect` + `<link>`，或自托管字体。*S*
-- [ ] **#37 bundle 可视化 + 体积预算** —— 接入 rollup-plugin-visualizer，CI 加体积门禁。*S*
+- [ ] **#37 bundle 可视化 + 体积预算** —— ~~接入 rollup-plugin-visualizer，CI 加体积门禁~~ **不做**：对当前体量与发布节奏收益有限；主包已通过 #16 明显下降。若以后依赖膨胀成为真实痛点再单独立项。*S*
 - [x] **#35 标题模式标签走 i18n** —— 新增 `MODE_BREAK_SHORT` 键替代内联三元。*S*
 - [x] **#32 keyframes 收敛** —— 重复 `scan` 及散落 `<style>` 统一迁入 index.css。*S*
-- [x] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`。*S*
-- [x] **#39 统计语义确认** —— sessionStorage vs localStorage 的"累计时长"语义，确认后写入 README/注释。*S*
+- [x] **#28 后半 任务 id** —— `Date.now()` → `crypto.randomUUID()`（非安全上下文经 `createId` 回退）。*S*
+- [x] **#39 统计语义确认** —— sessionStorage vs localStorage 的「累计时长」语义，确认后写入 README/注释。*S*
+- [ ] **#40 CHANGELOG.md** —— ~~建立变更记录（可从 git tag 历史回填）~~ **不做**：版本叙事以 git history / GitHub Releases 为准即可；单独维护 CHANGELOG 对当前发布节奏成本高于收益。若开始做面向用户的版本说明再单独立项。*S*
 
+---
 
-## 专项（全部阶段之后）：统一消息系统
+## 专项（阶段 0–6 之后）：通知与状态通道
 
-- [ ] **#11 落地统一消息系统** —— 按 `docs/TODO.md` 既定计划执行（替换 alert/MessageDisplay/PWAPrompt 提示）。排在阶段 0–6 全部完成之后再做；单独开 PR，不与其它重构混提。*M*
+- [ ] **#11 通知与状态通道治理** —— **不要**按旧「大一统 MessageSystem」草案落地。按 `docs/TODO.md` 现行架构：只统一**全局 Toast**（消灭 `alert`、收编 AudioPlayer 网络恢复提示）；MusicPlayer 加载/错误保持**面板内联状态**；PWA 更新逻辑仍属 `PWAPrompt`（可复用 Toast 视觉）；OS `Notification` 与 Error Boundary **分立**。单独开 PR。*M*
 
 ---
 
 ### 完成判定（每阶段）
 
 - 每阶段结束：`pnpm lint && pnpm check && pnpm build` 全绿；阶段 1 起增加 `pnpm test` 全绿
-- 阶段 3 结束：键盘可完成"选择主题/语言/拖拽进度/调节音量"全流程；屏幕阅读器不再被计时器刷屏
+- 阶段 3 结束：键盘可完成「选择主题/语言/拖拽进度/调节音量」全流程；屏幕阅读器不再被计时器刷屏
 - 阶段 5 结束：`eslint.config.js` 中 useOnlinePlayer 豁免块删除、`"use no memo"` 移除
+- 阶段 6 结束：#37/#40 已明确做或不做；其余阶段 6 项完成或有书面否决
+- #11 结束：满足 `docs/TODO.md`「验证」清单；全局无 `alert(`/`confirm(`/`prompt(` 与 `MessageDisplay` 引用
 - 行为变更需在 PR 描述中附最小验证说明（AGENTS.md Done Criteria）
+
+### 编号覆盖核对（相对 QUALITY_ASSESSMENT 总表 #1–#40）
+
+- #1–#39：均已收录（完成或书面「不做」）。
+- #40：曾从本文件删除而无结论；现已补回为「不做」并写明理由。
+- 总表之外的生产修复（例如在线音乐健壮性）不强制回填编号，以 git / PR 为准。
