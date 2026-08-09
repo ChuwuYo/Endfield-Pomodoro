@@ -166,18 +166,6 @@ const MikuEqualizerBars = () => {
                     />
                 ))}
             </div>
-            <style>{`
-                @keyframes equalizer {
-                    0% { transform: scaleY(0.16); opacity: 0.3; }
-                    100% { transform: scaleY(1); opacity: 0.8; }
-                }
-                .animate-equalizer {
-                    height: 60%;
-                    transform-origin: bottom center;
-                    animation: equalizer 1s infinite ease-in-out alternate;
-                    animation-delay: calc(var(--bar-index) * -0.12s);
-                }
-            `}</style>
         </>
     );
 };

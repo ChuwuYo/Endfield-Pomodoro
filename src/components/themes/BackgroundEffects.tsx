@@ -38,42 +38,6 @@ export const AbyssalGrid = () => (
  */
 export const NeonGrid = () => (
     <>
-        <style>{`
-            @keyframes neon-grid-scroll {
-                0% { transform: translateY(0); }
-                100% { transform: translateY(40px); }
-            }
-            .synthwave-sun {
-                background: linear-gradient(180deg, #ffe53b 0%, #ff9800 45%, #ff5722 75%, #e91e63 100%);
-                mask-image: linear-gradient(
-                    to bottom,
-                    black 0%, black 50%, 
-                    transparent 50%, transparent 53%, 
-                    black 53%, black 60%, 
-                    transparent 60%, transparent 64%, 
-                    black 64%, black 70%, 
-                    transparent 70%, transparent 75%, 
-                    black 75%, black 80%, 
-                    transparent 80%, transparent 86%, 
-                    black 86%, black 90%, 
-                    transparent 90%, transparent 100%
-                );
-                -webkit-mask-image: linear-gradient(
-                    to bottom,
-                    black 0%, black 50%, 
-                    transparent 50%, transparent 53%, 
-                    black 53%, black 60%, 
-                    transparent 60%, transparent 64%, 
-                    black 64%, black 70%, 
-                    transparent 70%, transparent 75%, 
-                    black 75%, black 80%, 
-                    transparent 80%, transparent 86%, 
-                    black 86%, black 90%, 
-                    transparent 90%, transparent 100%
-                );
-            }
-        `}</style>
-
         {/* Synthwave 夕阳 */}
         <div className="absolute left-1/2 bottom-[10%] -translate-x-1/2 w-[240px] h-[240px] md:w-[320px] md:h-[320px] opacity-90 pointer-events-none">
             {/* 太阳本体带边缘模糊和内部发光 */}
@@ -175,7 +139,6 @@ export const MatrixRain = () => {
                     {col.chars}
                 </div>
             ))}
-            <style>{`@keyframes rain { 0% { transform: translateY(-100%); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }`}</style>
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { Button } from "./ui";
@@ -6,16 +6,33 @@ import { Button } from "./ui";
 type HeaderBarProps = {
     currentView: View;
     onViewChange: (view: View) => void;
-    now: Date;
     isOnline: boolean;
     version: string;
     t: ReturnType<typeof useTranslation>;
 };
 
+/** Wall clock isolated so App (and siblings) do not re-render every second. */
+const HeaderClock: React.FC = () => {
+    const [now, setNow] = useState(() => new Date());
+
+    useEffect(() => {
+        const timer = window.setInterval(() => setNow(new Date()), 1000);
+        return () => window.clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="hidden md:flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
+            <span className="text-theme-primary text-ui-base leading-ui-none tracking-ui-widest">
+                {now.toLocaleTimeString("en-US", { hour12: false })}
+            </span>
+            <span className="opacity-70">{now.toLocaleDateString()}</span>
+        </div>
+    );
+};
+
 const HeaderBar: React.FC<HeaderBarProps> = ({
     currentView,
     onViewChange,
-    now,
     isOnline,
     version,
     t,
@@ -119,14 +136,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                         </Button>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
-                        <span className="text-theme-primary text-ui-base leading-ui-none tracking-ui-widest">
-                            {now.toLocaleTimeString("en-US", { hour12: false })}
-                        </span>
-                        <span className="opacity-70">
-                            {now.toLocaleDateString()}
-                        </span>
-                    </div>
+                    <HeaderClock />
                 </div>
             </div>
         </header>
