@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@500;600;700&display=swap');
-
 @import "tailwindcss";
 
 @theme {
-  /* 字体配置 */
+  /* 字体配置（字体 stylesheet 在 index.html 中 preconnect + link 加载） */
   --font-mono: "JetBrains Mono", monospace;
   --font-sans: "Rajdhani", sans-serif;
 
