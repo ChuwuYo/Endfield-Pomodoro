@@ -11,17 +11,37 @@ type HeaderBarProps = {
     t: ReturnType<typeof useTranslation>;
 };
 
-/** Wall clock isolated so App (and siblings) do not re-render every second. */
+/** Wall clock isolated so App (and siblings) do not re-render every second.
+ *  Interval runs only at Tailwind `md`+ — matches the previous `hidden md:flex` visibility. */
+const MD_UP_QUERY = "(min-width: 768px)";
+
 const HeaderClock: React.FC = () => {
     const [now, setNow] = useState(() => new Date());
+    const [isMdUp, setIsMdUp] = useState(
+        () => window.matchMedia(MD_UP_QUERY).matches,
+    );
 
     useEffect(() => {
-        const timer = window.setInterval(() => setNow(new Date()), 1000);
-        return () => window.clearInterval(timer);
+        const media = window.matchMedia(MD_UP_QUERY);
+        const onChange = () => {
+            const matches = media.matches;
+            setIsMdUp(matches);
+            if (matches) setNow(new Date());
+        };
+        media.addEventListener("change", onChange);
+        return () => media.removeEventListener("change", onChange);
     }, []);
 
+    useEffect(() => {
+        if (!isMdUp) return;
+        const timer = window.setInterval(() => setNow(new Date()), 1000);
+        return () => window.clearInterval(timer);
+    }, [isMdUp]);
+
+    if (!isMdUp) return null;
+
     return (
-        <div className="hidden md:flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
+        <div className="flex flex-col items-end text-ui-micro font-ui-mono text-theme-dim border-l border-theme-highlight/30 pl-6">
             <span className="text-theme-primary text-ui-base leading-ui-none tracking-ui-widest">
                 {now.toLocaleTimeString("en-US", { hour12: false })}
             </span>
