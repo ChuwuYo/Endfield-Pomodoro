@@ -6,6 +6,8 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
+        "analyze": "ANALYZE=1 pnpm build",
+        "check:bundle": "node scripts/check-bundle-budget.mjs",
         "lint": "eslint .",
         "format": "biome format --write .",
         "check": "biome check --write .",
@@ -41,6 +43,7 @@
         "eslint-plugin-react-refresh": "^0.5.3",
         "globals": "^17.9.0",
         "jsdom": "^30.0.1",
+        "rollup-plugin-visualizer": "^7.0.1",
         "typescript": "~6.0.3",
         "typescript-eslint": "^8.66.0",
         "vite": "^8.2.1",
