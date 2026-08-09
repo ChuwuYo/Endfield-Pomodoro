@@ -26,6 +26,8 @@ type ToastProviderProps = {
 
 export function ToastProvider({ language, children }: ToastProviderProps) {
     const [toasts, setToasts] = useState<ToastRecord[]>([]);
+    /** 队列权威快照：连续 show/dismiss 在重渲染前也保持正确衔接 */
+    const toastsRef = useRef<ToastRecord[]>([]);
     const timersRef = useRef<Map<string, number>>(new Map());
     const onDismissRef = useRef<Map<string, (() => void) | undefined>>(
         new Map(),
@@ -40,12 +42,28 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
         }
     }, []);
 
+    const releaseDropped = useCallback(
+        (dropped: ToastRecord[]) => {
+            for (const old of dropped) {
+                clearTimer(old.id);
+                const onDismiss = onDismissRef.current.get(old.id);
+                onDismissRef.current.delete(old.id);
+                if (onDismiss) {
+                    queueMicrotask(onDismiss);
+                }
+            }
+        },
+        [clearTimer],
+    );
+
     const dismiss = useCallback(
         (id: string) => {
             clearTimer(id);
             const onDismiss = onDismissRef.current.get(id);
             onDismissRef.current.delete(id);
-            setToasts((prev) => prev.filter((toast) => toast.id !== id));
+            const next = toastsRef.current.filter((toast) => toast.id !== id);
+            toastsRef.current = next;
+            setToasts(next);
             onDismiss?.();
         },
         [clearTimer],
@@ -69,21 +87,15 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
             };
 
             onDismissRef.current.set(id, options.onDismiss);
-            setToasts((prev) => {
-                const next = upsertToast(prev, record, TOAST_MAX_VISIBLE);
-                for (const old of prev) {
-                    if (next.some((toast) => toast.id === old.id)) {
-                        continue;
-                    }
-                    clearTimer(old.id);
-                    const onDismiss = onDismissRef.current.get(old.id);
-                    onDismissRef.current.delete(old.id);
-                    if (onDismiss) {
-                        queueMicrotask(onDismiss);
-                    }
-                }
-                return next;
-            });
+
+            const prev = toastsRef.current;
+            const next = upsertToast(prev, record, TOAST_MAX_VISIBLE);
+            const dropped = prev.filter(
+                (old) => !next.some((toast) => toast.id === old.id),
+            );
+            toastsRef.current = next;
+            setToasts(next);
+            releaseDropped(dropped);
 
             clearTimer(id);
             if (durationMs != null && durationMs > 0) {
@@ -95,7 +107,7 @@ export function ToastProvider({ language, children }: ToastProviderProps) {
 
             return id;
         },
-        [clearTimer, dismiss],
+        [clearTimer, dismiss, releaseDropped],
     );
 
     useEffect(() => {

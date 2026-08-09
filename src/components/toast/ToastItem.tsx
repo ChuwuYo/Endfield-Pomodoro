@@ -47,7 +47,7 @@ export function ToastItem({
 
     return (
         <div
-            className="p-3 bg-theme-surface border border-theme-primary shadow-lg animate-in slide-in-from-bottom-2 duration-300"
+            className="p-3 bg-theme-surface border border-theme-primary shadow-lg animate-toast-in"
             aria-atomic="true"
             {...a11y}
         >
