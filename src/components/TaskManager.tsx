@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MAX_TASKS, STORAGE_KEYS } from "../constants";
 import type { Task } from "../types";
 import { Language } from "../types";
+import { createId } from "../utils/createId";
 import { useTranslation } from "../utils/i18n";
 import { Button, Input, Panel } from "./ui";
 
@@ -52,7 +53,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
         if (tasks.length >= MAX_TASKS) return;
 
         const newTask: Task = {
-            id: crypto.randomUUID(),
+            id: createId(),
             text: inputValue.trim(),
             completed: false,
             createdAt: Date.now(),
