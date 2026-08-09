@@ -4,31 +4,38 @@ import {
     HOURLY_CHECK_INTERVAL_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
-import { Language } from "../types";
-import { useTranslation } from "../utils/i18n";
+import { useToast } from "./toast";
 
-interface PWAPromptProps {
-    language: Language;
-}
+const PWA_UPDATED_TOAST_ID = "pwa-updated";
 
-export function PWAPrompt({ language }: PWAPromptProps) {
-    // 使用 Ref 存储 SW 注册实例
+/**
+ * SW 注册 / 轮询 / 可见性检查所有权在此。
+ *
+ * 本项目 `registerType: "autoUpdate"`：vite-plugin-pwa 会 skipWaiting + clientsClaim。
+ * 官方客户端在 `activated(isUpdate)` 时默认 `location.reload()`；
+ * 传入 `onNeedReload` 可接管该时机，改为应用内 Toast，避免与自写
+ * `controllerchange` 监听打架，也避免「已自动刷新却还提示手动刷新」的假提示。
+ *
+ * @see https://vite-pwa-org.netlify.app/guide/auto-update.html
+ * @see https://web.dev/articles/service-worker-lifecycle
+ */
+export function PWAPrompt() {
     const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
     const intervalRef = useRef<number | null>(null);
     const lastVisibilityCheckRef = useRef<number>(0);
     const [showUpdated, setShowUpdated] = useState(false);
-    const t = useTranslation(language);
+    const toast = useToast();
 
     useRegisterSW({
-        // 注册成功的回调
+        onNeedReload() {
+            setShowUpdated(true);
+        },
         onRegistered(r) {
             if (r) {
                 registrationRef.current = r;
 
-                // 立即检查一次
                 r.update();
 
-                // 设置轮询 (每小时)
                 if (intervalRef.current) clearInterval(intervalRef.current);
 
                 intervalRef.current = window.setInterval(() => {
@@ -41,41 +48,6 @@ export function PWAPrompt({ language }: PWAPromptProps) {
         },
     });
 
-    // 监听 controllerchange 事件，新 SW 激活时显示提示
-    useEffect(() => {
-        if (!("serviceWorker" in navigator)) return;
-
-        // 使用 ref 记录 controller 状态
-        // 初始值为 true 表示已有 controller (非首次安装)，或者 false (首次安装)
-        // 使用 mutable 变量而不是 const，以便在首次安装完成后更新状态，
-        // 从而确保后续的版本更新能够正常触发提示。
-        let hadController = !!navigator.serviceWorker.controller;
-
-        const handleControllerChange = () => {
-            if (!hadController) {
-                // 如果之前没有 controller，说明是首次安装引发的变更
-                // 忽略本次提示，但标记为已拥有 controller，以便下次更新时提示
-                hadController = true;
-                return;
-            }
-
-            setShowUpdated(true);
-        };
-
-        navigator.serviceWorker.addEventListener(
-            "controllerchange",
-            handleControllerChange,
-        );
-
-        return () => {
-            navigator.serviceWorker.removeEventListener(
-                "controllerchange",
-                handleControllerChange,
-            );
-        };
-    }, []);
-
-    // 处理可见性变化监听与组件卸载清理
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState !== "visible") {
@@ -109,31 +81,28 @@ export function PWAPrompt({ language }: PWAPromptProps) {
         };
     }, []);
 
-    // 只在更新完成时显示提示
-    if (!showUpdated) return null;
+    useEffect(() => {
+        if (!showUpdated) {
+            toast.dismiss(PWA_UPDATED_TOAST_ID);
+            return;
+        }
 
-    return (
-        <div
-            className="fixed bottom-4 right-4 z-[9999] p-3 bg-theme-surface border border-theme-primary shadow-lg max-w-xs animate-in slide-in-from-bottom-2 duration-300"
-            role="status"
-            aria-live="polite"
-        >
-            <div className="flex items-center gap-3">
-                <i className="ri-check-line icon-ui-lg text-theme-success flex-shrink-0" />
-                <p className="text-theme-text font-ui-mono text-ui-xs font-bold flex-grow">
-                    {t("pwa_updated")}
-                </p>
-                <button
-                    onClick={() => setShowUpdated(false)}
-                    className="p-1 hover:bg-theme-primary/10 rounded transition-colors group"
-                    aria-label={t("pwa_close")}
-                    title={t("pwa_close")}
-                >
-                    <i className="ri-close-line icon-ui-lg text-theme-text/60 group-hover:text-theme-text" />
-                </button>
-            </div>
-        </div>
-    );
+        toast.show({
+            id: PWA_UPDATED_TOAST_ID,
+            messageKey: "pwa_updated",
+            tone: "success",
+            durationMs: null,
+            action: {
+                textKey: "ERROR_BOUNDARY_RELOAD",
+                onClick: () => {
+                    window.location.reload();
+                },
+            },
+            onDismiss: () => setShowUpdated(false),
+        });
+    }, [showUpdated, toast]);
+
+    return null;
 }
 
 export default PWAPrompt;

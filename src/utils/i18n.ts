@@ -134,9 +134,9 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "RELOAD",
 
         // PWA
-        pwa_updated: "Update ready. Refresh to apply.",
+        pwa_updated: "A new version is ready.",
         pwa_offline: "OFFLINE MODE",
-        pwa_close: "Close",
+        CLOSE: "Close",
 
         // Footer
         TOTAL_STUDY_TIME: "SESSION OPERATION TIME",
@@ -277,9 +277,9 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "刷新页面",
 
         // PWA
-        pwa_updated: "新版本已就绪，刷新后生效。",
+        pwa_updated: "新版本已就绪。",
         pwa_offline: "离线模式",
-        pwa_close: "关闭",
+        CLOSE: "关闭",
 
         // Footer
         TOTAL_STUDY_TIME: "本次累计作业时长",
@@ -290,8 +290,10 @@ export const translations = {
     },
 };
 
+export type TranslationKey = keyof (typeof translations)["EN"];
+
 export const useTranslation = (lang: Language) => {
-    return (key: keyof (typeof translations)["EN"]) => {
+    return (key: TranslationKey) => {
         return translations[lang][key] || key;
     };
 };

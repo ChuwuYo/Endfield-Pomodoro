@@ -1,21 +1,17 @@
-import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { type MusicConfig, musicSourceKey } from "../config/musicConfig";
-import { STORAGE_KEYS, TOAST_DURATION_MS } from "../constants";
+import { STORAGE_KEYS } from "../constants";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
 import { useModalA11y } from "../hooks/useModalA11y";
 import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
-import MessageDisplay from "./MessageDisplay";
 import MusicPlayer from "./MusicPlayer";
 import PlayerInterface from "./PlayerInterface";
+import { useToast } from "./toast";
 import { Panel } from "./ui";
+
+const NETWORK_RESTORED_TOAST_ID = "network-restored";
 
 const AudioPlayer: React.FC<{
     language: Language;
@@ -23,6 +19,7 @@ const AudioPlayer: React.FC<{
     isOnline: boolean;
 }> = ({ language, musicConfig, isOnline }) => {
     const t = useTranslation(language);
+    const toast = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
 
@@ -46,14 +43,10 @@ const AudioPlayer: React.FC<{
         localStorage.setItem(STORAGE_KEYS.AUDIO_SOURCE, audioSource);
     }, [audioSource]);
 
-    // Toast 提示状态
-    const [showOnlineToast, setShowOnlineToast] = useState(false);
     const prevOnlineRef = useRef(isOnline);
 
-    // 离线时自动切换到本地模式，在线时显示提示
+    // 离线时自动切换到本地模式；离线→在线且仍在本地时提示可切回在线
     useEffect(() => {
-        let timer: number | null = null;
-
         if (!isOnline && audioSource === "online") {
             queueMicrotask(() => setAudioSource("local"));
         } else if (
@@ -61,21 +54,19 @@ const AudioPlayer: React.FC<{
             !prevOnlineRef.current &&
             audioSource === "local"
         ) {
-            queueMicrotask(() => setShowOnlineToast(true));
-            timer = window.setTimeout(
-                () => setShowOnlineToast(false),
-                TOAST_DURATION_MS,
-            );
+            toast.show({
+                id: NETWORK_RESTORED_TOAST_ID,
+                messageKey: "NETWORK_RESTORED",
+                tone: "info",
+                action: {
+                    textKey: "SWITCH_TO_ONLINE",
+                    onClick: () => setAudioSource("online"),
+                },
+            });
         }
 
         prevOnlineRef.current = isOnline;
-
-        return () => {
-            if (timer !== null) {
-                clearTimeout(timer);
-            }
-        };
-    }, [isOnline, audioSource]);
+    }, [isOnline, audioSource, toast]);
 
     const [showPlaylist, setShowPlaylist] = useState(false);
     const playlistModalRef = useRef<HTMLDivElement>(null);
@@ -97,21 +88,6 @@ const AudioPlayer: React.FC<{
             return () => cancelAnimationFrame(rafId);
         }
     }, [showPlaylist, localPlayer.currentIndex]);
-
-    // 网络恢复按钮回调
-    const handleSwitchToOnline = useCallback(() => {
-        setShowOnlineToast(false);
-        setAudioSource("online");
-    }, []);
-
-    // 网络恢复提示的 actionButton
-    const onlineToastActionButton = useMemo(
-        () => ({
-            textKey: "SWITCH_TO_ONLINE" as const,
-            onClick: handleSwitchToOnline,
-        }),
-        [handleSwitchToOnline],
-    );
 
     // 处理文件选择
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,17 +130,6 @@ const AudioPlayer: React.FC<{
                 </div>
             }
         >
-            {/* 网络恢复提示 */}
-            {showOnlineToast && (
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50">
-                    <MessageDisplay
-                        messageKey="NETWORK_RESTORED"
-                        language={language}
-                        actionButton={onlineToastActionButton}
-                    />
-                </div>
-            )}
-
             {audioSource === "online" ? (
                 <MusicPlayer
                     // 换歌单即换播放上下文：用 key 重建播放器，
