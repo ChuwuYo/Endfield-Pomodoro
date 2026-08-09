@@ -11,10 +11,10 @@
 
 | 通道 | 语义 | 现状 | 决策 |
 | --- | --- | --- | --- |
-| **全局短暂通知（Toast）** | 与当前面板无强绑定；出现后自动消失或可关闭 | `alert()`（通知权限被拒）；AudioPlayer 网络恢复 + `MessageDisplay` | **统一**：单一 Toast 宿主与 API |
-| **上下文状态（Inline status）** | 占据业务区域，描述「这一块现在怎样」 | MusicPlayer 全屏 `CONNECTING` / 错误块；PlayerInterface 顶栏 loading 文案 | **保持内联**；可抽共享展示组件，但**不进全局队列** |
+| **全局短暂通知（Toast）** | 与当前面板无强绑定；出现后自动消失或可关闭 | 原 `alert()`（通知权限被拒）；AudioPlayer 网络恢复 | **统一**：`ToastProvider` + `useToast` |
+| **上下文状态（Inline status）** | 占据业务区域，描述「这一块现在怎样」 | MusicPlayer 全屏 `CONNECTING` / 错误块；PlayerInterface 顶栏 loading 文案 | **保持内联**；不进全局队列 |
 | **系统通知（OS Notification）** | 标签页外、系统级打断 | Pomodoro `new Notification(...)` | **保持** Web Notification；失败可降级为一次 Toast，不反向吞并 OS 通道 |
-| **PWA 更新提示** | 绑定 Service Worker / controllerchange | `PWAPrompt` 右下角条 | **逻辑留在 PWAPrompt**；视觉可复用 Toast 部件，禁止为「统一」重写 SW |
+| **PWA 更新提示** | 绑定 Service Worker / autoUpdate 生命周期 | `PWAPrompt` 经 `onNeedReload` 决定何时提示 | **逻辑留在 PWAPrompt**；展示走持久 toast + 刷新 action（接管插件默认 `location.reload`） |
 | **崩溃恢复** | 渲染树已不可用 | `ErrorBoundary` | **保持独立**；不属于消息队列 |
 
 错误原则：
@@ -29,36 +29,35 @@
 
 职责：全局、短暂、非模态的应用内通知。
 
-建议落点（名称可微调，职责不可糊）：
+落点：
 
-- `ToastProvider` + 根级 `ToastViewport`：队列、去重、超时、上限
-- `ToastItem`：终端风样式；支持 `info | success | warning | error`；可选 action
-- `useToast()`：业务侧唯一入口（例如 `toast.show({ messageKey, tone, action?, durationMs? })`）
-- 默认时长等常量进入 `toastConfig`（可自 `TOAST_DURATION_MS` 迁入）；**不要**再发明平行的 MessageSystem / StatusIndicator 巨型目录，除非后续通道再次分叉到值得拆包
+- `src/components/toast/`：`ToastProvider` + Viewport、`ToastItem`、`useToast`
+- `src/config/toastConfig.ts`：默认时长与同时可见上限
+- 业务侧唯一入口：`toast.show({ id?, messageKey, tone?, action?, durationMs?, onDismiss? })`
+- 队列：同 `id` 替换；超过 `TOAST_MAX_VISIBLE` 丢弃最旧并触发其 `onDismiss`
 
 无障碍硬约束：
 
-- Viewport / Item：`role="status"`（或错误用 `role="alert"`）+ 合适的 `aria-live`
-- 不抢焦点；有关闭按钮时提供可访问名称
-- 与主题 CSS 变量一致，禁止第二套「通用后台 toast」皮肤
+- Viewport / Item：`info|success` → `role="status"` + `aria-live="polite"`；`warning|error` → `role="alert"` + `aria-live="assertive"`；`aria-atomic="true"`
+- 不抢焦点；关闭按钮提供可访问名称（`CLOSE`）
+- 与主题 CSS 变量一致
 
 ### 2. 内联状态（不进 Toast）
 
 - MusicPlayer：`dataLoading` / `dataError`（含歌单无效 vs 服务故障）继续渲染在播放器区域。
-- 若要去掉对 `MessageDisplay` 的依赖：抽 `InlineStatus`（或同等）只服务「面板占位文案 + 可选操作」，**禁止**调用 `useToast`。
-- PlayerInterface 顶栏 `CONNECTING` 属于控件状态文案，与 Toast 无关；最多视觉对齐，不做队列。
+- PlayerInterface 顶栏 `CONNECTING` 属于控件状态文案，与 Toast 无关。
 
 ### 3. PWAPrompt
 
-- 保留注册、轮询、`controllerchange`、可见性检查等 SW 所有权。
-- 展示层：复用 `ToastItem` 视觉，或让 PWAPrompt 调用 `toast.show` 一次；**不得**把 SW 状态机搬进 ToastProvider。
+- 保留注册、小时/`visibility` 轮询等 SW 所有权（web.dev：长驻页应主动 `registration.update()`）。
+- `registerType: "autoUpdate"` 下用官方 `onNeedReload` 接管默认整页刷新；展示：`toast.show` + 刷新 action。**不要**再自写 `controllerchange` 与插件抢控制权。
+- 展示：`toast.show({ id: "pwa-updated", durationMs: null, action: reload, ... })`；**不得**把 SW 状态机搬进 ToastProvider。
 
 ### 4. OS Notification 与持久化失败
 
 - Pomodoro 完成通知：继续 `Notification` API。
-- `requestPermission` 被拒 → Toast（替换 `alert`）。
-- `requestPermission` 抛错 → Toast（替换仅 `console.error` 对用户不可见的缺口）。
-- 设置读写失败：默认仍日志即可；仅当失败会导致用户误以为已保存时，再发 **warning** Toast。不为「看起来完整」预加 `SETTINGS_APPLIED` 一类成功噪音。
+- `requestPermission` 被拒 / 抛错 → Toast（已替换 `alert`）。
+- 设置读写失败：默认仍日志即可；仅当失败会导致用户误以为已保存时，再发 **warning** Toast。不为「看起来完整」预加成功噪音。
 
 ## 明确不做
 
@@ -70,40 +69,36 @@
 
 ### A. Toast 基础设施
 
-- [ ] Provider + Viewport 挂到应用根（保证 Settings / Audio / PWA 都能调用）
-- [ ] `useToast` + 类型 / 默认时长配置
-- [ ] 队列策略：同 key 去重或替换；同时可见条数上限；超时自动移除
+- [x] Provider + Viewport 挂到应用根（保证 Settings / Audio / PWA 都能调用）
+- [x] `useToast` + 类型 / 默认时长配置
+- [x] 队列策略：同 key 去重或替换；同时可见条数上限；超时自动移除
 
 ### B. 必须迁入 Toast 的调用点
 
-- [ ] `SettingsPanel`：`alert(NOTIFICATION_PERMISSION_DENIED)` → toast
-- [ ] `SettingsPanel`：`Notification.requestPermission()` 失败 → 用户可见 toast（可保留少量 console）
-- [ ] `AudioPlayer`：网络恢复提示（现 `showOnlineToast` + `MessageDisplay` + action）→ toast；时长走统一配置
+- [x] `SettingsPanel`：`alert(NOTIFICATION_PERMISSION_DENIED)` → toast
+- [x] `SettingsPanel`：`Notification.requestPermission()` 失败 → 用户可见 toast（可保留少量 console）
+- [x] `AudioPlayer`：网络恢复提示 → toast；时长走 `toastConfig`
 
 ### C. 内联通道（迁出 MessageDisplay，不进 Toast）
 
-- [ ] `MusicPlayer` loading / error UI：改为内联状态组件或本地 JSX，删除对 `MessageDisplay` 的依赖
-- [ ] （可选）PlayerInterface 顶栏文案与内联状态视觉对齐——非阻塞
+- [x] `MusicPlayer` loading：本地 JSX 内联；error UI 本就内联
+- [x] （可选）PlayerInterface 顶栏文案与内联状态视觉对齐——非阻塞，未做
 
 ### D. PWA
 
-- [ ] `PWAPrompt`：展示复用 Toast 视觉或 API；SW 逻辑不动
+- [x] `PWAPrompt`：经 `onNeedReload` 展示 Toast + 刷新 action；SW 轮询逻辑不动
+- [ ] PWA 更新提示：需生产构建 + 真实 SW 字节变更验收（开发态 `virtual:pwa-register/dev` 不会走 autoUpdate 重载路径）
 
 ### E. 清理
 
-- [ ] 删除无引用的 `MessageDisplay.tsx`
-- [ ] 移除已迁移的 `TOAST_DURATION_MS`（若已迁入 toast 配置）
-- [ ] 全库搜索确认无 `alert(` / `confirm(` / `prompt(` / `MessageDisplay`
+- [x] 删除无引用的 `MessageDisplay.tsx`
+- [x] `TOAST_DURATION_MS` 迁入 `toastConfig`（`TOAST_DEFAULT_DURATION_MS`）
+- [x] 全库搜索确认无 `alert(` / `confirm(` / `prompt(` / `MessageDisplay`（源码）
 
 ### F. 验证
 
-- [ ] 通知权限拒绝：非阻塞 toast，主题一致，读屏可感知
-- [ ] 离线→在线：网络恢复 toast + 切回在线源的 action 仍可用
-- [ ] 在线歌单 loading / 无效歌单 / 服务故障：仍在播放器区域内，不出现全局飘条抢注意力
-- [ ] PWA 更新提示：行为与现网一致
-- [ ] `pnpm lint && pnpm check && pnpm test && pnpm build`
-
-## 与旧草案的关系
-
-旧版「MessageContainer / MessageProvider / MessageItem / StatusIndicator / useMessage / messageConfig 六件套 + 强行收编 MusicPlayer/PWA/可选 App 提示」**作废**。  
-正确收敛点是：**统一全局 Toast 通道；其余通道按所有权分立。**
+- [x] `pnpm lint && pnpm check && pnpm test && pnpm build`
+- [x] 通知权限拒绝：非阻塞 toast（`role=alert`），主题一致（浏览器冒烟）
+- [x] 离线→在线：网络恢复 toast +「切换至在线」action 可见（浏览器冒烟）
+- [x] 在线歌单 loading：不进 toast viewport（浏览器冒烟；错误态仍为面板内联 JSX）
+- [ ] PWA 更新：代码已对齐官方 `onNeedReload`；实机需生产构建 + SW 字节变更（dev 注册模块不走 autoUpdate 重载）

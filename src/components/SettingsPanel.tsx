@@ -5,6 +5,7 @@ import { useTranslation } from "../utils/i18n";
 import { parseDurationInput } from "../utils/settings";
 import { Checkbox } from "./Checkbox";
 import { CustomSelect } from "./CustomSelect";
+import { useToast } from "./toast";
 import { Button, Input, Panel } from "./ui";
 
 type SettingsPanelProps = {
@@ -41,6 +42,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onResetMusicConfig,
     t,
 }) => {
+    const toast = useToast();
     const idPrefix = useId();
     const workId = `${idPrefix}-work`;
     const shortBreakId = `${idPrefix}-short-break`;
@@ -310,9 +312,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     }
 
                                     if (permission === "denied") {
-                                        alert(
-                                            t("NOTIFICATION_PERMISSION_DENIED"),
-                                        );
+                                        toast.show({
+                                            id: "notification-permission-denied",
+                                            messageKey:
+                                                "NOTIFICATION_PERMISSION_DENIED",
+                                            tone: "warning",
+                                        });
                                     }
 
                                     onSettingsChange((prev) => ({

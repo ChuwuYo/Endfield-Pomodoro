@@ -7,6 +7,7 @@ import { PWAPrompt } from "./components/PWAPrompt";
 import SettingsPanel from "./components/SettingsPanel";
 import { BackgroundLayer, ForegroundLayer } from "./components/TerminalUI";
 import { MikuDecorations } from "./components/themes";
+import { ToastProvider } from "./components/toast";
 import { defaultMusicConfig } from "./config/musicConfig";
 import { THEMES } from "./config/themes";
 import {
@@ -175,73 +176,83 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div className="h-[100dvh] bg-theme-base text-theme-text font-ui-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
-            {/* 背景视觉效果 (Z-0) */}
-            <BackgroundLayer theme={settings.theme} />
+        <ToastProvider language={settings.language}>
+            <div className="h-[100dvh] bg-theme-base text-theme-text font-ui-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
+                {/* 背景视觉效果 (Z-0) */}
+                <BackgroundLayer theme={settings.theme} />
 
-            {/* Miku 主题专属装饰元素 (Z-5) - 在背景之上，内容之下 */}
-            <MikuDecorations
-                theme={settings.theme}
-                footerHeight={footerHeight}
-            />
+                {/* Miku 主题专属装饰元素 (Z-5) - 在背景之上，内容之下 */}
+                <MikuDecorations
+                    theme={settings.theme}
+                    footerHeight={footerHeight}
+                />
 
-            {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
-            <ForegroundLayer theme={settings.theme} />
+                {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
+                <ForegroundLayer theme={settings.theme} />
 
-            <HeaderBar
-                currentView={currentView}
-                onViewChange={setCurrentView}
-                isOnline={isOnline}
-                version={pkg.version}
-                t={t}
-            />
+                <HeaderBar
+                    currentView={currentView}
+                    onViewChange={setCurrentView}
+                    isOnline={isOnline}
+                    version={pkg.version}
+                    t={t}
+                />
 
-            <main
-                className="flex-1 pt-24 md:pt-28 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar"
-                style={{
-                    scrollbarGutter: "stable",
-                    paddingBottom:
-                        footerHeight +
-                        getThemeExtraSpacing(
-                            settings.theme === ThemePreset.MIKU,
-                        ),
-                }}
-            >
-                <div className={currentView === View.SETTINGS ? "" : "hidden"}>
-                    <SettingsPanel
-                        settings={settings}
-                        tempMusicConfig={tempMusicConfig}
-                        onSettingsChange={setSettings}
-                        onMusicConfigChange={handleMusicConfigChange}
-                        onApplyMusicConfig={applyMusicConfig}
-                        onResetMusicConfig={() =>
-                            setTempMusicConfig(DEFAULT_SETTINGS.musicConfig)
+                <main
+                    className="flex-1 pt-24 md:pt-28 px-4 md:px-12 overflow-y-auto overflow-x-hidden relative z-10 flex flex-col custom-scrollbar"
+                    style={{
+                        scrollbarGutter: "stable",
+                        paddingBottom:
+                            footerHeight +
+                            getThemeExtraSpacing(
+                                settings.theme === ThemePreset.MIKU,
+                            ),
+                    }}
+                >
+                    <div
+                        className={
+                            currentView === View.SETTINGS ? "" : "hidden"
                         }
-                        t={t}
-                    />
-                </div>
-                <div className={currentView === View.DASHBOARD ? "" : "hidden"}>
-                    <Dashboard
-                        settings={settings}
-                        sessionCount={sessionCount}
-                        isOnline={isOnline}
-                        onSessionsUpdate={onSessionsUpdate}
-                        onTick={onTick}
-                    />
-                </div>
-            </main>
+                    >
+                        <SettingsPanel
+                            settings={settings}
+                            tempMusicConfig={tempMusicConfig}
+                            onSettingsChange={setSettings}
+                            onMusicConfigChange={handleMusicConfigChange}
+                            onApplyMusicConfig={applyMusicConfig}
+                            onResetMusicConfig={() =>
+                                setTempMusicConfig(DEFAULT_SETTINGS.musicConfig)
+                            }
+                            t={t}
+                        />
+                    </div>
+                    <div
+                        className={
+                            currentView === View.DASHBOARD ? "" : "hidden"
+                        }
+                    >
+                        <Dashboard
+                            settings={settings}
+                            sessionCount={sessionCount}
+                            isOnline={isOnline}
+                            onSessionsUpdate={onSessionsUpdate}
+                            onTick={onTick}
+                        />
+                    </div>
+                </main>
 
-            <FooterStats
-                footerRef={footerRef}
-                hours={hours}
-                minutes={minutes}
-                seconds={seconds}
-                t={t}
-            />
+                <FooterStats
+                    footerRef={footerRef}
+                    hours={hours}
+                    minutes={minutes}
+                    seconds={seconds}
+                    t={t}
+                />
 
-            {/* PWA 更新提示 */}
-            <PWAPrompt language={settings.language} />
-        </div>
+                {/* PWA 更新提示 */}
+                <PWAPrompt />
+            </div>
+        </ToastProvider>
     );
 };
 

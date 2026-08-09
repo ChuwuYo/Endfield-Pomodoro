@@ -20,7 +20,6 @@ import {
 } from "../utils/playlistPopoverLayout";
 import { isPlaylistPopoverMountReady } from "../utils/playlistPopoverMount";
 import { shouldRestoreFocusAfterPopoverClose } from "../utils/popoverFocus";
-import MessageDisplay from "./MessageDisplay";
 import PlayerInterface from "./PlayerInterface";
 
 interface MusicPlayerProps {
@@ -333,7 +332,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     if (dataLoading) {
         return (
             <div className="flex flex-col items-center justify-center h-full">
-                <MessageDisplay messageKey="CONNECTING" language={language} />
+                <div className="relative text-ui-xs font-ui-mono text-theme-primary">
+                    <div className="absolute inset-0 data-flow-bg"></div>
+                    <div className="relative animate-pulse">
+                        {t("CONNECTING")}
+                    </div>
+                </div>
             </div>
         );
     }

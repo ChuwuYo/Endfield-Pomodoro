@@ -76,7 +76,7 @@
 
 ## 专项（阶段 0–6 之后）：通知与状态通道
 
-- [ ] **#11 通知与状态通道治理** —— **不要**按旧「大一统 MessageSystem」草案落地。按 `docs/TODO.md` 现行架构：只统一**全局 Toast**（消灭 `alert`、收编 AudioPlayer 网络恢复提示）；MusicPlayer 加载/错误保持**面板内联状态**；PWA 更新逻辑仍属 `PWAPrompt`（可复用 Toast 视觉）；OS `Notification` 与 Error Boundary **分立**。单独开 PR。*M*
+- [x] **#11 通知与状态通道治理** —— 按 `docs/TODO.md`：统一全局 Toast（消灭 `alert`、收编网络恢复提示）；MusicPlayer 加载/错误保持面板内联；PWA 更新逻辑仍属 `PWAPrompt`（展示走 `toast.show`）；OS `Notification` 与 Error Boundary 分立。*M*
 
 ---
 

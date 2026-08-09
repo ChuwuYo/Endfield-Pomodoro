@@ -50,7 +50,6 @@ export const MUSIC_API_FALLBACK_URL = "https://api.injahow.cn/meting/";
  * - hooks/useMusicData.ts
  */
 export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳转下一曲的延迟（毫秒）
-export const TOAST_DURATION_MS = 4000; // 提示消息显示时长（毫秒）
 export const AUDIO_LOADING_TIMEOUT_MS = 15000; // 音频加载超时时间（毫秒）
 export const PRELOAD_DELAY_MS = 3000; // 预加载延迟时间（毫秒），避免抢占当前播放带宽
 export const TIME_UPDATE_THROTTLE_SECONDS = 0.25; // 时间更新节流阈值（秒），减少频繁重渲染
