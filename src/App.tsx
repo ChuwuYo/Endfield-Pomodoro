@@ -17,7 +17,7 @@ import {
 import { getThemeExtraSpacing, useFooterHeight } from "./hooks/useFooterHeight";
 import { useSessionStats } from "./hooks/useSessionStats";
 import type { Settings } from "./types";
-import { Language, ThemePreset, TimerMode, View } from "./types";
+import { ThemePreset, TimerMode, View } from "./types";
 import { useTranslation } from "./utils/i18n";
 import {
     detectBrowserLanguage,
@@ -117,10 +117,10 @@ const App: React.FC = () => {
                 h > 0
                     ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
                     : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-            // 休息时也显示模式标签（根据当前语言选择本地化短标签）
+            // 休息时也显示模式标签（短休/长休共用 MODE_BREAK_SHORT）
             const modeLabel =
                 remainingMode && remainingMode !== TimerMode.WORK
-                    ? ` ${settings.language === Language.CN ? "休息" : "Break"}`
+                    ? ` ${t("MODE_BREAK_SHORT")}`
                     : "";
             document.title = `${fmt}${modeLabel} • ${t("APP_TITLE")}`;
         } else {
@@ -134,7 +134,7 @@ const App: React.FC = () => {
             document.removeEventListener("visibilitychange", handleVisibility);
             restoreTitle();
         };
-    }, [isTimerRunning, remainingSeconds, remainingMode, t, settings.language]);
+    }, [isTimerRunning, remainingSeconds, remainingMode, t]);
 
     // 持久化设置
     useEffect(() => {

@@ -52,7 +52,7 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
         if (tasks.length >= MAX_TASKS) return;
 
         const newTask: Task = {
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             text: inputValue.trim(),
             completed: false,
             createdAt: Date.now(),
