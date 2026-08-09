@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { upsertToast } from "./toastQueue";
+import { upsertSnackbar } from "./snackbarQueue";
 
-describe("upsertToast", () => {
-    it("appends a new toast", () => {
-        const next = upsertToast([{ id: "a" }], { id: "b" }, 3);
+describe("upsertSnackbar", () => {
+    it("appends a new snackbar", () => {
+        const next = upsertSnackbar([{ id: "a" }], { id: "b" }, 3);
         expect(next.map((t) => t.id)).toEqual(["a", "b"]);
     });
 
     it("replaces an existing id in place of append order", () => {
-        const next = upsertToast(
+        const next = upsertSnackbar(
             [{ id: "a" }, { id: "b" }],
             { id: "a", label: "updated" } as { id: string; label?: string },
             3,
@@ -17,7 +17,7 @@ describe("upsertToast", () => {
     });
 
     it("drops the oldest when over the visible cap", () => {
-        const next = upsertToast(
+        const next = upsertSnackbar(
             [{ id: "a" }, { id: "b" }, { id: "c" }],
             { id: "d" },
             3,

@@ -1,30 +1,30 @@
-import type { ToastAction, ToastTone } from "./toastTypes";
+import type { SnackbarAction, SnackbarTone } from "./snackbarTypes";
 
-type ToastItemProps = {
+type SnackbarItemProps = {
     message: string;
-    tone: ToastTone;
-    action?: ToastAction;
+    tone: SnackbarTone;
+    action?: SnackbarAction;
     actionLabel?: string;
     dismissLabel: string;
     onAction?: () => void;
     onDismiss: () => void;
 };
 
-const toneIcon: Record<ToastTone, string> = {
+const toneIcon: Record<SnackbarTone, string> = {
     info: "ri-information-line",
     success: "ri-check-line",
     warning: "ri-alert-line",
     error: "ri-error-warning-line",
 };
 
-const toneIconClass: Record<ToastTone, string> = {
+const toneIconClass: Record<SnackbarTone, string> = {
     info: "text-theme-primary",
     success: "text-theme-success",
     warning: "text-theme-secondary",
     error: "text-theme-error",
 };
 
-function toastA11y(tone: ToastTone): {
+function snackbarA11y(tone: SnackbarTone): {
     role: "status" | "alert";
     "aria-live": "polite" | "assertive";
 } {
@@ -34,7 +34,7 @@ function toastA11y(tone: ToastTone): {
     return { role: "status", "aria-live": "polite" };
 }
 
-export function ToastItem({
+export function SnackbarItem({
     message,
     tone,
     action,
@@ -42,12 +42,12 @@ export function ToastItem({
     dismissLabel,
     onAction,
     onDismiss,
-}: ToastItemProps) {
-    const a11y = toastA11y(tone);
+}: SnackbarItemProps) {
+    const a11y = snackbarA11y(tone);
 
     return (
         <div
-            className="p-3 bg-theme-surface border border-theme-primary shadow-lg animate-toast-in"
+            className="p-3 bg-theme-surface border border-theme-primary shadow-lg animate-snackbar-in"
             aria-atomic="true"
             {...a11y}
         >

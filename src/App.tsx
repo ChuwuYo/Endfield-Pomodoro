@@ -5,9 +5,9 @@ import FooterStats from "./components/FooterStats";
 import HeaderBar from "./components/HeaderBar";
 import { PWAPrompt } from "./components/PWAPrompt";
 import SettingsPanel from "./components/SettingsPanel";
+import { SnackbarProvider } from "./components/snackbar";
 import { BackgroundLayer, ForegroundLayer } from "./components/TerminalUI";
 import { MikuDecorations } from "./components/themes";
-import { ToastProvider } from "./components/toast";
 import { defaultMusicConfig } from "./config/musicConfig";
 import { THEMES } from "./config/themes";
 import {
@@ -176,7 +176,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <ToastProvider language={settings.language}>
+        <SnackbarProvider language={settings.language}>
             <div className="h-[100dvh] bg-theme-base text-theme-text font-ui-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
                 {/* 背景视觉效果 (Z-0) */}
                 <BackgroundLayer theme={settings.theme} />
@@ -252,7 +252,7 @@ const App: React.FC = () => {
                 {/* PWA 更新提示 */}
                 <PWAPrompt />
             </div>
-        </ToastProvider>
+        </SnackbarProvider>
     );
 };
 

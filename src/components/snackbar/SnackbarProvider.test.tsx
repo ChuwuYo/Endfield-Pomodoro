@@ -2,31 +2,35 @@ import { render, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Language } from "../../types";
-import { ToastProvider } from "./ToastProvider";
-import type { ToastApi } from "./toastTypes";
-import { useToast } from "./useToast";
+import { SnackbarProvider } from "./SnackbarProvider";
+import type { SnackbarApi } from "./snackbarTypes";
+import { useSnackbar } from "./useSnackbar";
 
-function ToastApiProbe({ onReady }: { onReady: (api: ToastApi) => void }) {
-    const toast = useToast();
+function SnackbarApiProbe({
+    onReady,
+}: {
+    onReady: (api: SnackbarApi) => void;
+}) {
+    const snackbar = useSnackbar();
     useEffect(() => {
-        onReady(toast);
-    }, [toast, onReady]);
+        onReady(snackbar);
+    }, [snackbar, onReady]);
     return null;
 }
 
-describe("ToastProvider overflow", () => {
-    it("fires onDismiss when a toast is dropped by the visible cap", async () => {
+describe("SnackbarProvider overflow", () => {
+    it("fires onDismiss when a snackbar is dropped by the visible cap", async () => {
         const onDismissOldest = vi.fn();
-        let api: ToastApi | undefined;
+        let api: SnackbarApi | undefined;
 
         render(
-            <ToastProvider language={Language.EN}>
-                <ToastApiProbe
-                    onReady={(toastApi) => {
-                        api = toastApi;
+            <SnackbarProvider language={Language.EN}>
+                <SnackbarApiProbe
+                    onReady={(snackbarApi) => {
+                        api = snackbarApi;
                     }}
                 />
-            </ToastProvider>,
+            </SnackbarProvider>,
         );
 
         await waitFor(() => {
