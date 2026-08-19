@@ -1,3 +1,5 @@
+
+
 # Endfield Pomodoro
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ChuwuYo/Endfield-Pomodoro)
@@ -59,7 +61,7 @@
 1. **克隆仓库**
    ```bash
    git clone https://github.com/ChuwuYo/Endfield-Pomodoro.git
-   cd endfield-pomodoro
+   cd Endfield-Pomodoro
    ```
 
 2. **安装依赖**
