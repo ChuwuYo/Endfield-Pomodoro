@@ -7,6 +7,8 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    // 资源使用相对路径以支持可以和其他网站共存或存放于二级目录
+    base: "./",
     plugins: [
         react(),
         // @vitejs/plugin-react 6 移除了 babel 选项，
