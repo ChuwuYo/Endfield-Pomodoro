@@ -1,3 +1,5 @@
+
+
 # Endfield Pomodoro
 
 
@@ -80,7 +82,7 @@
 
    ```bash
    git clone https://github.com/ChuwuYo/Endfield-Pomodoro.git
-   cd endfield-pomodoro
+   cd Endfield-Pomodoro
    ```
 
 2. **Install dependencies**
