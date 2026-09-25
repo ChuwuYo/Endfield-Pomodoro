@@ -32,14 +32,17 @@ export const STORAGE_KEYS = {
  * 音乐 API 基础 URL
  * 用于获取在线音乐数据
  *
- * 主 API: api.i-meto.com
- * 备用 API: api.injahow.cn
+ * 在线音乐 API 适配器按 getAdapters 的顺序尝试。
  *
  * 使用位置：
  * - hooks/useMusicData.ts
  */
-export const MUSIC_API_BASE_URL = "https://api.i-meto.com/meting/api";
-export const MUSIC_API_FALLBACK_URL = "https://api.injahow.cn/meting/";
+export const MUSIC_API_URLS = [
+    "https://api.injahow.cn/meting/",
+    "https://meting.furwolf.com/api",
+    "https://meting.api.418121.xyz/api",
+    "https://meting.jinghuashang.cn/",
+] as const;
 
 /**
  * 音频播放器常量

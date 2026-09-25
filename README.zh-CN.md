@@ -210,4 +210,5 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 - [Vite](https://vite.dev/)
 - [React](https://react.dev/)
 - [MetingJS](https://github.com/metowolf/MetingJS)
+- 在线 Meting API 源：`api.injahow.cn`、`meting.furwolf.com`、`meting.api.418121.xyz`、`meting.jinghuashang.cn`
 - [music-metadata](https://github.com/Borewit/music-metadata)

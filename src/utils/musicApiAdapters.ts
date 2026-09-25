@@ -1,7 +1,6 @@
 import {
     FALLBACK_API_TIMEOUT_MS,
-    MUSIC_API_BASE_URL,
-    MUSIC_API_FALLBACK_URL,
+    MUSIC_API_URLS,
     PRIMARY_API_TIMEOUT_MS,
 } from "../constants";
 import type { MusicTrack } from "../hooks/useMusicData";
@@ -55,7 +54,7 @@ const withQuery = (baseUrl: string, params: Record<string, string>): string => {
 };
 
 /**
- * 两个上游的歌单响应都不含 id/song_id 字段，歌曲 id 只存在于 url 的查询参数里
+ * 这些上游的歌单响应都不含 id/song_id 字段，歌曲 id 只存在于 url 的查询参数里
  * （形如 `...?server=netease&type=url&id=<songId>`）。单曲级回退依赖该 id。
  */
 const trackIdFromUrl = (url: unknown): string => {
@@ -67,67 +66,51 @@ const trackIdFromUrl = (url: unknown): string => {
     }
 };
 
-/**
- * Meting API 适配器（主）
- */
-export const metingAdapter: MusicAPIAdapter = {
+const parseMetingResponse = (data: unknown): MusicTrack[] => {
+    if (!Array.isArray(data) || data.length === 0) {
+        throw new EmptyPlaylistError();
+    }
+    return data.map((item: Record<string, string>) => ({
+        id: item.id || item.song_id || trackIdFromUrl(item.url),
+        name: item.name || item.title || "Unknown Track",
+        artist: item.artist || item.author || "Unknown Artist",
+        url: item.url || "",
+        cover: item.pic || item.cover || "",
+        lrc: item.lrc || "",
+        theme: item.theme,
+    }));
+};
+
+const createMetingAdapter = (
+    baseUrl: string,
+    timeoutMs: number,
+): MusicAPIAdapter => ({
     buildUrl: ({ server, type, id }) =>
-        withQuery(MUSIC_API_BASE_URL, { server, type, id }),
+        withQuery(baseUrl, { server, type, id }),
 
     buildTrackUrl: ({ server, id }) =>
-        withQuery(MUSIC_API_BASE_URL, {
+        withQuery(baseUrl, {
             server,
             type: "song",
             id,
         }),
 
-    parseResponse: (data) => {
-        if (!Array.isArray(data) || data.length === 0) {
-            throw new EmptyPlaylistError();
-        }
-        return data.map((item: Record<string, string>) => ({
-            id: item.id || item.song_id || trackIdFromUrl(item.url),
-            name: item.name || item.title || "Unknown Track",
-            artist: item.artist || item.author || "Unknown Artist",
-            url: item.url || "",
-            cover: item.pic || item.cover || "",
-            lrc: item.lrc || "",
-            theme: item.theme,
-        }));
-    },
+    parseResponse: parseMetingResponse,
+    timeoutMs,
+});
 
-    timeoutMs: PRIMARY_API_TIMEOUT_MS,
-};
+export const metingAdapter = createMetingAdapter(
+    MUSIC_API_URLS[0],
+    PRIMARY_API_TIMEOUT_MS,
+);
+export const metingFallbackAdapter = createMetingAdapter(
+    MUSIC_API_URLS[1],
+    FALLBACK_API_TIMEOUT_MS,
+);
+export const metingBackupAdapters = MUSIC_API_URLS.slice(2).map((url) =>
+    createMetingAdapter(url, FALLBACK_API_TIMEOUT_MS),
+);
 
-/**
- * Meting API 适配器（备用）
- */
-export const metingFallbackAdapter: MusicAPIAdapter = {
-    buildUrl: ({ server, type, id }) =>
-        withQuery(MUSIC_API_FALLBACK_URL, { server, type, id }),
-
-    buildTrackUrl: ({ server, id }) =>
-        withQuery(MUSIC_API_FALLBACK_URL, {
-            server,
-            type: "song",
-            id,
-        }),
-
-    parseResponse: metingAdapter.parseResponse,
-
-    timeoutMs: FALLBACK_API_TIMEOUT_MS,
-};
-
-/**
- * 获取当前启用的适配器列表
- * 按优先级排序，失败时会依次尝试下一个
- *
- * 顺序遵循 constants.ts 声明的主/备契约：主源 i-meto 数据新鲜度更高，
- * 备源 injahow 响应快但存在服务端长缓存（同一歌单会返回陈旧曲目），
- * 仅在主源超时或失败时兜底。
- *
- * 添加新 API 时，在此数组中添加对应的适配器即可
- */
 export const getAdapters = (): MusicAPIAdapter[] => {
-    return [metingAdapter, metingFallbackAdapter];
+    return [metingAdapter, metingFallbackAdapter, ...metingBackupAdapters];
 };

@@ -76,14 +76,11 @@ export default defineConfig({
                             },
                         },
                     },
-                    // 两个音乐 API 都必须绕过缓存：歌单内容会变，且请求靠查询参数区分，
+                    // 所有音乐 API 都必须绕过缓存：歌单内容会变，且请求靠查询参数区分，
                     // 而 ignoreURLParametersMatching 会忽略查询参数做匹配
                     {
-                        urlPattern: /^https:\/\/api\.i-meto\.com\/meting\/.*/i,
-                        handler: "NetworkOnly",
-                    },
-                    {
-                        urlPattern: /^https:\/\/api\.injahow\.cn\/meting\/.*/i,
+                        urlPattern:
+                            /^https:\/\/(api\.injahow\.cn|meting\.furwolf\.com|meting\.api\.418121\.xyz|meting\.jinghuashang\.cn)\/.*/i,
                         handler: "NetworkOnly",
                     },
                     {

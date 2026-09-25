@@ -210,4 +210,5 @@ Issues and pull requests are welcome. Please follow the existing code style (see
 - [Vite](https://vite.dev/)
 - [React](https://react.dev/)
 - [MetingJS](https://github.com/metowolf/MetingJS)
+- Online Meting API sources: `api.injahow.cn`, `meting.furwolf.com`, `meting.api.418121.xyz`, and `meting.jinghuashang.cn`
 - [music-metadata](https://github.com/Borewit/music-metadata)

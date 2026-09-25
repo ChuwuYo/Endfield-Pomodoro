@@ -81,21 +81,24 @@ describe("empty playlist is distinguishable from service failure", () => {
 });
 
 describe("adapter priority", () => {
-    it("queries the documented primary API before the fallback", () => {
-        const [primary, fallback] = getAdapters();
-        const primaryUrl = primary.buildUrl({
-            server: "netease",
-            type: "playlist",
-            id: "1",
-        });
-        const fallbackUrl = fallback.buildUrl({
-            server: "netease",
-            type: "playlist",
-            id: "1",
-        });
+    it("queries verified sources in fallback order", () => {
+        const hosts = getAdapters().map(
+            (adapter) =>
+                new URL(
+                    adapter.buildUrl({
+                        server: "netease",
+                        type: "playlist",
+                        id: "1",
+                    }),
+                ).hostname,
+        );
 
-        expect(new URL(primaryUrl).hostname).toBe("api.i-meto.com");
-        expect(new URL(fallbackUrl).hostname).toBe("api.injahow.cn");
+        expect(hosts).toEqual([
+            "api.injahow.cn",
+            "meting.furwolf.com",
+            "meting.api.418121.xyz",
+            "meting.jinghuashang.cn",
+        ]);
     });
 });
 
@@ -166,7 +169,7 @@ describe("music API URL builders", () => {
         });
         const parsed = new URL(url);
         expect(parsed.origin + parsed.pathname).toBe(
-            "https://api.i-meto.com/meting/api",
+            "https://api.injahow.cn/meting/",
         );
         expect(parsed.searchParams.get("server")).toBe("netease");
         expect(parsed.searchParams.get("type")).toBe("playlist");
@@ -190,7 +193,7 @@ describe("music API URL builders", () => {
         expect(new URL(fallback).searchParams.get("id")).toBe(dirtyId);
         expect(primary).not.toContain("id=song&id=");
         expect(fallback).not.toContain("id=song&id=");
-        expect(fallback.startsWith("https://api.injahow.cn/meting/?")).toBe(
+        expect(fallback.startsWith("https://meting.furwolf.com/api?")).toBe(
             true,
         );
     });
