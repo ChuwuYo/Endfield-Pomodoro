@@ -27,7 +27,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onReload }) => {
 
     return (
         <div
-            className="min-h-[100dvh] bg-theme-base text-theme-text font-ui-sans flex flex-col items-center justify-center gap-6 px-6 text-center"
+            className="min-h-[100dvh] bg-theme-base text-theme-text flex flex-col items-center justify-center gap-6 px-6 text-center"
             role="alert"
             aria-live="assertive"
         >

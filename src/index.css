@@ -2,8 +2,9 @@
 
 @theme {
   /* 字体配置（字体 stylesheet 在 index.html 中 preconnect + link 加载） */
-  --font-mono: "JetBrains Mono", monospace;
-  --font-sans: "Rajdhani", sans-serif;
+  /* --font-cjk 随 <html lang> 切换（见下方 html[lang] 规则），未命中时回退系统字体 */
+  --font-mono: "JetBrains Mono", var(--font-cjk), monospace;
+  --font-sans: "Rajdhani", var(--font-cjk), sans-serif;
 
   /* 颜色配置 - 映射到CSS变量 */
   /* 这会自动创建像bg-theme-primary、text-theme-base这样的类 */
@@ -27,6 +28,28 @@
     表单控件高度：设计稿 36px @ root 15px → 2.4rem，随 --ui-scale 缩放。
   */
   --spacing-form-control: 2.4rem;
+}
+
+/* CJK 字体：随 <html lang> 切换 Noto 变体（Google unicode-range 切片，只下载用到的字）；
+   未命中（如 en）或 CDN 不可达（大陆/离线）时回退系统字体 */
+:root {
+  --font-cjk: sans-serif;
+}
+
+html[lang="zh-CN"] {
+  --font-cjk: "Noto Sans SC";
+}
+
+html[lang="zh-TW"] {
+  --font-cjk: "Noto Sans TC";
+}
+
+html[lang="ja"] {
+  --font-cjk: "Noto Sans JP";
+}
+
+html[lang="ko"] {
+  --font-cjk: "Noto Sans KR";
 }
 
 /*
