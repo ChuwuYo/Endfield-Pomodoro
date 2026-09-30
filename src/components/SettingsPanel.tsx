@@ -175,6 +175,18 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             value: Language.CN,
                                             label: "简体中文 (CN)",
                                         },
+                                        {
+                                            value: Language.TW,
+                                            label: "繁體中文 (TW)",
+                                        },
+                                        {
+                                            value: Language.JA,
+                                            label: "日本語 (JP)",
+                                        },
+                                        {
+                                            value: Language.KO,
+                                            label: "한국어 (KR)",
+                                        },
                                     ]}
                                     onChange={(value) =>
                                         onSettingsChange({
@@ -356,13 +368,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                         onMusicConfigChange("server", value)
                                     }
                                 />
-                                <div className="mt-2 text-ui-sm text-theme-primary font-ui-mono inline-flex items-center gap-1 px-2 py-1 border border-theme-highlight/80 bg-theme-surface/20">
-                                    <i
-                                        className="ri-alarm-warning-line icon-ui-sm"
-                                        aria-hidden="true"
-                                    ></i>
-                                    <span>{t("PLATFORM_NOTICE")}</span>
-                                </div>
                             </div>
                             <div>
                                 <label
@@ -402,6 +407,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     placeholder={t("ENTER_ID_PLACEHOLDER")}
                                 />
                             </div>
+                        </div>
+                        <div className="text-ui-sm text-theme-primary font-ui-mono inline-flex items-center gap-1 px-2 py-1 border border-theme-highlight/80 bg-theme-surface/20 w-fit">
+                            <i
+                                className="ri-alarm-warning-line icon-ui-sm"
+                                aria-hidden="true"
+                            ></i>
+                            <span>{t("PLATFORM_NOTICE")}</span>
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
                             <Button

@@ -10,6 +10,9 @@ export type TimerMode = (typeof TimerMode)[keyof typeof TimerMode];
 export const Language = {
     EN: "EN",
     CN: "CN",
+    TW: "TW",
+    JA: "JA",
+    KO: "KO",
 } as const;
 export type Language = (typeof Language)[keyof typeof Language];
 
