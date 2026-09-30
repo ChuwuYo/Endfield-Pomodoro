@@ -16,11 +16,3 @@ export const getUiScale = (): number => {
 
 /** 设计稿 px（scale=1）→ 当前密度下的 CSS px */
 export const scalePx = (designPx: number): number => designPx * getUiScale();
-
-/** 当前根字号（已含 --ui-scale） */
-export const getRootFontSizePx = (): number => {
-    if (typeof document === "undefined") return 15;
-    const raw = getComputedStyle(document.documentElement).fontSize;
-    const value = Number.parseFloat(raw);
-    return Number.isFinite(value) && value > 0 ? value : 15;
-};

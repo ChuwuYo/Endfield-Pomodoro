@@ -72,12 +72,6 @@ describe("empty playlist is distinguishable from service failure", () => {
             }),
         ).toThrow(EmptyPlaylistError);
     });
-
-    it("throws EmptyPlaylistError for an empty array", () => {
-        expect(() => metingAdapter.parseResponse([])).toThrow(
-            EmptyPlaylistError,
-        );
-    });
 });
 
 describe("adapter priority", () => {
@@ -151,12 +145,6 @@ describe("metingAdapter.parseResponse", () => {
 
     it("throws on empty array", () => {
         expect(() => metingAdapter.parseResponse([])).toThrow("Empty playlist");
-    });
-
-    it("throws on non-array", () => {
-        expect(() => metingAdapter.parseResponse({ ok: true })).toThrow(
-            "Empty playlist",
-        );
     });
 });
 

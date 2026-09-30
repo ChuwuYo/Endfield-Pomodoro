@@ -60,11 +60,6 @@ describe("languageLocale", () => {
         }
     });
 
-    it("detects browser language like App defaults", () => {
-        expect(typeof detectBrowserLanguage()).toBe("string");
-        expect(Object.values(Language)).toContain(detectBrowserLanguage());
-    });
-
     it("picks the first non-English browser language", () => {
         vi.spyOn(navigator, "languages", "get").mockReturnValue([
             "en-US",

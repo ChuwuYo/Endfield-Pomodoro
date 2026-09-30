@@ -19,6 +19,5 @@ describe("createId", () => {
 
         const id = createId();
         expect(id).toMatch(/^[a-z0-9]+-[a-z0-9]+$/i);
-        expect(id.includes("-")).toBe(true);
     });
 });

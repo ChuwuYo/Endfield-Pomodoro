@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getRootFontSizePx, getUiScale, scalePx } from "./uiScale";
+import { getUiScale, scalePx } from "./uiScale";
 
 describe("uiScale", () => {
     afterEach(() => {
@@ -17,10 +17,5 @@ describe("uiScale", () => {
         document.documentElement.style.setProperty("--ui-scale", "nope");
         expect(getUiScale()).toBe(1);
         expect(scalePx(36)).toBe(36);
-    });
-
-    it("reads the computed root font-size", () => {
-        document.documentElement.style.fontSize = "13.5px";
-        expect(getRootFontSizePx()).toBe(13.5);
     });
 });

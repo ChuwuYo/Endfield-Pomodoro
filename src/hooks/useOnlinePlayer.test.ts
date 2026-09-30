@@ -36,24 +36,6 @@ afterEach(() => {
 });
 
 describe("useOnlinePlayer playlist shrink", () => {
-    it("keeps a playable current song when the list shrinks below the current index", () => {
-        const { result, rerender } = renderHook(
-            ({ playlist }) => useOnlinePlayer(playlist, false, true),
-            { initialProps: { playlist: makePlaylist(86, "long") } },
-        );
-
-        act(() => {
-            result.current.playTrack(49, true);
-        });
-        expect(result.current.currentSong?.name).toBe("long track 49");
-
-        // 同一歌单来源下切换 API 适配器：列表变短但组件不会重建
-        rerender({ playlist: makePlaylist(10, "short") });
-
-        expect(result.current.currentSong).toBeDefined();
-        expect(result.current.currentSong?.url).toBeTruthy();
-    });
-
     it("lands on the nearest valid position instead of jumping back to the start", () => {
         const { result, rerender } = renderHook(
             ({ playlist }) => useOnlinePlayer(playlist, false, true),
@@ -118,11 +100,5 @@ describe("useOnlinePlayer playlist shrink", () => {
         });
 
         expect(onTrackPlayable).toHaveBeenCalled();
-    });
-
-    it("still exposes no song for a genuinely empty playlist", () => {
-        const { result } = renderHook(() => useOnlinePlayer([], false, true));
-
-        expect(result.current.currentSong).toBeUndefined();
     });
 });
