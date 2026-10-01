@@ -15,7 +15,12 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
 
     // 在挂载时从LocalStorage加载 - 直接初始化状态
     const [tasks, setTasks] = useState<Task[]>(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
+        let saved: string | null = null;
+        try {
+            saved = localStorage.getItem(STORAGE_KEYS.TASKS);
+        } catch (e) {
+            console.error("Failed to read tasks", e);
+        }
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);

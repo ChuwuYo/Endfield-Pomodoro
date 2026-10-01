@@ -136,7 +136,8 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "RELOAD",
 
         // PWA
-        pwa_updated: "A new version is ready.",
+        pwa_updated:
+            "A new version is ready. It refreshes automatically in the background.",
         pwa_offline: "OFFLINE MODE",
         CLOSE: "Close",
 
@@ -281,7 +282,7 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "刷新页面",
 
         // PWA
-        pwa_updated: "新版本已就绪。",
+        pwa_updated: "新版本已就绪，将在后台自动刷新。",
         pwa_offline: "离线模式",
         CLOSE: "关闭",
 
@@ -426,7 +427,7 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "重新整理",
 
         // PWA
-        pwa_updated: "新版本已就緒。",
+        pwa_updated: "新版本已就緒，將在背景自動重新整理。",
         pwa_offline: "離線模式",
         CLOSE: "關閉",
 
@@ -572,7 +573,8 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "再読み込み",
 
         // PWA
-        pwa_updated: "新しいバージョンが利用可能です。",
+        pwa_updated:
+            "新しいバージョンが利用可能です。バックグラウンドで自動更新されます。",
         pwa_offline: "オフラインモード",
         CLOSE: "閉じる",
 
@@ -718,7 +720,8 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "새로고침",
 
         // PWA
-        pwa_updated: "새 버전이 준비되었습니다.",
+        pwa_updated:
+            "새 버전이 준비되었습니다. 백그라운드에서 자동으로 새로고침됩니다.",
         pwa_offline: "오프라인 모드",
         CLOSE: "닫기",
 

@@ -54,22 +54,26 @@ export default defineConfig({
             },
             workbox: {
                 cleanupOutdatedCaches: true,
-                globPatterns: [
-                    "**/*.{js,css,html,ico,png,svg,webp,woff,woff2}",
-                ],
+                // 预缓存是 cache-first，index.html 放进去会让在线用户一直看到旧版
+                globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-                navigateFallback: "index.html",
-                navigateFallbackDenylist: [/^\/api/, /\.(mp3|m4a|flac)$/i],
+                // 必须写 null：vite-plugin-pwa 默认是 "index.html"，会生成预缓存导航路由
+                navigateFallback: null,
                 ignoreURLParametersMatching: [/.*/],
-                // index.html 优先从网络获取，缓存仅作为离线回退
                 dontCacheBustURLsMatching: /\.(js|css)$/,
                 runtimeCaching: [
-                    // index.html: 优先从网络获取，确保用户总是获得最新版本
+                    // no-store 绕开 HTTP 缓存：否则 NetworkFirst 也可能拿到旧 HTML
                     {
-                        urlPattern: /^.*\/index\.html$/,
+                        urlPattern: ({ request, url }) =>
+                            request.mode === "navigate" &&
+                            !url.pathname.startsWith("/api") &&
+                            !/\.(mp3|m4a|flac)$/i.test(url.pathname),
                         handler: "NetworkFirst",
+                        method: "GET",
                         options: {
-                            cacheName: "index-html",
+                            cacheName: "document-pages",
+                            networkTimeoutSeconds: 3,
+                            fetchOptions: { cache: "no-store" },
                             expiration: {
                                 maxEntries: 1,
                                 maxAgeSeconds: 60 * 60 * 24 * 7, // 1周离线回退 (PWA Support)

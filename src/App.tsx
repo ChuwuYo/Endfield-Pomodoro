@@ -87,9 +87,15 @@ const DEFAULT_SETTINGS: Settings = {
 const App: React.FC = () => {
     // 从localStorage加载设置
     const [settings, setSettings] = useState<Settings>(() => {
-        const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         const notificationPermission =
             "Notification" in window ? Notification.permission : null;
+        let saved: string | null = null;
+        try {
+            saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+        } catch (e) {
+            // 存储不可用（隐私模式、沙箱 iframe、阻止站点数据）时退回默认设置
+            console.error("Failed to load settings", e);
+        }
         return parseStoredSettings(saved, DEFAULT_SETTINGS, {
             notificationPermission,
         });

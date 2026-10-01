@@ -1,26 +1,5 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pwa/client" />
 
-declare module "virtual:pwa-register/react" {
-    import type { Dispatch, SetStateAction } from "react";
+// virtual:pwa-register/* 的类型 vite-plugin-pwa 已经提供了，这里别再手写一份
 
-    export interface RegisterSWOptions {
-        immediate?: boolean;
-        onNeedRefresh?: () => void;
-        onOfflineReady?: () => void;
-        onRegistered?: (
-            registration: ServiceWorkerRegistration | undefined,
-        ) => void;
-        onRegisteredSW?: (
-            swUrl: string,
-            registration: ServiceWorkerRegistration | undefined,
-        ) => void;
-        onRegisterError?: (error: Error) => void;
-    }
-
-    export function useRegisterSW(options?: RegisterSWOptions): {
-        needRefresh: [boolean, Dispatch<SetStateAction<boolean>>];
-        offlineReady: [boolean, Dispatch<SetStateAction<boolean>>];
-        updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
-    };
-}
