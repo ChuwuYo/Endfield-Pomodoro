@@ -11,6 +11,8 @@
         "check": "biome check --write .",
         "test": "vitest run",
         "test:watch": "vitest",
+        "bench": "node scripts/bench.mjs",
+        "bench:save": "node scripts/bench.mjs --save",
         "preview": "vite preview"
     },
     "dependencies": {

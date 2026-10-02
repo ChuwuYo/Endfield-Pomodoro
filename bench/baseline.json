@@ -1,0 +1,19 @@
+{
+    "launch.fcp": 692,
+    "launch.lcp": 692,
+    "launch.scriptMs": 419,
+    "launch.layoutMs": 194,
+    "launch.taskMs": 1078,
+    "launch.domNodes": 967,
+    "tick.scriptMs": 95,
+    "tick.layoutMs": 115,
+    "tick.taskMs": 1074,
+    "tick.layouts": 22,
+    "tick.domMutations": 165,
+    "tick.perFrameTaskMs": 4.7,
+    "tick.perFrameLayoutMs": 0.52,
+    "tick.perFrameStyleMs": 1.38,
+    "assets.distKB": 6134,
+    "assets.precacheEntries": 29,
+    "assets.precacheKB": 1706
+}
