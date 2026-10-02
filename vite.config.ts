@@ -56,6 +56,8 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 // 预缓存是 cache-first，index.html 放进去会让在线用户一直看到旧版
                 globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
+                // 浏览器只会取 woff2，svg/woff 是死重（仅 remixicon 就 3.2MB）
+                globIgnores: ["**/remixicon-*.svg", "**/remixicon-*.woff"],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
                 // 必须写 null：vite-plugin-pwa 默认是 "index.html"，会生成预缓存导航路由
                 navigateFallback: null,

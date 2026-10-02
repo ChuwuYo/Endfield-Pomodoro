@@ -374,7 +374,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             />
                             {/* 进度 */}
                             <circle
-                                className={`${mode === TimerMode.WORK ? "text-theme-primary" : "text-theme-accent"} transition-all duration-1000 ease-linear`}
+                                className={`${mode === TimerMode.WORK ? "text-theme-primary" : "text-theme-accent"}`}
                                 strokeWidth="4"
                                 strokeDasharray={2 * Math.PI * 120}
                                 strokeDashoffset={
@@ -390,13 +390,12 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                     filter: "drop-shadow(0 0 4px var(--color-primary))",
                                 }}
                             />
-                            {/* 发光尖端 */}
+                            {/* 发光尖端（不加过渡：SVG 上的 transition 无法走合成器，会每帧重排整块 SVG） */}
                             <circle
                                 fill="var(--color-text)"
                                 r="4"
                                 cx="248"
                                 cy="128"
-                                className="transition-all duration-1000 ease-linear"
                                 style={{
                                     transformOrigin: "50% 50%",
                                     transform: `rotate(${progress * 3.6}deg)`,
