@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* 字体自托管：原先走 Google Fonts 的阻塞 stylesheet（878KB / 935 条 @font-face），
+   墙外要多等一次第三方连接，墙内直接超时。CJK 字族不进这里——4 个字族共 1600+
+   条规则会把本文件撑到 1MB，改为按当前语言动态 import（见 utils/cjkFont.ts）。
+   分片沿用 unicode-range 全量覆盖：构建时全部产出，浏览器只下命中的几片，
+   后续新增汉字无需任何操作。 */
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-700.css";
+@import "@fontsource/rajdhani/latin-500.css";
+@import "@fontsource/rajdhani/latin-600.css";
+@import "@fontsource/rajdhani/latin-700.css";
+
 @theme {
   /* 字体配置（字体 stylesheet 在 index.html 中 preconnect + link 加载） */
   /* --font-cjk 随 <html lang> 切换（见下方 html[lang] 规则），未命中时回退系统字体 */

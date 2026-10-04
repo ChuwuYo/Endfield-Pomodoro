@@ -9,10 +9,8 @@ const ROOT = resolve(import.meta.dirname, "..");
 const DIST = join(ROOT, "dist");
 const BASELINE = join(ROOT, "bench", "baseline.json");
 const PORT = Number(process.env.BENCH_PORT ?? 4178);
-const CDP_PORT = Number(process.env.BENCH_CDP_PORT ?? 9333);
 const TICK_MS = Number(process.env.BENCH_TICK_MS ?? 8000);
 const CPU_THROTTLE = Number(process.env.BENCH_CPU ?? 4);
-const ALLOW_FONTS = process.argv.includes("--allow-network-fonts");
 const SAVE = process.argv.includes("--save");
 
 const CHROME_CANDIDATES = [
@@ -127,13 +125,15 @@ class CDP {
 }
 
 const launchChrome = async (profileDir) => {
+    // 随机端口：上一个 Chrome 尚未退出时固定端口会绑不上，表现为整轮 bench 崩掉
+    const cdpPort = 9300 + Math.floor(Math.random() * 500);
     const bin = CHROME_CANDIDATES.find((p) => existsSync(p));
     if (!bin) throw new Error("no Chrome/Edge binary found; set BENCH_CHROME");
     const proc = spawn(
         bin,
         [
             "--headless=new",
-            `--remote-debugging-port=${CDP_PORT}`,
+            `--remote-debugging-port=${cdpPort}`,
             "--remote-allow-origins=*",
             `--user-data-dir=${profileDir}`,
             "--no-first-run",
@@ -153,9 +153,7 @@ const launchChrome = async (profileDir) => {
     const deadline = Date.now() + 20000;
     while (Date.now() < deadline) {
         try {
-            const res = await fetch(
-                `http://127.0.0.1:${CDP_PORT}/json/version`,
-            );
+            const res = await fetch(`http://127.0.0.1:${cdpPort}/json/version`);
             if (res.ok) return { proc, info: await res.json() };
         } catch {
             await new Promise((r) => setTimeout(r, 150));
@@ -196,7 +194,13 @@ const evaluate = async (cdp, sessionId, expression) => {
         { expression, awaitPromise: true, returnByValue: true },
         sessionId,
     );
-    if (exceptionDetails) throw new Error(exceptionDetails.text);
+    if (exceptionDetails) {
+        throw new Error(
+            exceptionDetails.exception?.description ??
+                exceptionDetails.text ??
+                "evaluate failed",
+        );
+    }
     return result.value;
 };
 
@@ -291,7 +295,6 @@ const run = async () => {
         await cdp.send("Page.enable", {}, sessionId);
         await cdp.send("Runtime.enable", {}, sessionId);
         await cdp.send("Performance.enable", {}, sessionId);
-        await cdp.send("Network.enable", {}, sessionId);
         await cdp.send(
             "Emulation.setDeviceMetricsOverride",
             {
@@ -307,13 +310,6 @@ const run = async () => {
             { rate: CPU_THROTTLE },
             sessionId,
         );
-        if (!ALLOW_FONTS) {
-            await cdp.send(
-                "Network.setBlockedURLs",
-                { urls: ["*fonts.googleapis.com*", "*fonts.gstatic.com*"] },
-                sessionId,
-            );
-        }
         await cdp.send(
             "Page.addScriptToEvaluateOnNewDocument",
             { source: COLLECTORS },
@@ -332,6 +328,9 @@ const run = async () => {
             sessionId,
         );
         await loaded;
+        // 等字体子集下载完成再进入测量：否则下载与计时窗口重叠，tick 指标噪声
+        // 会从 ±7% 涨到 ±300%
+        await evaluate(cdp, sessionId, "document.fonts.ready.then(() => true)");
         await new Promise((r) => setTimeout(r, 1500));
 
         const loadMetrics = await metricsOf(cdp, sessionId);
@@ -343,15 +342,22 @@ const run = async () => {
               const nav = performance.getEntriesByType("navigation")[0] ?? {};
               const paint = (n) => b.paints.find((p) => p.name === n)?.t ?? 0;
               const res = performance.getEntriesByType("resource");
-              const fonts = res.filter((r) => /fonts\\.(googleapis|gstatic)\\.com/.test(r.name));
+              const fonts = res.filter((r) => /\.(woff2?|ttf|eot)$/.test(r.name));
+              const fcpAt = paint("first-contentful-paint");
+              // CJK 字族 CSS 是动态 import 的：必须先于首屏绘制到达，否则首屏中文
+              // 会用系统字体画一帧再换（FOUT），属于用户可见的回归
+              const cjkCss = res.filter((r) => /(400|700)-[^/]+\.css$/.test(r.name));
+              const cjkCssLate = cjkCss.filter((r) => r.responseEnd > fcpAt).length;
               return {
-                fcp: paint("first-contentful-paint"),
+                fcp: fcpAt,
                 lcp: b.lcp,
                 dcl: Math.round(nav.domContentLoadedEventEnd ?? 0),
                 load: Math.round(nav.loadEventEnd ?? 0),
                 requests: res.length + 1,
                 transferredKB: Math.round(res.reduce((s, r) => s + (r.transferSize || 0), 0) / 1024),
                 fontRequests: fonts.length,
+                cjkCssChunks: cjkCss.length,
+                cjkCssLate,
                 nodes: document.querySelectorAll("*").length,
               };
             })()`,
@@ -411,11 +417,7 @@ const run = async () => {
 
         return {
             startClicked: click,
-            config: {
-                cpuThrottle: CPU_THROTTLE,
-                tickMs: TICK_MS,
-                networkFonts: ALLOW_FONTS,
-            },
+            config: { cpuThrottle: CPU_THROTTLE, tickMs: TICK_MS },
             launch: {
                 fcp: load.fcp,
                 lcp: load.lcp,
@@ -430,6 +432,9 @@ const run = async () => {
                 domNodes: load.nodes,
                 requests: load.requests,
                 transferredKB: load.transferredKB,
+                fontRequests: load.fontRequests,
+                cjkCssChunks: load.cjkCssChunks,
+                cjkCssLate: load.cjkCssLate,
             },
             tick: {
                 scriptMs: Math.round(
@@ -552,6 +557,15 @@ for (const [key, pct] of Object.entries(report.spread)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5))
     console.error(`  ${key}: +/-${pct}%`);
+
+const cjkCssLate = Math.max(...runs.map((r) => r.launch.cjkCssLate));
+const cjkCssChunks = medianOf(runs.map((r) => r.launch.cjkCssChunks));
+if (cjkCssChunks > 0 && cjkCssLate > 0) {
+    console.error(
+        `\nFAIL: ${cjkCssLate} 个 CJK 字族 CSS chunk 晚于首屏绘制到达，首屏中文会先显示系统字体再替换（FOUT）`,
+    );
+    process.exit(1);
+}
 
 if (SAVE) {
     await mkdir(join(ROOT, "bench"), { recursive: true });

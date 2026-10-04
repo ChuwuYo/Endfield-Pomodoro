@@ -25,6 +25,7 @@ import { getThemeExtraSpacing, useFooterHeight } from "./hooks/useFooterHeight";
 import { useSessionStats } from "./hooks/useSessionStats";
 import type { Settings } from "./types";
 import { ThemePreset, TimerMode, View } from "./types";
+import { loadCjkFontCss } from "./utils/cjkFont";
 import { useTranslation } from "./utils/i18n";
 import {
     detectBrowserLanguage,
@@ -201,6 +202,8 @@ const App: React.FC = () => {
     // 同步 html lang，供屏幕阅读器与浏览器拼写/翻译使用
     useEffect(() => {
         document.documentElement.lang = languageToHtmlLang(settings.language);
+        // CJK 字族 CSS 是按语言动态 import 的，运行中切换语言要补载对应字族
+        void loadCjkFontCss(settings.language);
     }, [settings.language]);
 
     useEffect(() => {
@@ -254,11 +257,7 @@ const App: React.FC = () => {
                             ),
                     }}
                 >
-                    <div
-                        className={
-                            currentView === View.SETTINGS ? "" : "hidden"
-                        }
-                    >
+                    {currentView === View.SETTINGS && (
                         <SettingsPanel
                             settings={settings}
                             tempMusicConfig={tempMusicConfig}
@@ -270,7 +269,7 @@ const App: React.FC = () => {
                             }
                             t={t}
                         />
-                    </div>
+                    )}
                     <div
                         className={
                             currentView === View.DASHBOARD ? "" : "hidden"

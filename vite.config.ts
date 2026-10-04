@@ -56,8 +56,25 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 // 预缓存是 cache-first，index.html 放进去会让在线用户一直看到旧版
                 globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
-                // 浏览器只会取 woff2，svg/woff 是死重（仅 remixicon 就 3.2MB）
-                globIgnores: ["**/remixicon-*.svg", "**/remixicon-*.woff"],
+                // 浏览器只取 woff2，svg/woff 是死重（仅 remixicon 就 3.2MB）
+                globIgnores: [
+                    "**/remixicon-*.svg",
+                    "**/remixicon-*.woff",
+                    // 自托管字体：1800+ 个 unicode-range 分片文件（每片都有 .woff 和
+                    // .woff2 两份），浏览器按需取用；全量预缓存等于往 Cache Storage
+                    // 写几十 MB，且离线场景下也没有必要缓存全部生僻字分片
+                    "**/noto-sans-*.woff",
+                    "**/noto-sans-*.woff2",
+                    "**/jetbrains-mono-*.woff",
+                    "**/jetbrains-mono-*.woff2",
+                    "**/rajdhani-*.woff",
+                    "**/rajdhani-*.woff2",
+                    // CJK 字族 CSS chunk（文件名是 400-<hash>.css / 700-<hash>.css，
+                    // 由 Vite 依据被 import 的 400.css/700.css 命名）：每个用户只用得
+                    // 上当前语言那两份，预缓存全部等于白装 850KB
+                    "**/400-*.css",
+                    "**/700-*.css",
+                ],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
                 // 必须写 null：vite-plugin-pwa 默认是 "index.html"，会生成预缓存导航路由
                 navigateFallback: null,
@@ -88,28 +105,6 @@ export default defineConfig({
                         urlPattern:
                             /^https:\/\/(api\.injahow\.cn|meting\.furwolf\.com|meting\.api\.418121\.xyz|meting\.jinghuashang\.cn)\/.*/i,
                         handler: "NetworkOnly",
-                    },
-                    {
-                        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-                        handler: "CacheFirst",
-                        options: {
-                            cacheName: "google-fonts-stylesheets",
-                            expiration: {
-                                maxEntries: 10,
-                                maxAgeSeconds: 60 * 60 * 24 * 365,
-                            },
-                        },
-                    },
-                    {
-                        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-                        handler: "CacheFirst",
-                        options: {
-                            cacheName: "google-fonts-webfonts",
-                            expiration: {
-                                maxEntries: 30,
-                                maxAgeSeconds: 60 * 60 * 24 * 365,
-                            },
-                        },
                     },
                 ],
             },
