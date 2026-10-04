@@ -43,6 +43,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     t,
 }) => {
     const snackbar = useSnackbar();
+    const stepDuration = (
+        key: "workDuration" | "shortBreakDuration" | "longBreakDuration",
+        delta: 1 | -1,
+    ) =>
+        onSettingsChange({
+            ...settings,
+            [key]: Math.max(1, settings[key] + delta),
+        });
     const idPrefix = useId();
     const workId = `${idPrefix}-work`;
     const shortBreakId = `${idPrefix}-short-break`;
@@ -84,6 +92,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     type="number"
                                     min={1}
                                     value={settings.workDuration}
+                                    onStep={(delta) =>
+                                        stepDuration("workDuration", delta)
+                                    }
                                     onChange={(e) =>
                                         onSettingsChange({
                                             ...settings,
@@ -107,6 +118,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     type="number"
                                     min={1}
                                     value={settings.shortBreakDuration}
+                                    onStep={(delta) =>
+                                        stepDuration(
+                                            "shortBreakDuration",
+                                            delta,
+                                        )
+                                    }
                                     onChange={(e) =>
                                         onSettingsChange({
                                             ...settings,
@@ -131,6 +148,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     type="number"
                                     min={1}
                                     value={settings.longBreakDuration}
+                                    onStep={(delta) =>
+                                        stepDuration("longBreakDuration", delta)
+                                    }
                                     onChange={(e) =>
                                         onSettingsChange({
                                             ...settings,

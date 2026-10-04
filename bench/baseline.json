@@ -11,7 +11,6 @@
     "tick.layouts": 19,
     "tick.domMutations": 160,
     "tick.perFrameTaskMs": 4.03,
-    "tick.perFrameLayoutMs": 0.46,
     "tick.perFrameStyleMs": 1.17,
     "assets.precacheEntries": 29,
     "assets.precacheKB": 1707

@@ -239,6 +239,19 @@ html {
   line-height: 1;
 }
 
+/* 隐藏 number 的原生增减按钮：它在 UA shadow DOM 里，无法样式化（Fluent/Fast
+   的做法），改用 Input 组件内的自定义三角按钮。方向键增减与 min 校验保持不变。 */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* 基础样式 */
 body {
   @apply bg-theme-base text-theme-text overflow-hidden;
