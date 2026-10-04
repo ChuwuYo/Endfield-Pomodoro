@@ -64,6 +64,7 @@
 | **开发语言** | [TypeScript](https://www.typescriptlang.org/) | 静态强类型，提升代码可维护性 |
 | **样式方案** | [TailwindCSS v4](https://tailwindcss.com/) | 原子化 CSS 引擎，支持 CSS 变量动态主题 |
 | **图标库** | [Remixicon](https://remixicon.com/) | 风格统一的现代化图标集 |
+| **字体** | [Fontsource](https://fontsource.org/) | 自托管 JetBrains Mono / Rajdhani / Noto CJK，按 unicode-range 分片 |
 | **状态管理** | React Hooks | 基于 Hook 的原生状态逻辑复用 |
 | **代码质量** | [ESLint](https://eslint.org/) + [Biome](https://biomejs.dev/) | 代码检查与高性能格式化 |
 
@@ -192,6 +193,8 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 | `pnpm format` | 使用 Biome 格式化代码 |
 | `pnpm check` | 运行 Biome 综合检查 |
 | `pnpm test` | 使用 Vitest 运行测试 |
+| `pnpm bench` | 性能棘轮：按 `bench/baseline.json` 比对首屏与计时走秒指标（需先 `pnpm build`，仅本地运行） |
+| `pnpm bench:save` | 把棘轮基线降到当前测量值 |
 
 ## 贡献 (Contributing)
 

@@ -64,6 +64,7 @@
 | **Language** | [TypeScript](https://www.typescriptlang.org/) | Static typing for maintainability |
 | **Styling** | [TailwindCSS v4](https://tailwindcss.com/) | Atomic CSS engine with CSS-variable-driven themes |
 | **Icons** | [Remixicon](https://remixicon.com/) | Consistent modern icon set |
+| **Fonts** | [Fontsource](https://fontsource.org/) | Self-hosted JetBrains Mono / Rajdhani / Noto CJK, unicode-range subsetting |
 | **State** | React Hooks | Native Hook-based reusable state logic |
 | **Quality** | [ESLint](https://eslint.org/) + [Biome](https://biomejs.dev/) | Linting and high-performance formatting |
 
@@ -192,6 +193,8 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 | `pnpm format` | Format code with Biome |
 | `pnpm check` | Run Biome checks |
 | `pnpm test` | Run tests with Vitest |
+| `pnpm bench` | Perf ratchet: launch + timer-tick measurements against `bench/baseline.json` (run `pnpm build` first, local only) |
+| `pnpm bench:save` | Lower the ratchet to the current measurements |
 
 ## Contributing
 
