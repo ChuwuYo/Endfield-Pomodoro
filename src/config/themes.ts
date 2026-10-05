@@ -39,9 +39,10 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-error": "#ff4d4f",
     },
     [ThemePreset.ABYSSAL]: {
-        "--color-base": "#0f172a",
-        "--color-surface": "#1e293b",
-        "--color-highlight": "#334155",
+        // 深海黑蓝：底座下沉（与 AZURE 亮空蓝拉开），辉光色保持生物荧光感
+        "--color-base": "#050b12",
+        "--color-surface": "#0a1826",
+        "--color-highlight": "#1c3446",
         "--color-primary": "#38bdf8",
         "--color-secondary": "#94a3b8",
         "--color-accent": "#f472b6",

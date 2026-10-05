@@ -53,19 +53,6 @@ export const TacticalForeground: React.FC = () => {
     );
 };
 
-/**
- * Abyssal 主题前景效果 - 扫描线
- *
- * 性能优化：原 keyframes 动画 top（每帧触发布局+重绘，叠加 blur 滤镜成本），
- * 改为 transform 平移（纯合成器动画）。容器为 fixed inset-0（桌面端等于视口），
- * translateY(100vh) 与 top: 100% 终点一致，时序/缓动/透明度不变。
- */
-export const AbyssalForeground: React.FC = () => (
-    <div className="fixed inset-0 pointer-events-none z-50">
-        <div className="absolute top-0 left-0 w-full h-[5px] bg-theme-primary/20 blur-sm animate-[scan_3s_ease-in-out_infinite]"></div>
-    </div>
-);
-
 // Industrial 警告圈半径（容器 200x200，圆心对准光标）
 const INDUSTRIAL_RING_RADIUS = 100;
 

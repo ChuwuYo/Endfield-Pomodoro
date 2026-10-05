@@ -7,17 +7,16 @@
  *   themes/<preset>/<preset>.css  —— 主题私有样式，全包在 html[data-theme="<PRESET>"] 下
  * 未迁移的主题暂留 BackgroundEffects.tsx / ForegroundEffects.tsx。
  */
+
+export { AbyssalForeground, AbyssalGrid } from "./abyssal";
 export {
-    AbyssalGrid,
     AzureGrid,
     IndustrialGrid,
     MatrixRain,
     NeonGrid,
     TacticalGrid,
 } from "./BackgroundEffects";
-
 export {
-    AbyssalForeground,
     AzureForeground,
     IndustrialForeground,
     TacticalForeground,
