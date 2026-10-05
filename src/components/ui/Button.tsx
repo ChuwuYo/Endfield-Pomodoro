@@ -21,7 +21,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                className={`${baseStyle} ${variants[variant]} ${className}`}
+                className={`ef-btn ef-btn--${variant} ${baseStyle} ${variants[variant]} ${className}`}
                 {...props}
             >
                 <span className="relative z-10 flex items-center gap-2">

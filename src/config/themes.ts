@@ -2,16 +2,17 @@ import { type ThemeColors, ThemePreset } from "../types";
 
 export const THEMES: Record<ThemePreset, ThemeColors> = {
     [ThemePreset.ORIGIN]: {
-        "--color-base": "#111113",
-        "--color-surface": "#1c1c1f",
-        "--color-highlight": "#2e2e33",
-        "--color-primary": "#ea580c",
-        "--color-secondary": "#fbbf24",
-        "--color-accent": "#06b6d4",
-        "--color-text": "#fcf8deff",
-        "--color-dim": "#83838c",
-        "--color-success": "#22c55e",
-        "--color-error": "#ef4444",
+        // 终末地深色：炭黑底 + 信号黄主色 + 冷白文字，青色仅用于休息态
+        "--color-base": "#0d0e10",
+        "--color-surface": "#16171a",
+        "--color-highlight": "#2c2e33",
+        "--color-primary": "#ffd60a",
+        "--color-secondary": "#ff8a1f",
+        "--color-accent": "#3dd6e0",
+        "--color-text": "#ecebe4",
+        "--color-dim": "#8b8c92",
+        "--color-success": "#3ddc84",
+        "--color-error": "#ff4d4f",
     },
     [ThemePreset.ABYSSAL]: {
         "--color-base": "#0f172a",

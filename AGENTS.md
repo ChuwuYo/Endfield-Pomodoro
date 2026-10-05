@@ -30,6 +30,11 @@
 - Reuse existing component layering: `components/ui`, `components/themes`, business components.
 - For UI text changes, update all locale entries in `src/utils/i18n.ts` (zh-CN/zh-TW/en/ja/ko).
 - For theme changes, prefer CSS variables and centralized config in `src/config/themes.ts`.
+- One folder per theme: `src/components/themes/<preset>/` holds `index.ts`
+  (imports private css + re-exports), background/foreground components (keep
+  existing export names), and `<preset>.css` scoped under
+  `html[data-theme="<PRESET>"]`. `src/index.css` stays generic; unmigrated
+  themes remain in `BackgroundEffects.tsx` / `ForegroundEffects.tsx`.
 - Fonts are self-hosted via `@fontsource/*`; never reintroduce a third-party font
   stylesheet. Adding a language means adding its family to `src/utils/cjkFont.ts`.
 - Keep `vite.config.ts` precache lean: exclude large dead assets (`globIgnores`) and

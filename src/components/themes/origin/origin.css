@@ -1,0 +1,131 @@
+/**
+ * ORIGIN 主题私有样式（终末地深色 HUD，无扫描线：原主题即无，其他主题已有扫描，避免重复）
+ *
+ * 约定：一个主题一个 CSS 文件，跟着主题组件放；index.css 只留通用。
+ * 背景层自身的形状直接写在 BackgroundEffects.tsx 的 inline style 里，
+ * 这里只留「长在 Panel/Button 身上」和「inline 写不出（伪元素/:hover）」的部分。
+ * 全部包在 html[data-theme="ORIGIN"] 下，切走本主题即零匹配、零运行时开销；
+ * 只改 ef-* 钩子类的外观，不动布局；动画仅用 transform/opacity。
+ */
+
+/* 面板：直角硬边 + 左上主色粗条 + 右下斜纹角标 */
+html[data-theme="ORIGIN"] .ef-panel {
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    border-color: color-mix(in srgb, var(--color-highlight) 90%, transparent);
+    box-shadow:
+        0 1px 0 color-mix(in srgb, var(--color-text) 4%, transparent) inset,
+        0 12px 32px rgb(0 0 0 / 0.45);
+}
+
+html[data-theme="ORIGIN"] .ef-panel::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 4.5rem;
+    height: 3px;
+    background: var(--color-primary);
+    z-index: 11;
+    pointer-events: none;
+}
+
+html[data-theme="ORIGIN"] .ef-panel::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: repeating-linear-gradient(
+        -45deg,
+        color-mix(in srgb, var(--color-primary) 55%, transparent) 0 2px,
+        transparent 2px 6px
+    );
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+html[data-theme="ORIGIN"] .ef-panel__corner--tl,
+html[data-theme="ORIGIN"] .ef-panel__corner--tr,
+html[data-theme="ORIGIN"] .ef-panel__corner--bl {
+    display: none;
+}
+
+html[data-theme="ORIGIN"] .ef-panel__corner--br {
+    border-color: color-mix(in srgb, var(--color-dim) 60%, transparent);
+    border-width: 0 1px 1px 0;
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+html[data-theme="ORIGIN"] .ef-panel__mark {
+    width: 2px;
+    background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+/* 标题签：实底主色块 + 深色字，右侧斜切 */
+html[data-theme="ORIGIN"] .ef-panel__title {
+    background: var(--color-primary);
+    color: var(--color-base);
+    border: 0;
+    font-weight: 700;
+    padding-right: 1rem;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.5rem) 100%, 0 100%);
+}
+
+html[data-theme="ORIGIN"] .ef-panel__dot {
+    background: var(--color-base);
+    animation: none;
+}
+
+/* 标题签是黄色实底：里面的切换按钮默认/悬停都必须用深色，
+   否则 hover:text-theme-primary（黄字）会直接隐身在黄底上 */
+html[data-theme="ORIGIN"] .ef-panel__title button {
+    color: color-mix(in srgb, var(--color-base) 72%, transparent);
+    border-color: color-mix(in srgb, var(--color-base) 35%, transparent);
+}
+
+html[data-theme="ORIGIN"] .ef-panel__title button:hover:not(:disabled) {
+    color: var(--color-base);
+    border-color: var(--color-base);
+    background: color-mix(in srgb, var(--color-base) 10%, transparent);
+}
+
+html[data-theme="ORIGIN"] .ef-panel__title button:focus-visible {
+    outline-color: var(--color-base);
+}
+
+/* 按钮：主按钮右下斜切 + 悬停微位移；次级按钮细描边 */
+/* 斜切统一为单角（右下），主按钮与其外圈流光一起生效 */
+html[data-theme="ORIGIN"] .clip-path-slant {
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 10px),
+        calc(100% - 10px) 100%,
+        0 100%
+    );
+}
+
+html[data-theme="ORIGIN"] .ef-btn--primary {
+    transition:
+        transform 160ms cubic-bezier(0.2, 0, 0, 1),
+        scale 120ms ease,
+        background-color 160ms ease,
+        filter 160ms ease;
+}
+
+html[data-theme="ORIGIN"] .ef-btn--primary:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+html[data-theme="ORIGIN"] .ef-btn--secondary {
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+html[data-theme="ORIGIN"] .ef-btn--ghost:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}

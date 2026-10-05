@@ -193,6 +193,8 @@ const App: React.FC = () => {
     // 应用主题
     useLayoutEffect(() => {
         const root = document.documentElement;
+        // 供 index.css 按主题挂载组件/背景的细化样式（html[data-theme="..."]）
+        root.dataset.theme = settings.theme;
         const themeColors = THEMES[settings.theme];
         Object.entries(themeColors).forEach(([key, value]) => {
             root.style.setProperty(key, value as string);
