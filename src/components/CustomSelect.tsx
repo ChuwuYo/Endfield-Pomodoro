@@ -12,6 +12,12 @@ interface CustomSelectProps {
     className?: string;
     id?: string;
     "aria-labelledby"?: string;
+    /**
+     * 触发器显示文案：默认取选中项 label；
+     * 选项被外部过滤（如主题明暗筛选）导致选中项不在列表里时，
+     * 传这个保证显示不受过滤影响（列表仍只渲染 options）。
+     */
+    displayLabel?: string;
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -21,6 +27,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     className = "",
     id,
     "aria-labelledby": ariaLabelledBy,
+    displayLabel,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -30,6 +37,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     const optionId = (index: number) => `${listboxId}-option-${index}`;
 
     const selectedOption = options.find((opt) => opt.value === value);
+    const triggerLabel = displayLabel ?? selectedOption?.label ?? value;
     const selectedIndex = Math.max(
         0,
         options.findIndex((opt) => opt.value === value),
@@ -144,7 +152,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     }
                     if (isOpen) setIsOpen(false);
                 }}
-                title={selectedOption?.label || value}
+                title={triggerLabel}
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
                 aria-controls={listboxId}
@@ -154,9 +162,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 aria-labelledby={ariaLabelledBy}
                 className="w-full bg-theme-highlight/20 border border-theme-highlight text-theme-text font-ui-mono text-ui-sm leading-ui-none px-4 h-form-control focus:border-theme-primary hover:bg-theme-highlight/10 transition-all duration-300 flex items-center justify-between group cursor-pointer"
             >
-                <span className="truncate">
-                    {selectedOption?.label || value}
-                </span>
+                <span className="truncate">{triggerLabel}</span>
                 <i
                     className={`ri-arrow-down-s-line icon-ui-lg transition-transform duration-200 flex-shrink-0 ml-2 ${isOpen ? "rotate-180" : ""}`}
                     aria-hidden="true"

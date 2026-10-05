@@ -1,5 +1,29 @@
 import { type ThemeColors, ThemePreset } from "../types";
 
+export const ThemeMode = {
+    DARK: "DARK",
+    LIGHT: "LIGHT",
+} as const;
+export type ThemeMode = (typeof ThemeMode)[keyof typeof ThemeMode];
+
+/**
+ * 明暗分组：设置页先选模式再选主题，下拉只列同组。
+ * 新增主题必须在这里归组（Record 穷尽，漏写编译报错）。
+ */
+export const THEME_MODES: Record<ThemePreset, ThemeMode> = {
+    [ThemePreset.ORIGIN]: ThemeMode.DARK,
+    [ThemePreset.ABYSSAL]: ThemeMode.DARK,
+    [ThemePreset.NEON]: ThemeMode.DARK,
+    [ThemePreset.MATRIX]: ThemeMode.DARK,
+    [ThemePreset.TACTICAL]: ThemeMode.DARK,
+    [ThemePreset.INDUSTRIAL]: ThemeMode.LIGHT,
+    [ThemePreset.AZURE]: ThemeMode.LIGHT,
+    [ThemePreset.MIKU]: ThemeMode.LIGHT,
+};
+
+export const themeModeOf = (theme: ThemePreset): ThemeMode =>
+    THEME_MODES[theme];
+
 export const THEMES: Record<ThemePreset, ThemeColors> = {
     [ThemePreset.ORIGIN]: {
         // 终末地深色：炭黑底 + 信号黄主色 + 冷白文字，青色仅用于休息态

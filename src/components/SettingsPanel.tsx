@@ -1,11 +1,12 @@
 import React, { useId } from "react";
 import type { Settings } from "../types";
-import { Language, ThemePreset } from "../types";
+import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
 import { parseDurationInput } from "../utils/settings";
 import { Checkbox } from "./Checkbox";
 import { CustomSelect } from "./CustomSelect";
 import { useSnackbar } from "./snackbar";
+import { ThemeSelector } from "./ThemeSelector";
 import { Button, Input, Panel } from "./ui";
 
 type SettingsPanelProps = {
@@ -56,12 +57,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     const shortBreakId = `${idPrefix}-short-break`;
     const longBreakId = `${idPrefix}-long-break`;
     const languageId = `${idPrefix}-language`;
-    const themeId = `${idPrefix}-theme`;
     const platformId = `${idPrefix}-platform`;
     const typeId = `${idPrefix}-type`;
     const musicId = `${idPrefix}-music-id`;
     const languageLabelId = `${idPrefix}-language-label`;
-    const themeLabelId = `${idPrefix}-theme-label`;
     const platformLabelId = `${idPrefix}-platform-label`;
     const typeLabelId = `${idPrefix}-type-label`;
 
@@ -217,57 +216,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 />
                             </div>
                             <div>
-                                <label
-                                    id={themeLabelId}
-                                    htmlFor={themeId}
-                                    className="block text-ui-micro font-ui-mono text-theme-dim mb-2 uppercase tracking-ui-wider"
-                                >
-                                    {t("THEME")}
-                                </label>
-                                <CustomSelect
-                                    id={themeId}
-                                    aria-labelledby={themeLabelId}
-                                    value={settings.theme}
-                                    options={[
-                                        {
-                                            value: ThemePreset.ORIGIN,
-                                            label: t("THEME_ORIGIN"),
-                                        },
-                                        {
-                                            value: ThemePreset.ABYSSAL,
-                                            label: t("THEME_ABYSSAL"),
-                                        },
-                                        {
-                                            value: ThemePreset.NEON,
-                                            label: t("THEME_NEON"),
-                                        },
-                                        {
-                                            value: ThemePreset.MATRIX,
-                                            label: t("THEME_MATRIX"),
-                                        },
-                                        {
-                                            value: ThemePreset.TACTICAL,
-                                            label: t("THEME_TACTICAL"),
-                                        },
-                                        {
-                                            value: ThemePreset.INDUSTRIAL,
-                                            label: t("THEME_INDUSTRIAL"),
-                                        },
-                                        {
-                                            value: ThemePreset.AZURE,
-                                            label: t("THEME_AZURE"),
-                                        },
-                                        {
-                                            value: ThemePreset.MIKU,
-                                            label: t("THEME_MIKU"),
-                                        },
-                                    ]}
-                                    onChange={(value) =>
+                                <ThemeSelector
+                                    theme={settings.theme}
+                                    onThemeChange={(theme) =>
                                         onSettingsChange({
                                             ...settings,
-                                            theme: value as ThemePreset,
+                                            theme,
                                         })
                                     }
+                                    t={t}
                                 />
                             </div>
                         </div>
