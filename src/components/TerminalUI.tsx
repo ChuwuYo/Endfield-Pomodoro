@@ -20,7 +20,6 @@ import {
     NeonGrid,
     OriginForeground,
     OriginGrid,
-    RoyalParticles,
     TacticalForeground,
     TacticalGrid,
 } from "./themes";
@@ -31,7 +30,6 @@ const BACKGROUND_LAYERS: Record<ThemePreset, React.FC> = {
     [ThemePreset.NEON]: NeonGrid,
     [ThemePreset.MATRIX]: MatrixRain,
     [ThemePreset.TACTICAL]: TacticalGrid,
-    [ThemePreset.ROYAL]: RoyalParticles,
     [ThemePreset.INDUSTRIAL]: IndustrialGrid,
     [ThemePreset.AZURE]: AzureGrid,
     [ThemePreset.MIKU]: MikuBackgroundLayer,

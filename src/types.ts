@@ -44,7 +44,6 @@ export const ThemePreset = {
     NEON: "NEON",
     MATRIX: "MATRIX",
     TACTICAL: "TACTICAL",
-    ROYAL: "ROYAL",
     INDUSTRIAL: "INDUSTRIAL",
     AZURE: "AZURE",
     MIKU: "MIKU",

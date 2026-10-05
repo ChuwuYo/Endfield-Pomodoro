@@ -13,7 +13,6 @@ export {
     IndustrialGrid,
     MatrixRain,
     NeonGrid,
-    RoyalParticles,
     TacticalGrid,
 } from "./BackgroundEffects";
 

@@ -139,50 +139,6 @@ export const TacticalGrid = () => (
     ></div>
 );
 
-// 预生成皇家粒子数据
-const generateRoyalParticles = () => {
-    const randoms = Array.from({ length: 15 }, () => ({
-        left: Math.random(),
-        top: Math.random(),
-        width: Math.random(),
-        duration: Math.random(),
-    }));
-
-    return Array.from({ length: 15 }).map((_, i) => ({
-        id: i,
-        left: randoms[i].left * 100,
-        top: randoms[i].top * 100,
-        width: randoms[i].width * 100 + 50,
-        animationDuration: randoms[i].duration * 5 + 5,
-    }));
-};
-
-const royalParticles = generateRoyalParticles();
-
-/**
- * Royal 主题粒子效果
- */
-export const RoyalParticles = () => (
-    <>
-        {royalParticles.map((p) => (
-            <div
-                key={p.id}
-                className="absolute rounded-full bg-theme-primary mix-blend-screen animate-pulse-fast"
-                style={{
-                    left: `${p.left}%`,
-                    top: `${p.top}%`,
-                    width: `${p.width}px`,
-                    height: `${p.width}px`,
-                    opacity: 0.05,
-                    animationDuration: `${p.animationDuration}s`,
-                    filter: "blur(40px)",
-                }}
-            ></div>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-tr from-theme-base via-transparent to-theme-highlight/10"></div>
-    </>
-);
-
 /**
  * Industrial 主题斜线背景
  */

@@ -250,10 +250,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             label: t("THEME_TACTICAL"),
                                         },
                                         {
-                                            value: ThemePreset.ROYAL,
-                                            label: t("THEME_ROYAL"),
-                                        },
-                                        {
                                             value: ThemePreset.INDUSTRIAL,
                                             label: t("THEME_INDUSTRIAL"),
                                         },

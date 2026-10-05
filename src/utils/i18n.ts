@@ -53,10 +53,9 @@ export const translations = {
         THEME_NEON: "PRESET_03: NEON_CITY",
         THEME_MATRIX: "PRESET_04: MATRIX_CODE",
         THEME_TACTICAL: "PRESET_05: DESERT_OPS",
-        THEME_ROYAL: "PRESET_06: ROYAL_VIOLET",
-        THEME_INDUSTRIAL: "PRESET_07: HEAVY_INDUSTRY (LIGHT)",
-        THEME_AZURE: "PRESET_08: AZURE_ARCHIVE (LIGHT)",
-        THEME_MIKU: "PRESET_09: MIKU",
+        THEME_INDUSTRIAL: "PRESET_06: HEAVY_INDUSTRY (LIGHT)",
+        THEME_AZURE: "PRESET_07: AZURE_ARCHIVE (LIGHT)",
+        THEME_MIKU: "PRESET_08: MIKU",
 
         // Pomodoro
         CHRONO_MODULE: "CHRONO MODULE",
@@ -200,10 +199,9 @@ export const translations = {
         THEME_NEON: "预设_03: 霓虹都市",
         THEME_MATRIX: "预设_04: 矩阵代码",
         THEME_TACTICAL: "预设_05: 荒漠行动",
-        THEME_ROYAL: "预设_06: 皇家紫罗兰",
-        THEME_INDUSTRIAL: "预设_07: 重工灰烬 (亮色)",
-        THEME_AZURE: "预设_08: 蔚蓝档案 (亮色)",
-        THEME_MIKU: "预设_09: MIKU",
+        THEME_INDUSTRIAL: "预设_06: 重工灰烬 (亮色)",
+        THEME_AZURE: "预设_07: 蔚蓝档案 (亮色)",
+        THEME_MIKU: "预设_08: MIKU",
 
         // Pomodoro
         CHRONO_MODULE: "计时模块",
@@ -345,10 +343,9 @@ export const translations = {
         THEME_NEON: "預設_03: 霓虹都市",
         THEME_MATRIX: "預設_04: 矩陣代碼",
         THEME_TACTICAL: "預設_05: 荒漠行動",
-        THEME_ROYAL: "預設_06: 皇家紫羅蘭",
-        THEME_INDUSTRIAL: "預設_07: 重工灰燼 (亮色)",
-        THEME_AZURE: "預設_08: 蔚藍檔案 (亮色)",
-        THEME_MIKU: "預設_09: MIKU",
+        THEME_INDUSTRIAL: "預設_06: 重工灰燼 (亮色)",
+        THEME_AZURE: "預設_07: 蔚藍檔案 (亮色)",
+        THEME_MIKU: "預設_08: MIKU",
 
         // Pomodoro
         CHRONO_MODULE: "計時模組",
@@ -490,10 +487,9 @@ export const translations = {
         THEME_NEON: "プリセット_03: ネオンシティ",
         THEME_MATRIX: "プリセット_04: マトリックスコード",
         THEME_TACTICAL: "プリセット_05: デザート作戦",
-        THEME_ROYAL: "プリセット_06: ロイヤルバイオレット",
-        THEME_INDUSTRIAL: "プリセット_07: 重工業 (ライト)",
-        THEME_AZURE: "プリセット_08: アジュールアーカイブ (ライト)",
-        THEME_MIKU: "プリセット_09: MIKU",
+        THEME_INDUSTRIAL: "プリセット_06: 重工業 (ライト)",
+        THEME_AZURE: "プリセット_07: アジュールアーカイブ (ライト)",
+        THEME_MIKU: "プリセット_08: MIKU",
 
         // Pomodoro
         CHRONO_MODULE: "クロノモジュール",
@@ -637,10 +633,9 @@ export const translations = {
         THEME_NEON: "프리셋_03: 네온 시티",
         THEME_MATRIX: "프리셋_04: 매트릭스 코드",
         THEME_TACTICAL: "프리셋_05: 사막 작전",
-        THEME_ROYAL: "프리셋_06: 로열 바이올렛",
-        THEME_INDUSTRIAL: "프리셋_07: 중공업 (라이트)",
-        THEME_AZURE: "프리셋_08: 애저 아카이브 (라이트)",
-        THEME_MIKU: "프리셋_09: MIKU",
+        THEME_INDUSTRIAL: "프리셋_06: 중공업 (라이트)",
+        THEME_AZURE: "프리셋_07: 애저 아카이브 (라이트)",
+        THEME_MIKU: "프리셋_08: MIKU",
 
         // Pomodoro
         CHRONO_MODULE: "크로노 모듈",

@@ -62,18 +62,6 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-success": "#16a34a",
         "--color-error": "#dc2626",
     },
-    [ThemePreset.ROYAL]: {
-        "--color-base": "#100c19",
-        "--color-surface": "#1d162e",
-        "--color-highlight": "#31254a",
-        "--color-primary": "#c084fc",
-        "--color-secondary": "#fbbf24",
-        "--color-accent": "#e879f9",
-        "--color-text": "#f3e8ff",
-        "--color-dim": "#a863e0",
-        "--color-success": "#a1f65c",
-        "--color-error": "#dc2626",
-    },
     [ThemePreset.INDUSTRIAL]: {
         "--color-base": "#e5e5e5",
         "--color-surface": "#d4d4d4",
