@@ -25,15 +25,8 @@ const themeOptionsOf = (
 ];
 
 /**
- * 主题选择：明暗图标钮贴死在下拉框左边，只占两个图标位（无字）。
- * 模式只是下拉的筛选条件，切模式不改主题；
- * mode 取初次主题的组，之后只跟随图标钮（主题不动，派生值会把筛选弹回去）。
- *
- * 相邻边框处理（出处见实机注释）：
- * - 两段之间无分隔线：Primer 分段控件两段时即无分隔（选中底色足够区分）。
- * - 焦点环内嵌（outline-offset -1px，同 Primer）：环落在按钮自家框内，
- *   永不漫到邻居/下拉上；W3C F78 禁止拿掉焦点环，故保留而非 outline-none。
- * - 与下拉的接缝：图标组整框 1px + 下拉 -ml-px 压住，共用一条边（同 Primer 负边距拼边）。
+ * 主题选择：明暗图标 + 下拉框（贴框一行，焦点环内嵌）。
+ * 模式只筛选下拉，不改主题。
  */
 export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     theme,
@@ -67,8 +60,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <div
                     role="group"
                     aria-label={t("THEME_MODE")}
-                    // 与下拉同底（bg-theme-highlight/20），整行读成一个控件；
-                    // 右缘不画线，接缝只用下拉框自己的左边框（不叠第二条灰缝）
+                    // 与下拉同底同框
                     className="flex shrink-0 items-stretch border-l border-y border-theme-highlight bg-theme-highlight/20 h-form-control"
                 >
                     {(

@@ -8,7 +8,7 @@
  * 未迁移的主题暂留 BackgroundEffects.tsx / ForegroundEffects.tsx。
  */
 
-export { AbyssalForeground, AbyssalGrid } from "./abyssal";
+export { AbyssalGrid } from "./abyssal";
 export {
     AzureGrid,
     IndustrialGrid,

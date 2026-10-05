@@ -1,10 +1,7 @@
-/**
- * Origin 主题背景：终末地式工业 HUD
- * 全静态渐变层（只光栅化一次，无扫描线动画）。
- */
+/** Origin 背景：终末地工业 HUD（全静态）。 */
 export const OriginGrid = () => (
     <>
-        {/* 主次网格：80px 大格 + 16px 细格，冷灰而非主色，避免抢内容 */}
+        {/* 主次网格 */}
         <div
             className="absolute inset-0"
             style={{
@@ -13,7 +10,7 @@ export const OriginGrid = () => (
                 backgroundSize: "80px 80px, 80px 80px, 16px 16px, 16px 16px",
             }}
         ></div>
-        {/* 中心暗角，把视线收向内容 */}
+        {/* 中心暗角 */}
         <div
             className="absolute inset-0"
             style={{
@@ -21,7 +18,7 @@ export const OriginGrid = () => (
                     "radial-gradient(ellipse at 50% 40%, transparent 30%, var(--color-base) 85%)",
             }}
         ></div>
-        {/* 左下巨型描边字标 */}
+        {/* 左下描边字 */}
         <div
             className="absolute -bottom-8 -left-2 font-ui-sans font-bold leading-ui-none select-none"
             style={{
@@ -35,7 +32,7 @@ export const OriginGrid = () => (
         >
             ENDFIELD
         </div>
-        {/* 坐标刻度：左侧竖尺 + 底部信息条 */}
+        {/* 左侧竖尺 + 右上信息 */}
         <div
             className="absolute top-28 bottom-24 left-3 w-2 hidden md:block"
             style={{
@@ -51,7 +48,7 @@ export const OriginGrid = () => (
                 AIC_SECTOR_04
             </span>
         </div>
-        {/* 右下信息块：微型注释 + 点阵 + hairline + slogan（对标终末地加载页右下结构，全静态） */}
+        {/* 右下信息块 */}
         <div className="absolute bottom-24 right-4 hidden md:flex flex-col items-end gap-2">
             <div className="flex items-start gap-2">
                 <span

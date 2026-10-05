@@ -9,7 +9,6 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import { ThemePreset } from "../types";
 // 主题效果
 import {
-    AbyssalForeground,
     AbyssalGrid,
     AzureForeground,
     AzureGrid,
@@ -39,7 +38,6 @@ const BACKGROUND_LAYERS: Record<ThemePreset, React.FC> = {
 const FOREGROUND_LAYERS: Partial<Record<ThemePreset, React.FC>> = {
     [ThemePreset.ORIGIN]: OriginForeground,
     [ThemePreset.TACTICAL]: TacticalForeground,
-    [ThemePreset.ABYSSAL]: AbyssalForeground,
     [ThemePreset.INDUSTRIAL]: IndustrialForeground,
     [ThemePreset.AZURE]: AzureForeground,
 };

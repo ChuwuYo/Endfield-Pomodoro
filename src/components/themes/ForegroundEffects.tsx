@@ -1,19 +1,11 @@
 import React, { useEffect, useRef } from "react";
 
-/**
- * Tactical 主题前景效果 - 十字准星
- *
- * 性能优化：原实现用 left/top 定位（每帧布局重排）并经 React state 逐帧重渲染，
- * 改为 ref 直写 transform 平移（纯合成器）、坐标文本直写 textContent。
- * 原 className 里的 transition-transform duration-75 是死代码（移动走 left/top，
- * transform 从未变化、过渡从未触发），迁移后已删除以保持"瞬时跟随"的原有行为。
- */
+/** Tactical 前景：十字准星（ref 直写 transform + 坐标直写，不重渲染）。 */
 export const TacticalForeground: React.FC = () => {
     const crosshairRef = useRef<HTMLDivElement>(null);
     const coordsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
         const handleMouseMove = (e: MouseEvent) => {
             if (crosshairRef.current) {
                 crosshairRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
@@ -56,17 +48,11 @@ export const TacticalForeground: React.FC = () => {
 // Industrial 警告圈半径（容器 200x200，圆心对准光标）
 const INDUSTRIAL_RING_RADIUS = 100;
 
-/**
- * Industrial 主题前景效果 - 警告圆圈
- *
- * 性能优化：transform 定位原本就正确，但仍经 React state 逐帧重渲染，
- * 改为 ref 直写 transform（与其他主题一致），不再触发渲染。
- */
+/** Industrial 前景：警告圆圈（ref 直写 transform，不重渲染）。 */
 export const IndustrialForeground: React.FC = () => {
     const ringRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
         const handleMouseMove = (e: MouseEvent) => {
             if (ringRef.current) {
                 ringRef.current.style.transform = `translate3d(${e.clientX - INDUSTRIAL_RING_RADIUS}px, ${e.clientY - INDUSTRIAL_RING_RADIUS}px, 0)`;
@@ -107,20 +93,12 @@ export const IndustrialForeground: React.FC = () => {
 // Azure 聚光灯半径（与原 radial-gradient 的 circle 300px 一致）
 const AZURE_SPOT_RADIUS = 300;
 
-/**
- * Azure 主题前景效果 - 分析聚光灯
- *
- * 性能优化：聚光灯渐变原先把鼠标坐标写进圆心、每帧重新生成并整层重绘，
- * 改为固定 600x600 贴图（渐变参数不变，opacity/mix-blend-mode 原样保留，
- * 贴图覆盖范围外原本就是全透明，混合结果不变）+ ref 直写 transform 跟随；
- * 角标准星同样由 ref 直写。两者均为纯合成器操作，不再经 React 逐帧重渲染。
- */
+/** Azure 前景：聚光灯 + 角标星（ref 直写 transform，不重渲染）。 */
 export const AzureForeground: React.FC = () => {
     const spotlightRef = useRef<HTMLDivElement>(null);
     const reticleRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // 同步直写：浏览器按帧节奏合并派发 mousemove，无需 rAF 转发
         const handleMouseMove = (e: MouseEvent) => {
             if (spotlightRef.current) {
                 spotlightRef.current.style.transform = `translate3d(${e.clientX - AZURE_SPOT_RADIUS}px, ${e.clientY - AZURE_SPOT_RADIUS}px, 0)`;

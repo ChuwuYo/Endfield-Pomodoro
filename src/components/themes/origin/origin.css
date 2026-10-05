@@ -1,14 +1,6 @@
-/**
- * ORIGIN 主题私有样式（终末地深色 HUD，无扫描线：原主题即无，其他主题已有扫描，避免重复）
- *
- * 约定：一个主题一个 CSS 文件，跟着主题组件放；index.css 只留通用。
- * 背景层自身的形状直接写在 BackgroundEffects.tsx 的 inline style 里，
- * 这里只留「长在 Panel/Button 身上」和「inline 写不出（伪元素/:hover）」的部分。
- * 全部包在 html[data-theme="ORIGIN"] 下，切走本主题即零匹配、零运行时开销；
- * 只改 ef-* 钩子类的外观，不动布局；动画仅用 transform/opacity。
- */
+/** ORIGIN 私有样式（面板/标题签/按钮覆盖，伪元素与 :hover 只能写这里）。 */
 
-/* 面板：直角硬边 + 左上主色粗条 + 右下斜纹角标 */
+/* 面板：顶部主色条 + 右下斜纹角标 */
 html[data-theme="ORIGIN"] .ef-panel {
     background: color-mix(in srgb, var(--color-surface) 88%, transparent);
     border-color: color-mix(in srgb, var(--color-highlight) 90%, transparent);
@@ -79,8 +71,7 @@ html[data-theme="ORIGIN"] .ef-panel__dot {
     animation: none;
 }
 
-/* 标题签是黄色实底：里面的切换按钮默认/悬停都必须用深色，
-   否则 hover:text-theme-primary（黄字）会直接隐身在黄底上 */
+/* 标题签内按钮强制深色（黄底上黄字会隐身） */
 html[data-theme="ORIGIN"] .ef-panel__title button {
     color: color-mix(in srgb, var(--color-base) 72%, transparent);
     border-color: color-mix(in srgb, var(--color-base) 35%, transparent);
@@ -96,8 +87,7 @@ html[data-theme="ORIGIN"] .ef-panel__title button:focus-visible {
     outline-color: var(--color-base);
 }
 
-/* 按钮：主按钮右下斜切 + 悬停微位移；次级按钮细描边 */
-/* 斜切统一为单角（右下），主按钮与其外圈流光一起生效 */
+/* 按钮：斜切统一单角，主按钮悬停上浮 */
 html[data-theme="ORIGIN"] .clip-path-slant {
     clip-path: polygon(
         0 0,

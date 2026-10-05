@@ -15,12 +15,7 @@ export const NeonGrid = () => (
             <div className="absolute inset-[-20%] rounded-full bg-[#ff5722] opacity-30 blur-[70px]" />
         </div>
 
-        {/*
-          性能优化：原实现用 background-position 关键帧滚动水平网格线，
-          每帧触发整层重绘。现拆为三层（视觉与原 multi-background 完全一致，
-          叠放顺序 = 原 background 列表的倒序）：静态竖线层、滚动横线层
-          （transform 平移一个 40px 纹理周期，纯合成器动画）、静态渐隐层。
-        */}
+        {/* 网格滚动：横线层走 transform 平移，竖线与顶部遮罩静态。 */}
         <div
             className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden"
             style={{

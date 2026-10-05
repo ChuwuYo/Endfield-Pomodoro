@@ -12,11 +12,7 @@ interface CustomSelectProps {
     className?: string;
     id?: string;
     "aria-labelledby"?: string;
-    /**
-     * 触发器显示文案：默认取选中项 label；
-     * 选项被外部过滤（如主题明暗筛选）导致选中项不在列表里时，
-     * 传这个保证显示不受过滤影响（列表仍只渲染 options）。
-     */
+    /** 触发器显示文案（默认取选中项 label；选中项被过滤掉时传这个保显示）。 */
     displayLabel?: string;
 }
 

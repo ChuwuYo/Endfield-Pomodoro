@@ -4,5 +4,4 @@
  */
 import "./abyssal.css";
 
-export { AbyssalForeground } from "./AbyssalForeground";
 export { AbyssalGrid } from "./AbyssalGrid";

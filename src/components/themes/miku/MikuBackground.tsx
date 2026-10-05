@@ -9,17 +9,7 @@ const HEX_TILE_H = 34.64;
 // 高亮窗口半径（与外层 mask 容器 360px 对应）
 const HEX_SPOT_RADIUS = 180;
 
-/**
- * 高亮层平铺贴图（data-URL SVG）。
- * 与原"全视口内嵌 SVG"实现完全一致：同一 pattern 定义、同一 stroke、
- * 同一三层 feDropShadow 辉光；滤镜作用于 3x3 平铺范围（邻域辉光完整），
- * 再由 SVG 视口裁剪出单个周期，平铺后与原先的无限平面逐像素一致。
- * data-URL 中无法使用 CSS 变量，颜色直接取 MIKU 主题的 --color-highlight (#fdd1ff)。
- *
- * 性能：原先内层是 100vw x 100vh 的 SVG + 滤镜 + mask，主题切换的 500ms
- * 颜色过渡期间每帧都被迫重栅格化这个全视口滤镜表面（实测约 500ms 主线程
- * 光栅开销）。改为小贴图平铺后，栅格化面积从视口级降到单个 20x34.64 周期。
- */
+/** 高亮贴图：20x34.64 小块平铺（data-URL 内写死 MIKU highlight 色）。 */
 const hexHighlightTileUrl = (() => {
     const color = "#fdd1ff";
     const svg =
@@ -50,8 +40,6 @@ const MikuHexPattern: React.FC = () => {
     React.useEffect(() => {
         if (isMobile) return;
 
-        // 同步直写 transform：浏览器按帧节奏合并派发 mousemove，
-        // 经 rAF 转发可能多等一帧，表现为光标跟随延迟
         const handleMouseMove = (e: MouseEvent) => {
             if (outerRef.current && innerRef.current) {
                 const x = e.clientX - HEX_SPOT_RADIUS;
@@ -101,7 +89,7 @@ const MikuHexPattern: React.FC = () => {
                 />
             </svg>
 
-            {/* 鼠标位置高亮六角形 - hardware accelerated spotlight */}
+            {/* 鼠标位置高亮 */}
             {!isMobile && (
                 <div
                     ref={outerRef}
