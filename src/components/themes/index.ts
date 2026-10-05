@@ -5,7 +5,7 @@
  *   themes/<preset>/index.ts      —— import 私有 css + 重导出背景/前景组件
  *   themes/<preset>/<Name>.tsx    —— 背景 / 前景组件（保持原导出名，调用方不动）
  *   themes/<preset>/<preset>.css  —— 主题私有样式，全包在 html[data-theme="<PRESET>"] 下
- * 未迁移的主题暂留 BackgroundEffects.tsx / ForegroundEffects.tsx / MikuDecorations.tsx。
+ * 未迁移的主题暂留 BackgroundEffects.tsx / ForegroundEffects.tsx。
  */
 export {
     AbyssalGrid,
