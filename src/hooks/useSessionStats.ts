@@ -137,7 +137,7 @@ export const useSessionStats = (
      * 由计时器组件每秒调用，用于更新实时状态
      */
     const onTick = (timeLeft: number, mode: TimerMode, isActive: boolean) => {
-        // 使用微任务避免在渲染周期中同步更新状态导致的警告
+        // 微任务中更新状态
         queueMicrotask(() => {
             const running = Boolean(isActive && timeLeft > 0);
             setIsTimerRunning(running);

@@ -40,7 +40,6 @@ export const resolveFallbackLanguage = (): Language => {
  * 在挂载 React 前同步 <html lang>：
  * - 有持久化设置 → 用设置
  * - 否则 → 与 App DEFAULT_SETTINGS 相同的浏览器推断
- * 避免「index.html 写死 zh-CN + 英文用户首屏崩溃」错成中文兜底。
  */
 export const syncDocumentLanguageBeforeApp = (): void => {
     const language = readStoredLanguage() ?? detectBrowserLanguage();

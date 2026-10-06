@@ -45,7 +45,7 @@ export const TacticalForeground: React.FC = () => {
     );
 };
 
-// Azure 聚光灯半径（与原 radial-gradient 的 circle 300px 一致）
+// Azure 聚光灯半径 300px
 const AZURE_SPOT_RADIUS = 300;
 
 /** Azure 前景：聚光灯 + 角标星（ref 直写 transform，不重渲染）。 */

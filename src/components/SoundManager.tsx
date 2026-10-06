@@ -11,7 +11,7 @@ type BeepType = "start" | "end" | "tick";
 /** autoplay 拦截下 resume() 可能永不 settle，超时后跳过本次蜂鸣 */
 const AUDIO_CONTEXT_RESUME_TIMEOUT_MS = 200;
 
-/** 模块级单例：避免每次蜂鸣 new AudioContext() 耗尽浏览器配额 */
+/** 模块级 AudioContext 单例 */
 let sharedAudioContext: AudioContext | null = null;
 
 const getAudioContext = (): AudioContext | null => {
@@ -68,7 +68,7 @@ const playBeep = async (vol: number = 0.5, type: BeepType = "tick") => {
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    // autoplay 策略下可能处于 suspended；超时则跳过，避免永久挂起
+    // suspended 时超时跳过
     if (!(await resumeAudioContext(ctx))) return;
 
     const createdNodes: AudioNode[] = [];

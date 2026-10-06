@@ -34,7 +34,7 @@ export const useShuffle = (
                 [indices[i], indices[j]] = [indices[j], indices[i]];
             }
 
-            // 使用 queueMicrotask 避免在 effect 中同步 setState 导致的警告
+            // queueMicrotask 中更新状态
             queueMicrotask(() => setShuffledIndices(indices));
         } else {
             // 非随机模式，清空状态

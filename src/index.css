@@ -1,10 +1,7 @@
 @import "tailwindcss";
 
-/* 字体自托管：原先走 Google Fonts 的阻塞 stylesheet（878KB / 935 条 @font-face），
-   墙外要多等一次第三方连接，墙内直接超时。CJK 字族不进这里——4 个字族共 1600+
-   条规则会把本文件撑到 1MB，改为按当前语言动态 import（见 utils/cjkFont.ts）。
-   分片沿用 unicode-range 全量覆盖：构建时全部产出，浏览器只下命中的几片，
-   后续新增汉字无需任何操作。 */
+/* 字体自托管：latin 随包；CJK 字族按当前语言动态 import（见 utils/cjkFont.ts）。
+   unicode-range 分片按需下载。 */
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
 @import "@fontsource/rajdhani/latin-500.css";
@@ -239,8 +236,7 @@ html {
   line-height: 1;
 }
 
-/* 隐藏 number 的原生增减按钮：它在 UA shadow DOM 里，无法样式化（Fluent/Fast
-   的做法），改用 Input 组件内的自定义三角按钮。方向键增减与 min 校验保持不变。 */
+/* 隐藏 number 原生增减按钮，改用 Input 内自定义按钮。 */
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
@@ -347,11 +343,7 @@ body {
   border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
-/* 数据流动画
-   性能优化：原先在元素自身滚动 background-position（每帧重绘），
-   改为伪元素承载同一渐变纹理（周期 = 2 倍容器宽，与原 background-size 200% 一致），
-   transform 平移一个周期（自身 400% 宽的 -50% = -2 倍容器宽，
-   方向、速度、相位均与原实现相同），纯合成器动画。 */
+/* 数据流动画：伪元素 400% 宽承载渐变纹理，transform 平移。 */
 @keyframes data-flow {
   0% {
     transform: translateX(0);
@@ -545,7 +537,7 @@ body {
       rgb(0 0 0 / 0.25);
   overflow: hidden;
   max-height: 15rem; /* 原 max-h-60 */
-  /* 定位完成前隐藏，避免首帧停在左上角（Floating UI / Popover 通用做法） */
+  /* 定位完成前隐藏 */
   visibility: hidden;
 }
 

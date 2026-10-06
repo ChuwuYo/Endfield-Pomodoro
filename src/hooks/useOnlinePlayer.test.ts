@@ -48,7 +48,7 @@ describe("useOnlinePlayer playlist shrink", () => {
 
         rerender({ playlist: makePlaylist(10, "short") });
 
-        // 适配器降级不是用户主动换歌单，应尽量少打扰：收敛到最近的合法位置而非回到开头
+        // 收敛到最近合法位置
         expect(result.current.currentIndex).toBe(9);
         expect(result.current.currentSong?.name).toBe("short track 9");
     });

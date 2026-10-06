@@ -136,15 +136,13 @@ export const useOnlinePlayer = (
             // 如果是随机模式，则随机选择一首起始歌曲
             if (playMode === PlayMode.RANDOM) {
                 const randomIndex = Math.floor(Math.random() * playlist.length);
-                // 延迟到微任务中更新，避免在 effect 中同步 setState 触发级联渲染
+                // 微任务中更新
                 queueMicrotask(() => setCurrentIndex(randomIndex));
             }
         }
     }, [playlist.length, playMode]);
 
-    // 同一歌单来源下切换 API 适配器会换来长度不同的列表，此时 currentIndex 可能越界。
-    // 渲染期收敛到合法范围（React "adjusting state when props change"），
-    // 避免 currentSong 变成 undefined 而让 UI 误报「无信号」。
+    // 切源后列表变短，渲染期收敛越界下标。
     if (playlist.length > 0 && currentIndex > playlist.length - 1) {
         setCurrentIndex(playlist.length - 1);
     }
@@ -235,7 +233,7 @@ export const useOnlinePlayer = (
                     trackRetryRef.current.id !== currentTrackId ||
                     !trackRetryRef.current.fixed
                 ) {
-                    // 尝试修复时，暂时清除错误状态，避免触发上层整单回退
+                    // 修复时暂清错误状态
                     setError(null);
                     trackRetryRef.current = {
                         index: currentIdx,
@@ -341,10 +339,7 @@ export const useOnlinePlayer = (
                 clearTimeout(retryTimerRef.current);
                 retryTimerRef.current = null;
             }
-            // 注意：这里不要清空 src，因为如果这是被交换出去的 audio，它可能马上要被用作 preload
-            // 或者如果这是 preload 进来的 audio，我们也不希望清空它
-            // 只有当组件卸载或者真正销毁时才需要清理，但 React Effect cleanup 在依赖变化时也会运行。
-            // 简单 pause 和移除监听器即可。
+            // 不清空 src：该 audio 可能复用为 preload
 
             audio.removeEventListener("timeupdate", handleTimeUpdate);
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -385,7 +380,7 @@ export const useOnlinePlayer = (
         }
     }, [enabled, audioGeneration]);
 
-    // 预加载下一首（延迟执行以优化性能）
+    // 预加载下一首（延迟执行）
     useEffect(() => {
         if (playlist.length <= 1) return;
 
@@ -490,8 +485,7 @@ export const useOnlinePlayer = (
                     }
                 } catch (err) {
                     console.error("Playback failed:", err);
-                    // 只有在非 AbortError 时才重置播放状态
-                    // 这样可以避免网络慢或快速切换时 UI 闪烁回暂停
+                    // 非 AbortError 才重置播放状态
                     if (
                         !(
                             err instanceof DOMException &&

@@ -102,7 +102,7 @@ const App: React.FC = () => {
         });
     });
 
-    // 临时音乐配置状态，用于在点击应用前存储更改
+    // 应用前暂存的音乐配置
     const [tempMusicConfig, setTempMusicConfig] = useState(
         settings.musicConfig,
     );
@@ -127,7 +127,7 @@ const App: React.FC = () => {
 
     const t = useTranslation(settings.language);
 
-    // 辅助函数：更新临时音乐配置
+    // 更新暂存音乐配置
     const handleMusicConfigChange = (
         key: keyof Settings["musicConfig"],
         value: string,
@@ -178,7 +178,7 @@ const App: React.FC = () => {
                     : "";
             document.title = `${fmt}${modeLabel} • ${t("APP_TITLE")}`;
         } else {
-            // 仅在当前标题与默认标题不同时才恢复，避免在可见时每秒重复写入 document.title
+            // 标题与默认不同时才恢复
             if (document.title !== t("APP_TITLE")) {
                 restoreTitle();
             }

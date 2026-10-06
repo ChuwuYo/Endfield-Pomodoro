@@ -79,8 +79,7 @@ beforeEach(() => {
 
 describe("MusicPlayer adapter downgrade path", () => {
     it("switches adapters even when tracks carry no usable id", async () => {
-        // 上游不返回 id 且 url 也无法还原 id 时，单曲回退无从下手；
-        // 这曾经让失败计数被跳过，导致整单换源的降级路径永远不触发
+        // 无可用 id 时单曲回退无从下手，失败仍计入
         mocks.audioList = [
             {
                 id: "",

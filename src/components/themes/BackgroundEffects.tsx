@@ -33,7 +33,7 @@ export const NeonGrid = () => (
                     backgroundSize: "40px 40px",
                 }}
             ></div>
-            {/* 横线（向下滚动；上方外扩一个 40px 纹理周期避免露缝，溢出由父级裁剪） */}
+            {/* 横线层：向下滚动，上方外扩 40px */}
             <div
                 className="absolute left-0 right-0 bottom-0"
                 style={{

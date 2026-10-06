@@ -19,7 +19,7 @@ export type PlaceAnchoredPopoverOptions = {
      * 仅用于决定是否在下方打开：下方不足则翻到上方；不抬高 max-height。
      */
     minHeight?: number;
-    /** 与原先 max-h-60 一致：优先不超过该高度（设计稿 px） */
+    /** 高度上限（设计稿 px） */
     maxHeightCap?: number;
 };
 

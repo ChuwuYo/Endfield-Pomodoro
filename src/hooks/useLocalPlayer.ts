@@ -69,9 +69,9 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // 用 ref 保存 handleNext 以避免闭包问题
+    // 用 ref 保存 handleNext
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
-    // 用 ref 追踪播放状态，避免 handlePrev 依赖 isPlaying 导致不必要的重建
+    // 用 ref 追踪播放状态
     const isPlayingRef = useRef(isPlaying);
     useEffect(() => {
         isPlayingRef.current = isPlaying;
@@ -271,7 +271,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     useEffect(() => {
         if (!enabled && audioRef.current) {
             audioRef.current.pause();
-            // 使用 queueMicrotask 避免同步更新状态
+            // queueMicrotask 中更新状态
             queueMicrotask(() => setIsPlaying(false));
         }
     }, [enabled]);
@@ -303,7 +303,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
         let startIndex = 0;
         const isFirstLoad = playlistRef.current.length === 0;
-        // 使用 playModeRef 获取最新模式，避免 addFiles 依赖变化
+        // 用 playModeRef 获取最新模式
         if (
             isFirstLoad &&
             playModeRef.current === PlayMode.RANDOM &&
@@ -320,7 +320,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             return updated;
         });
 
-        // 定义单个文件解析函数（动态导入 music-metadata，避免进入首屏主包）
+        // 单文件解析函数（动态导入 music-metadata）
         const parseFile = async (file: File) => {
             const trackId = `${file.name}-${file.size}-${file.lastModified}`;
             try {
@@ -460,7 +460,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     }, []);
 
     // 删除曲目
-    // 在设置状态前计算新的索引，避免依赖可能过时的闭包状态
+    // 先算新索引再更新状态
     const removeTrack = useCallback(
         (index: number) => {
             const currentList = playlistRef.current;
@@ -495,7 +495,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
     // 清空播放列表
     const clearPlaylist = useCallback(() => {
-        // 使用 playlistRef.current 确保清理最新的 Blob URL，避免闭包陷阱
+        // 用 playlistRef.current 清理最新 Blob URL
         playlistRef.current.forEach((track) => {
             URL.revokeObjectURL(track.blobUrl);
             if (track.coverUrl) URL.revokeObjectURL(track.coverUrl);

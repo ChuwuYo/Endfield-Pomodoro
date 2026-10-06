@@ -1,6 +1,6 @@
 /**
  * 存储键常量（localStorage / sessionStorage）
- * 用于统一管理所有存储的键名，避免拼写错误
+ * 存储键名统一管理
  *
  * 使用位置：
  * - App.tsx: SETTINGS / SESSIONS / TOTAL_SECONDS
@@ -54,7 +54,7 @@ export const MUSIC_API_URLS = [
  */
 export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳转下一曲的延迟（毫秒）
 export const AUDIO_LOADING_TIMEOUT_MS = 15000; // 音频加载超时时间（毫秒）
-export const PRELOAD_DELAY_MS = 3000; // 预加载延迟时间（毫秒），避免抢占当前播放带宽
+export const PRELOAD_DELAY_MS = 3000; // 预加载延迟（毫秒）
 export const TIME_UPDATE_THROTTLE_SECONDS = 0.25; // 时间更新节流阈值（秒），减少频繁重渲染
 export const RESUME_TIME_BUFFER_SECONDS = 0.2; // 修复音轨后恢复播放时的时间回退缓冲（秒）
 export const API_FETCH_DELAY_MS = 100; // API 数据获取延迟（毫秒），减少初始加载卡顿

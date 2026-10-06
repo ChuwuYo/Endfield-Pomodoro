@@ -181,7 +181,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         applyTimerForMode(mode, false);
     };
 
-    // 将计时器状态持久化到 sessionStorage（仅跟计时状态走，避免无关 settings 改写 startTs）
+    // 计时器状态持久化到 sessionStorage（跟计时状态走）
     useEffect(() => {
         try {
             const payload: TimerPayload = { mode, timeLeft, isActive };
@@ -204,7 +204,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         }
     }, [mode, timeLeft, isActive]);
 
-    // 设置页改了时长：按当前模式重算剩余时间（签名未变则跳过，兼容 StrictMode 二次 effect）
+    // 设置页改了时长：按当前模式重算剩余（签名未变跳过）
     const lastDurationKeyRef = useRef(
         `${settings.workDuration}|${settings.shortBreakDuration}|${settings.longBreakDuration}`,
     );
@@ -412,7 +412,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute -rotate-45"></div>
                         </div>
 
-                        {/* 时间文本：倒计时可查询，但不挂 aria-live，避免每秒打断读屏 */}
+                        {/* 倒计时文本：可查询，无 aria-live */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 select-none">
                             <span
                                 className={`text-ui-display md:text-ui-display-xl font-ui-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}

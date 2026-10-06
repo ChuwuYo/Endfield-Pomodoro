@@ -13,7 +13,7 @@ import "remixicon/fonts/remixicon.css";
 // 渲染前同步 html lang
 syncDocumentLanguageBeforeApp();
 
-// 当前语言的 CJK 字族 CSS 就位后再挂载，避免首屏中文回退到系统字体
+// CJK 字族 CSS 就位后再挂载
 loadCjkFontCss(resolveFallbackLanguage()).then(() => {
     ReactDOM.createRoot(document.getElementById("root")!).render(
         <React.StrictMode>

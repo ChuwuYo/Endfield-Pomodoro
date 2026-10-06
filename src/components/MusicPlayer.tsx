@@ -111,8 +111,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             const track = metingData[index];
             if (!track) return null;
 
-            // 缺少 id/url 时无法做单曲回退，但这依然是一次播放失败：
-            // 必须计入，否则整单切换数据源的降级路径永远不会触发
+            // 缺少 id/url 无法单曲回退，仍计入失败次数
             if (!track.id || !track.url) {
                 return registerTrackFixFailure();
             }
@@ -140,7 +139,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     );
 
     // 切换适配器会重新拉取歌单，此时界面已切到 CONNECTING；
-    // 一并停掉音频，避免出现「显示正在连接、却还在播放旧数据源」的状态分裂
+    // 切换数据源时一并停掉旧音频
     const player = useOnlinePlayer(
         playlist,
         false,
@@ -169,7 +168,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         popoverRef.current?.classList.remove(PLAYLIST_POSITIONED_CLASS);
     }, []);
 
-    /** 先定位再显示，避免首帧闪左上角（visibility + is-positioned） */
+    /** 先定位再显示（visibility + is-positioned） */
     const revealPlaylistPlacement = useCallback(() => {
         const popover = popoverRef.current;
         if (!popover) return;

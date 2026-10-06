@@ -45,8 +45,7 @@ const MikuHexPattern: React.FC = () => {
                 const x = e.clientX - HEX_SPOT_RADIUS;
                 const y = e.clientY - HEX_SPOT_RADIUS;
                 outerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-                // 内层贴图按周期平铺，只需反相偏移一个周期内的余量即可
-                // 与基础网格（锚定视口原点）保持对齐，视觉等同原先的全视口反向平移
+                // 内层贴图按周期取余反向偏移，与基础网格对齐
                 innerRef.current.style.transform = `translate3d(${-mod(x, HEX_TILE_W)}px, ${-mod(y, HEX_TILE_H)}px, 0)`;
             }
         };

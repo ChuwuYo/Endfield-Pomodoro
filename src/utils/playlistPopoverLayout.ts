@@ -12,8 +12,8 @@ export const PLAYLIST_MIN_HEIGHT_DESIGN_PX =
     PLAYLIST_HEADER_DESIGN_PX +
     PLAYLIST_MIN_VISIBLE_ROWS * PLAYLIST_ROW_DESIGN_PX;
 
-/** 与原先 max-h-60 对齐的高度上限（设计稿 px） */
+/** 高度上限（设计稿 px） */
 export const PLAYLIST_MAX_HEIGHT_CAP_DESIGN_PX = 240;
 
-/** 定位完成后再显示，避免首帧停在 inset:auto 左上角 */
+/** 定位完成后再显示 */
 export const PLAYLIST_POSITIONED_CLASS = "is-positioned";
