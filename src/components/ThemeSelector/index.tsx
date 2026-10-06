@@ -85,7 +85,17 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                                 aria-pressed={active}
                                 aria-label={t(tab.labelKey)}
                                 title={t(tab.labelKey)}
-                                onClick={() => setMode(tab.mode)}
+                                onClick={(e) => {
+                                    setMode(tab.mode);
+                                    // 指针点击后把焦点移到下拉：焦点环标示
+                                    // "筛选已作用于它"。键盘激活（detail 0）
+                                    // 不移，焦点留在模式组里可继续按键。
+                                    if (e.detail > 0) {
+                                        document
+                                            .getElementById(themeSelectId)
+                                            ?.focus();
+                                    }
+                                }}
                                 className={`w-10 grid place-items-center transition-colors cursor-pointer focus-visible:outline-offset-[-1px] ${
                                     active
                                         ? "bg-theme-primary text-theme-base"
