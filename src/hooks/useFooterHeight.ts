@@ -3,7 +3,7 @@ import { scalePx } from "../utils/uiScale";
 
 /**
  * Hook 用于获取 footer 元素的高度
- * 返回 ref 和当前高度，自动监听窗口 resize 事件
+ * 返回 ref 和当前高度，自动监听窗口 resize 事件，高度同步写入根元素 --footer-h
  */
 export const useFooterHeight = () => {
     const footerRef = useRef<HTMLElement>(null);
@@ -12,7 +12,12 @@ export const useFooterHeight = () => {
     useEffect(() => {
         const updateFooterHeight = () => {
             if (footerRef.current) {
-                setFooterHeight(footerRef.current.offsetHeight);
+                const height = footerRef.current.offsetHeight;
+                setFooterHeight(height);
+                document.documentElement.style.setProperty(
+                    "--footer-h",
+                    `${height}px`,
+                );
             }
         };
 

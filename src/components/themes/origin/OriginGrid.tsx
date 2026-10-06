@@ -20,8 +20,9 @@ export const OriginGrid = () => (
         ></div>
         {/* 左下描边字 */}
         <div
-            className="absolute -bottom-8 -left-2 font-ui-sans font-bold leading-ui-none select-none"
+            className="absolute -left-2 font-ui-sans font-bold leading-ui-none select-none"
             style={{
+                bottom: "calc(var(--footer-h, 0px) - 0.2em)",
                 fontSize: "clamp(5rem, 16vw, 14rem)",
                 letterSpacing: "-0.02em",
                 color: "transparent",
