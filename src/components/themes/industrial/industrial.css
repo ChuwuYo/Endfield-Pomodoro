@@ -1,0 +1,63 @@
+/** INDUSTRIAL 私有样式：面板底边条纹 + 深色标题签 + 哑角框 + 主按钮纹理。 */
+
+/* 面板底边 4px 条纹 */
+html[data-theme="INDUSTRIAL"] .ef-panel::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 4px;
+    background: repeating-linear-gradient(
+        -45deg,
+        color-mix(in srgb, var(--color-primary) 55%, transparent) 0 2px,
+        transparent 2px 6px
+    );
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* 标题签：深底浅字 */
+html[data-theme="INDUSTRIAL"] .ef-panel__title {
+    background: var(--color-accent);
+    color: var(--color-base);
+    border-color: transparent;
+}
+
+html[data-theme="INDUSTRIAL"] .ef-panel__title button {
+    color: color-mix(in srgb, var(--color-base) 72%, transparent);
+    border-color: color-mix(in srgb, var(--color-base) 35%, transparent);
+}
+
+html[data-theme="INDUSTRIAL"] .ef-panel__title button:hover:not(:disabled) {
+    color: var(--color-base);
+    border-color: var(--color-base);
+    background: color-mix(in srgb, var(--color-base) 10%, transparent);
+}
+
+html[data-theme="INDUSTRIAL"] .ef-panel__title::before {
+    content: "";
+    align-self: stretch;
+    width: 8px;
+    margin-left: -0.5rem;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--color-primary) 0 2px,
+        transparent 2px 5px
+    );
+    opacity: 0.8;
+}
+
+/* 角框改走 dim */
+html[data-theme="INDUSTRIAL"] .ef-panel__corner {
+    border-color: color-mix(in srgb, var(--color-dim) 65%, transparent);
+}
+
+/* 主按钮斜纹质感 */
+html[data-theme="INDUSTRIAL"] .ef-btn--primary {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgb(0 0 0 / 0.12) 0 1px,
+        transparent 1px 5px
+    );
+}

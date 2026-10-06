@@ -119,23 +119,6 @@ export const TacticalGrid = () => (
 );
 
 /**
- * Industrial 主题斜线背景
- */
-export const IndustrialGrid = () => (
-    <>
-        <div
-            className="absolute inset-0 opacity-10"
-            style={{
-                backgroundImage:
-                    "repeating-linear-gradient(45deg, var(--color-dim) 0, var(--color-dim) 1px, transparent 0, transparent 50%)",
-                backgroundSize: "20px 20px",
-            }}
-        ></div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-theme-highlight/20 to-transparent"></div>
-    </>
-);
-
-/**
  * Azure 主题网格背景
  */
 export const AzureGrid = () => (

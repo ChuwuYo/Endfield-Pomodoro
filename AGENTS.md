@@ -27,6 +27,8 @@
 
 ## Change Rules
 - Keep TypeScript types strict; update `src/types.ts` when contracts change.
+- Comments describe code content and function only — no rationale, process, or
+  history (no 为什么这样写 / 删了什么 / 候选几号). Keep them short.
 - Reuse existing component layering: `components/ui`, `components/themes`, business components.
 - For UI text changes, update all locale entries in `src/utils/i18n.ts` (zh-CN/zh-TW/en/ja/ko).
 - For theme changes, prefer CSS variables and centralized config in `src/config/themes.ts`.

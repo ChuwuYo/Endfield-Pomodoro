@@ -88,12 +88,13 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-error": "#dc2626",
     },
     [ThemePreset.INDUSTRIAL]: {
+        // 休息态：琥珀 700（数字）+ 钢印灰（图标/环尾）
         "--color-base": "#e5e5e5",
         "--color-surface": "#d4d4d4",
         "--color-highlight": "#a3a3a3",
         "--color-primary": "#f97316",
-        "--color-secondary": "#feff42",
-        "--color-accent": "#ffd1f6",
+        "--color-secondary": "#a16207",
+        "--color-accent": "#44403c",
         "--color-text": "#141414",
         "--color-dim": "#5b5b5b",
         "--color-success": "#16a34a",

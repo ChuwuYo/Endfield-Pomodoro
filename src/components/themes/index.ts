@@ -11,15 +11,14 @@
 export { AbyssalGrid } from "./abyssal";
 export {
     AzureGrid,
-    IndustrialGrid,
     MatrixRain,
     NeonGrid,
     TacticalGrid,
 } from "./BackgroundEffects";
 export {
     AzureForeground,
-    IndustrialForeground,
     TacticalForeground,
 } from "./ForegroundEffects";
+export { IndustrialForeground, IndustrialGrid } from "./industrial";
 export { MikuBackgroundLayer, MikuDecorations } from "./miku";
 export { OriginForeground, OriginGrid } from "./origin";
