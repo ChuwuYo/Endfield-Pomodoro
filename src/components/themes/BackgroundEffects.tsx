@@ -117,20 +117,3 @@ export const TacticalGrid = () => (
         }}
     ></div>
 );
-
-/**
- * Azure 主题网格背景
- */
-export const AzureGrid = () => (
-    <>
-        <div
-            className="absolute inset-0 opacity-20"
-            style={{
-                backgroundImage:
-                    "linear-gradient(var(--color-highlight) 1px, transparent 1px), linear-gradient(90deg, var(--color-highlight) 1px, transparent 1px)",
-                backgroundSize: "20px 20px",
-            }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white/0 mix-blend-overlay"></div>
-    </>
-);
