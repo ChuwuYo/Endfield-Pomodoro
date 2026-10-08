@@ -102,18 +102,3 @@ export const MatrixRain = () => {
         </div>
     );
 };
-
-/**
- * Tactical 主题点阵背景
- */
-export const TacticalGrid = () => (
-    <div
-        className="absolute inset-0"
-        style={{
-            backgroundImage:
-                "radial-gradient(var(--color-dim) 1px, transparent 1px)",
-            backgroundSize: "30px 30px",
-            opacity: 0.1,
-        }}
-    ></div>
-);

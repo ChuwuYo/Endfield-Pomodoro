@@ -29,15 +29,15 @@ export const TacticalForeground: React.FC = () => {
                     transform: "translate3d(0px, 0px, 0) translate(-50%, -50%)",
                 }}
             >
-                <div className="w-[100vw] h-[1px] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                <div className="w-[1px] h-[100vh] bg-theme-primary/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                <div className="w-12 h-12 border border-theme-primary/50 rounded-full flex items-center justify-center">
+                <div className="tactical-crosshair__line w-[100vw] h-[1px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="tactical-crosshair__line w-[1px] h-[100vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="tactical-crosshair__ring w-12 h-12 border rounded-full flex items-center justify-center">
                     <div className="w-1 h-1 bg-theme-primary"></div>
                 </div>
             </div>
             <div
                 ref={coordsRef}
-                className="absolute bottom-4 right-4 font-ui-mono text-ui-micro text-theme-primary/70 contain-layout contain-paint"
+                className="tactical-coords absolute right-4 font-ui-mono text-ui-micro contain-layout contain-paint"
             >
                 TARGET_COORDS: [0, 0]
             </div>

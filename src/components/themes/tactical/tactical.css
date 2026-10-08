@@ -1,0 +1,61 @@
+/** TACTICAL 私有样式：地形等高线、点阵肌理、准星与坐标读数。 */
+
+/* 细密点阵底纹 */
+html[data-theme="TACTICAL"] .tactical-dot-grid {
+    background-image: radial-gradient(
+        var(--color-primary) 1px,
+        transparent 1.5px
+    );
+    background-size: 14px 14px;
+    opacity: 0.05;
+}
+
+/* 等高线：普通线与计曲线分层，计曲线更亮更粗 */
+html[data-theme="TACTICAL"] .tactical-contours {
+    fill: none;
+    stroke: var(--color-primary);
+}
+
+html[data-theme="TACTICAL"] .tactical-contours--line {
+    stroke-width: 1;
+    opacity: 0.1;
+    filter: drop-shadow(0 0 2px var(--color-primary));
+}
+
+html[data-theme="TACTICAL"] .tactical-contours--index {
+    stroke-width: 1.6;
+    opacity: 0.22;
+    filter: drop-shadow(0 0 3px var(--color-primary));
+}
+
+/* 中心留空 + 四边压暗 */
+html[data-theme="TACTICAL"] .tactical-contour-veil {
+    background:
+        radial-gradient(
+            ellipse 58% 74% at 50% 50%,
+            var(--color-base) 0%,
+            color-mix(in srgb, var(--color-base) 60%, transparent) 52%,
+            transparent 100%
+        ),
+        radial-gradient(
+            ellipse at 50% 50%,
+            transparent 55%,
+            var(--color-base) 100%
+        );
+}
+
+/* 准星十字线 */
+html[data-theme="TACTICAL"] .tactical-crosshair__line {
+    background: var(--color-primary);
+    opacity: 0.1;
+}
+
+html[data-theme="TACTICAL"] .tactical-crosshair__ring {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+/* 坐标读数：压在 footer 上方 */
+html[data-theme="TACTICAL"] .tactical-coords {
+    color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+    bottom: calc(var(--footer-h, 0px) + 0.25rem);
+}
