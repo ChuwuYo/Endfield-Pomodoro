@@ -130,7 +130,8 @@ html[data-theme="AZURE"] .azure-bg__ground {
         transform: translate3d(0, 0, 0) rotate(0deg);
     }
     to {
-        transform: translate3d(var(--dx, 2vw), var(--dy, -5vh), 0) rotate(var(--dr, 45deg));
+        transform: translate3d(var(--dx, 2vw), var(--dy, -5vh), 0)
+            rotate(var(--dr, 45deg));
     }
 }
 

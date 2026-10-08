@@ -519,6 +519,18 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                 transform: "translateX(-50%)",
                             }}
                         ></div>
+                        {/* 拖动数值气泡 */}
+                        <div
+                            aria-hidden="true"
+                            className={`absolute -top-7 px-1.5 py-0.5 rounded-sm border border-theme-highlight/50 bg-black/60 backdrop-blur-sm text-ui-3xs font-ui-mono text-white font-bold whitespace-nowrap pointer-events-none transition-opacity ${dragVolume !== null ? "opacity-100" : "opacity-0"}`}
+                            style={{
+                                left: `${displayVolume * 100}%`,
+                                transform: "translateX(-50%)",
+                                textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+                            }}
+                        >
+                            {volumeValueNow}
+                        </div>
                     </div>
                 </div>
             </div>
