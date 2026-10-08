@@ -248,6 +248,13 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+/* 纯图标按钮：flex 居中，避免 inline 图标受按钮 line-height strut 影响而视觉偏上 */
+button:has(> i:only-child) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* 基础样式 */
 body {
   @apply bg-theme-base text-theme-text overflow-hidden;
