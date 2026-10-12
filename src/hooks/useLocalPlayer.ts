@@ -159,7 +159,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
         return () => {
             audio.pause();
-            audio.src = "";
+            audio.removeAttribute("src");
+            audio.load();
             audio.removeEventListener("timeupdate", onTimeUpdate);
             audio.removeEventListener("loadedmetadata", onLoadedMetadata);
             audio.removeEventListener("ended", onEnded);
@@ -320,8 +321,22 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             return updated;
         });
 
+        // 曲目已删时丢弃解析结果并回收封面 Blob URL
+        const isTrackAlive = (id: string) =>
+            playlistRef.current.some((track) => track.id === id);
+        const revokeCover = (coverUrl?: string) => {
+            if (coverUrl) URL.revokeObjectURL(coverUrl);
+        };
+
         // 单文件解析函数（动态导入 music-metadata）
-        const parseFile = async (file: File) => {
+        const parseFile = async (
+            file: File,
+        ): Promise<{
+            id: string;
+            name?: string;
+            artist?: string;
+            coverUrl?: string;
+        }> => {
             const trackId = `${file.name}-${file.size}-${file.lastModified}`;
             try {
                 const { parseBlob } = await import("music-metadata");
@@ -351,7 +366,9 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         // 只有在首次加载且有有效 startIndex 时才执行优先逻辑
         if (isFirstLoad && uniqueFiles[startIndex]) {
             const metadata = await parseFile(uniqueFiles[startIndex]);
-            if (metadata.name || metadata.artist) {
+            if (!isTrackAlive(metadata.id)) {
+                revokeCover(metadata.coverUrl);
+            } else if (metadata.name || metadata.artist) {
                 // 只有解析出有效信息才更新
                 setPlaylist((prev) =>
                     prev.map((track) =>
@@ -376,10 +393,15 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 restFiles,
                 parseFile,
             );
+            const liveResults = results.filter((r) => {
+                if (isTrackAlive(r.id)) return true;
+                revokeCover(r.coverUrl);
+                return false;
+            });
 
             // 3. 全量更新 (Final Update)
             setPlaylist((prev) => {
-                const updates = new Map(results.map((r) => [r.id, r]));
+                const updates = new Map(liveResults.map((r) => [r.id, r]));
                 return prev.map((track) => {
                     const update = updates.get(track.id);
                     return update ? { ...track, ...update } : track;

@@ -425,8 +425,16 @@ export const useOnlinePlayer = (
             // 清理预加载的音频实例
             if (preloadAudioRef.current) {
                 preloadAudioRef.current.pause();
-                preloadAudioRef.current.src = "";
+                preloadAudioRef.current.removeAttribute("src");
+                preloadAudioRef.current.load();
                 preloadAudioRef.current = null;
+            }
+            // 释放主音频实例的媒体资源
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.removeAttribute("src");
+                audioRef.current.load();
+                audioRef.current = null;
             }
         };
     }, []);
