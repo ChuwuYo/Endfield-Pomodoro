@@ -4,7 +4,7 @@ import { DEFAULT_THEME, THEME_MODES, THEMES } from "./themes";
 
 /**
  * 首帧前执行的内联脚本：读取已存设置，把 data-theme / CSS 变量 / color-scheme
- * 写到 <html>，避免挂载前先闪默认主题。由 vite.config.ts 注入 index.html。
+ * 写到 <html>，并同步 meta theme-color，避免挂载前先闪默认主题。由 vite.config.ts 注入 index.html。
  */
 export const buildThemeBootstrapScript = (): string => {
     const config = {
@@ -14,5 +14,5 @@ export const buildThemeBootstrapScript = (): string => {
         themes: THEMES,
         modes: THEME_MODES,
     };
-    return `(function(){try{var c=${JSON.stringify(config)},d=document.documentElement,s=null;try{s=JSON.parse(localStorage.getItem(c.key)||"null")}catch(e){}var t=s&&typeof s==="object"?s.theme:null;if(c.legacy[t])t=c.legacy[t];if(!Object.prototype.hasOwnProperty.call(c.themes,t))t=c.fallback;var v=c.themes[t];d.dataset.theme=t;for(var k in v)d.style.setProperty(k,v[k]);d.style.colorScheme=c.modes[t]==="DARK"?"dark":"light"}catch(e){}})();`;
+    return `(function(){try{var c=${JSON.stringify(config)},d=document.documentElement,s=null;try{s=JSON.parse(localStorage.getItem(c.key)||"null")}catch(e){}var t=s&&typeof s==="object"?s.theme:null;if(c.legacy[t])t=c.legacy[t];if(!Object.prototype.hasOwnProperty.call(c.themes,t))t=c.fallback;var v=c.themes[t];d.dataset.theme=t;for(var k in v)d.style.setProperty(k,v[k]);d.style.colorScheme=c.modes[t]==="DARK"?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",v["--color-base"])}catch(e){}})();`;
 };
