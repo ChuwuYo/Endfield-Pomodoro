@@ -520,6 +520,44 @@ body {
   filter: drop-shadow(0 0 5px var(--color-primary));
 }
 
+/* 主题 / 视图切换：整页 View Transition 交叉淡入（见 utils/viewTransition.ts） */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: ease;
+}
+
+html[data-vt="view"]::view-transition-old(root),
+html[data-vt="view"]::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+/* 减弱动态效果：过渡瞬时完成，循环装饰动画定格 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .data-flow-bg::before,
+  .animate-spin-slow,
+  .animate-spin-slow-linear-4s,
+  .animate-ping-slow,
+  .animate-equalizer,
+  .animate-\[rain_linear_infinite\],
+  [style*="neon-grid-scroll"] {
+    animation-play-state: paused !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* 全局键盘焦点环（鼠标点击不显示） */
 :where(a, button, input, select, textarea, [role="button"], [role="slider"], [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--color-primary);
