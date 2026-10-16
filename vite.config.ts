@@ -6,14 +6,14 @@ import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { buildThemeBootstrapScript } from "./src/config/themeBootstrap";
 
-/** 把主题引导脚本内联到 <head> 最前，首帧即为已存主题 */
+/** 把主题引导脚本内联到 <head> 末尾（theme-color meta 之后），首帧即为已存主题 */
 const themeBootstrap = (): Plugin => ({
     name: "endfield:theme-bootstrap",
     transformIndexHtml: () => [
         {
             tag: "script",
             children: buildThemeBootstrapScript(),
-            injectTo: "head-prepend",
+            injectTo: "head",
         },
     ],
 });
@@ -37,7 +37,7 @@ export default defineConfig({
                 name: "Endfield Pomodoro",
                 short_name: "Endfield",
                 description: "融合 Cyber UI 和《终末地》风格的沉浸式番茄钟应用",
-                theme_color: "#fff7d0",
+                theme_color: "#e5e5e5",
                 background_color: "#e5e5e5",
                 display: "standalone",
                 orientation: "any",
