@@ -30,6 +30,20 @@ describe("theme bootstrap script", () => {
         expect(root.style.colorScheme).toBe("dark");
     });
 
+    it("syncs meta theme-color before mount", () => {
+        const meta = document.createElement("meta");
+        meta.name = "theme-color";
+        meta.content = "#fff7d0";
+        document.head.appendChild(meta);
+        localStorage.setItem(
+            STORAGE_KEYS.SETTINGS,
+            JSON.stringify({ theme: ThemePreset.TACTICAL }),
+        );
+        run();
+        expect(meta.content).toBe(THEMES[ThemePreset.TACTICAL]["--color-base"]);
+        meta.remove();
+    });
+
     it("maps the legacy LABORATORY theme to AZURE", () => {
         localStorage.setItem(
             STORAGE_KEYS.SETTINGS,
