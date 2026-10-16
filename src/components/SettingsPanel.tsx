@@ -13,6 +13,7 @@ type SettingsPanelProps = {
     settings: Settings;
     tempMusicConfig: Settings["musicConfig"];
     onSettingsChange: React.Dispatch<React.SetStateAction<Settings>>;
+    onThemeChange: (theme: Settings["theme"]) => void;
     onMusicConfigChange: (
         key: keyof Settings["musicConfig"],
         value: string,
@@ -38,6 +39,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     settings,
     tempMusicConfig,
     onSettingsChange,
+    onThemeChange,
     onMusicConfigChange,
     onApplyMusicConfig,
     onResetMusicConfig,
@@ -218,12 +220,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div>
                                 <ThemeSelector
                                     theme={settings.theme}
-                                    onThemeChange={(theme) =>
-                                        onSettingsChange({
-                                            ...settings,
-                                            theme,
-                                        })
-                                    }
+                                    onThemeChange={onThemeChange}
                                     t={t}
                                 />
                             </div>
