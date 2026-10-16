@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
 // Industrial 警告圈半径（容器 200x200，圆心对准光标）
 const INDUSTRIAL_RING_RADIUS = 100;
@@ -7,17 +8,15 @@ const INDUSTRIAL_RING_RADIUS = 100;
 export const IndustrialForeground: React.FC = () => {
     const ringRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (ringRef.current) {
-                ringRef.current.style.transform = `translate3d(${e.clientX - INDUSTRIAL_RING_RADIUS}px, ${e.clientY - INDUSTRIAL_RING_RADIUS}px, 0)`;
-            }
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-        };
-    }, []);
+    useEffect(
+        () =>
+            subscribePointerFrame((x, y) => {
+                if (ringRef.current) {
+                    ringRef.current.style.transform = `translate3d(${x - INDUSTRIAL_RING_RADIUS}px, ${y - INDUSTRIAL_RING_RADIUS}px, 0)`;
+                }
+            }),
+        [],
+    );
 
     return (
         <div className="fixed inset-0 pointer-events-none z-50">
