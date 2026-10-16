@@ -35,7 +35,7 @@ export const useFooterHeight = () => {
         }
 
         const observer = new ResizeObserver(updateFooterHeight);
-        observer.observe(footer);
+        observer.observe(footer, { box: "border-box" });
         return () => observer.disconnect();
     }, []);
 
