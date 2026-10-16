@@ -1,4 +1,5 @@
 import { type FC, useEffect, useRef } from "react";
+import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
 // 光晕半径 400px：贴图固定尺寸、圆心居中，ref 平移跟随
 const ORIGIN_GLOW_RADIUS = 400;
@@ -7,17 +8,15 @@ const ORIGIN_GLOW_RADIUS = 400;
 export const OriginForeground: FC = () => {
     const glowRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (glowRef.current) {
-                glowRef.current.style.transform = `translate3d(${e.clientX - ORIGIN_GLOW_RADIUS}px, ${e.clientY - ORIGIN_GLOW_RADIUS}px, 0)`;
-            }
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-        };
-    }, []);
+    useEffect(
+        () =>
+            subscribePointerFrame((x, y) => {
+                if (glowRef.current) {
+                    glowRef.current.style.transform = `translate3d(${x - ORIGIN_GLOW_RADIUS}px, ${y - ORIGIN_GLOW_RADIUS}px, 0)`;
+                }
+            }),
+        [],
+    );
 
     return (
         <div className="fixed inset-0 pointer-events-none z-50 mix-blend-screen overflow-hidden">
