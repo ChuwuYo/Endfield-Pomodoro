@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { TimerMode } from "../types";
-import { advancePomodoroState, parseStoredTimerPayload } from "./pomodoroState";
+import {
+    advancePomodoroState,
+    parseStoredTimerPayload,
+    resolveTimerEndAt,
+} from "./pomodoroState";
 
 describe("advancePomodoroState", () => {
     it("moves work completion to short break and increments session", () => {
@@ -66,5 +70,17 @@ describe("parseStoredTimerPayload", () => {
             timeLeft: 85,
             isActive: true,
         });
+    });
+});
+
+describe("resolveTimerEndAt", () => {
+    it("keeps a consistent anchor so ticks do not accumulate delay", () => {
+        const anchor = 1_000_000 + 1500 * 1000;
+        expect(resolveTimerEndAt(anchor, 1_000_000 + 1012, 1499)).toBe(anchor);
+    });
+
+    it("re-anchors when there is no anchor or it no longer matches", () => {
+        expect(resolveTimerEndAt(null, 5000, 60)).toBe(65_000);
+        expect(resolveTimerEndAt(6000, 5000, 300)).toBe(305_000);
     });
 });
