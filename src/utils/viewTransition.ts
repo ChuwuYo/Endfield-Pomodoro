@@ -30,20 +30,14 @@ let activeToken = 0;
 /**
  * 以整页 View Transition 交叉淡入执行状态更新。
  * theme：过渡期间禁用逐元素 transition，由快照统一淡入；
- * 减弱动态效果时直接切换；不支持 View Transition 时保持原有行为。
+ * 减弱动态效果或不支持 View Transition 时保持原有行为。
  */
 export const runViewTransition = (
     update: () => void,
     kind: ViewTransitionKind,
 ): void => {
     if (prefersReducedMotion()) {
-        if (kind === "theme") {
-            const restore = suppressTransitions();
-            flushSync(update);
-            restore();
-        } else {
-            update();
-        }
+        update();
         return;
     }
 
