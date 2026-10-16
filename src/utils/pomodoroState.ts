@@ -92,3 +92,21 @@ export const parseStoredTimerPayload = (
         isActive: restoredActive,
     };
 };
+
+/**
+ * 计时结束时刻：沿用的锚点与当前剩余秒数一致时保留，否则按 now 重新锚定。
+ * 每秒的 effect 重建不累积调度延迟。
+ */
+export const resolveTimerEndAt = (
+    anchor: number | null,
+    now: number,
+    timeLeft: number,
+): number => {
+    if (
+        anchor !== null &&
+        Math.ceil((anchor - now) / MS_PER_SECOND) === timeLeft
+    ) {
+        return anchor;
+    }
+    return now + timeLeft * MS_PER_SECOND;
+};
