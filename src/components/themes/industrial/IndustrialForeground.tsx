@@ -4,7 +4,7 @@ import { subscribePointerFrame } from "../../../utils/pointerFrame";
 // Industrial 警告圈半径（容器 200x200，圆心对准光标）
 const INDUSTRIAL_RING_RADIUS = 100;
 
-/** Industrial 前景：鼠标跟随警告圆圈（ref 直写 transform）。 */
+/** Industrial 前景：鼠标跟随的脉冲警告圆圈（ref 直写 transform）。 */
 export const IndustrialForeground: React.FC = () => {
     const ringRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +29,7 @@ export const IndustrialForeground: React.FC = () => {
                     height: `${INDUSTRIAL_RING_RADIUS * 2}px`,
                 }}
             >
-                <div className="w-full h-full border-4 border-theme-primary/20 rounded-full"></div>
+                <div className="w-full h-full border-4 border-theme-primary/20 rounded-full animate-ping-slow"></div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border-2 border-theme-primary/40 rounded-sm rotate-45"></div>
             </div>
             <div
