@@ -2,12 +2,26 @@
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { buildThemeBootstrapScript } from "./src/config/themeBootstrap";
+
+/** 把主题引导脚本内联到 <head> 末尾（theme-color meta 之后），首帧即为已存主题 */
+const themeBootstrap = (): Plugin => ({
+    name: "endfield:theme-bootstrap",
+    transformIndexHtml: () => [
+        {
+            tag: "script",
+            children: buildThemeBootstrapScript(),
+            injectTo: "head",
+        },
+    ],
+});
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
+        themeBootstrap(),
         react(),
         // @vitejs/plugin-react 6 移除了 babel 选项，
         // React Compiler 改经 @rolldown/plugin-babel 接入
@@ -23,7 +37,7 @@ export default defineConfig({
                 name: "Endfield Pomodoro",
                 short_name: "Endfield",
                 description: "融合 Cyber UI 和《终末地》风格的沉浸式番茄钟应用",
-                theme_color: "#fff7d0",
+                theme_color: "#e5e5e5",
                 background_color: "#e5e5e5",
                 display: "standalone",
                 orientation: "any",

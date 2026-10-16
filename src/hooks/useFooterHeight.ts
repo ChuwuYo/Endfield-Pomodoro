@@ -3,28 +3,40 @@ import { scalePx } from "../utils/uiScale";
 
 /**
  * Hook 用于获取 footer 元素的高度
- * 返回 ref 和当前高度，自动监听窗口 resize 事件，高度同步写入根元素 --footer-h
+ * 返回 ref 和当前高度，ResizeObserver 跟踪 footer 尺寸（字体加载、语言、缩放），
+ * 高度同步写入根元素 --footer-h
  */
 export const useFooterHeight = () => {
     const footerRef = useRef<HTMLElement>(null);
     const [footerHeight, setFooterHeight] = useState(0);
 
     useEffect(() => {
+        const footer = footerRef.current;
+        if (!footer) return;
+
+        let lastHeight = -1;
         const updateFooterHeight = () => {
-            if (footerRef.current) {
-                const height = footerRef.current.offsetHeight;
-                setFooterHeight(height);
-                document.documentElement.style.setProperty(
-                    "--footer-h",
-                    `${height}px`,
-                );
-            }
+            const height = footer.offsetHeight;
+            if (height === lastHeight) return;
+            lastHeight = height;
+            setFooterHeight(height);
+            document.documentElement.style.setProperty(
+                "--footer-h",
+                `${height}px`,
+            );
         };
 
         updateFooterHeight();
-        window.addEventListener("resize", updateFooterHeight);
 
-        return () => window.removeEventListener("resize", updateFooterHeight);
+        if (typeof ResizeObserver === "undefined") {
+            window.addEventListener("resize", updateFooterHeight);
+            return () =>
+                window.removeEventListener("resize", updateFooterHeight);
+        }
+
+        const observer = new ResizeObserver(updateFooterHeight);
+        observer.observe(footer, { box: "border-box" });
+        return () => observer.disconnect();
     }, []);
 
     return { footerRef, footerHeight };

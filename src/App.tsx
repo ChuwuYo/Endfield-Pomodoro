@@ -15,7 +15,7 @@ import { SnackbarProvider, useSnackbar } from "./components/snackbar";
 import { BackgroundLayer, ForegroundLayer } from "./components/TerminalUI";
 import { MikuDecorations } from "./components/themes";
 import { defaultMusicConfig } from "./config/musicConfig";
-import { THEMES } from "./config/themes";
+import { DEFAULT_THEME } from "./config/themes";
 import {
     SECONDS_PER_HOUR,
     SECONDS_PER_MINUTE,
@@ -32,6 +32,8 @@ import {
     languageToHtmlLang,
 } from "./utils/languageLocale";
 import { parseStoredSettings } from "./utils/settings";
+import { applyThemeToRoot } from "./utils/themeDom";
+import { runViewTransition } from "./utils/viewTransition";
 
 /** 设置持久化：成功时兑现「应用配置」success；失败时 warning（在 SnackbarProvider 内） */
 function SettingsPersistence({
@@ -81,7 +83,7 @@ const DEFAULT_SETTINGS: Settings = {
     soundVolume: 0.5,
     notificationsEnabled: false,
     language: detectBrowserLanguage(),
-    theme: ThemePreset.INDUSTRIAL,
+    theme: DEFAULT_THEME,
     musicConfig: defaultMusicConfig,
 };
 
@@ -190,16 +192,44 @@ const App: React.FC = () => {
         };
     }, [isTimerRunning, remainingSeconds, remainingMode, t]);
 
-    // 应用主题
+    // 应用主题（首帧由 index.html 内联脚本预先写入，这里负责后续切换）
     useLayoutEffect(() => {
-        const root = document.documentElement;
-        // 供 index.css 按主题挂载组件/背景的细化样式（html[data-theme="..."]）
-        root.dataset.theme = settings.theme;
-        const themeColors = THEMES[settings.theme];
-        Object.entries(themeColors).forEach(([key, value]) => {
-            root.style.setProperty(key, value as string);
-        });
+        applyThemeToRoot(settings.theme);
     }, [settings.theme]);
+
+    // 切换主题：整页交叉淡入
+    const handleThemeChange = (theme: ThemePreset) => {
+        if (theme === settings.theme) return;
+        runViewTransition(
+            () => setSettings((prev) => ({ ...prev, theme })),
+            "theme",
+        );
+    };
+
+    // 切换视图：整页交叉淡入
+    const handleViewChange = (view: View) => {
+        if (view === currentView) return;
+        runViewTransition(() => setCurrentView(view), "view");
+    };
+
+    // 其他标签页修改设置时同步到当前页
+    useEffect(() => {
+        const handleStorage = (e: StorageEvent) => {
+            // key 为 null 表示 localStorage.clear()，按默认设置处理
+            if (e.key !== null && e.key !== STORAGE_KEYS.SETTINGS) return;
+            const notificationPermission =
+                "Notification" in window ? Notification.permission : null;
+            const nextSettings = parseStoredSettings(
+                e.newValue,
+                DEFAULT_SETTINGS,
+                { notificationPermission },
+            );
+            setSettings(nextSettings);
+            setTempMusicConfig(nextSettings.musicConfig);
+        };
+        window.addEventListener("storage", handleStorage);
+        return () => window.removeEventListener("storage", handleStorage);
+    }, []);
 
     // 同步 html lang，供屏幕阅读器与浏览器拼写/翻译使用
     useEffect(() => {
@@ -242,7 +272,7 @@ const App: React.FC = () => {
 
                 <HeaderBar
                     currentView={currentView}
-                    onViewChange={setCurrentView}
+                    onViewChange={handleViewChange}
                     isOnline={isOnline}
                     version={pkg.version}
                     t={t}
@@ -264,6 +294,7 @@ const App: React.FC = () => {
                             settings={settings}
                             tempMusicConfig={tempMusicConfig}
                             onSettingsChange={setSettings}
+                            onThemeChange={handleThemeChange}
                             onMusicConfigChange={handleMusicConfigChange}
                             onApplyMusicConfig={applyMusicConfig}
                             onResetMusicConfig={() =>

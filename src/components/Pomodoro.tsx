@@ -13,6 +13,7 @@ import {
     advancePomodoroState,
     parseStoredTimerPayload,
     type RestoredTimer,
+    resolveTimerEndAt,
 } from "../utils/pomodoroState";
 import { useSound } from "./SoundManager";
 import { Button, Panel } from "./ui";
@@ -227,13 +228,20 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         settings.longBreakDuration,
     ]);
 
+    // 运行中的结束时刻锚点；暂停/归零时清空
+    const endAtRef = useRef<number | null>(null);
     useEffect(() => {
         if (!isActive || timeLeft <= 0) {
+            endAtRef.current = null;
             return;
         }
 
-        const startTime = Date.now();
-        const expectedEndTime = startTime + timeLeft * MS_PER_SECOND;
+        const expectedEndTime = resolveTimerEndAt(
+            endAtRef.current,
+            Date.now(),
+            timeLeft,
+        );
+        endAtRef.current = expectedEndTime;
 
         const interval = window.setInterval(() => {
             const now = Date.now();

@@ -1,5 +1,6 @@
 import React from "react";
 import { useIsMobile } from "../../../hooks/useIsMobile";
+import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
 // 六边形网格背景 - 支持鼠标位置高亮
 
@@ -40,20 +41,22 @@ const MikuHexPattern: React.FC = () => {
     React.useEffect(() => {
         if (isMobile) return;
 
-        const handleMouseMove = (e: MouseEvent) => {
-            if (outerRef.current && innerRef.current) {
-                const x = e.clientX - HEX_SPOT_RADIUS;
-                const y = e.clientY - HEX_SPOT_RADIUS;
-                outerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-                // 内层贴图按周期取余反向偏移，与基础网格对齐
-                innerRef.current.style.transform = `translate3d(${-mod(x, HEX_TILE_W)}px, ${-mod(y, HEX_TILE_H)}px, 0)`;
-            }
-        };
-
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-        };
+        return subscribePointerFrame(
+            (clientX, clientY) => {
+                if (outerRef.current && innerRef.current) {
+                    const x = clientX - HEX_SPOT_RADIUS;
+                    const y = clientY - HEX_SPOT_RADIUS;
+                    outerRef.current.style.opacity = "1";
+                    outerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                    // 内层贴图按周期取余反向偏移，与基础网格对齐
+                    innerRef.current.style.transform = `translate3d(${-mod(x, HEX_TILE_W)}px, ${-mod(y, HEX_TILE_H)}px, 0)`;
+                }
+            },
+            () => {
+                // 鼠标离开页面时淡出高亮
+                if (outerRef.current) outerRef.current.style.opacity = "0";
+            },
+        );
     }, [isMobile]);
 
     return (
@@ -92,7 +95,7 @@ const MikuHexPattern: React.FC = () => {
             {!isMobile && (
                 <div
                     ref={outerRef}
-                    className="absolute top-0 left-0 pointer-events-none"
+                    className="absolute top-0 left-0 pointer-events-none transition-opacity duration-300"
                     style={{
                         width: `${HEX_SPOT_RADIUS * 2}px`,
                         height: `${HEX_SPOT_RADIUS * 2}px`,

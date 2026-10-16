@@ -1,31 +1,38 @@
 import React, { useEffect, useRef } from "react";
+import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
-/** Tactical 前景：十字准星（ref 直写 transform + 坐标直写，不重渲染）。 */
+/** Tactical 前景：十字准星（ref 直写 transform + 坐标直写，不重渲染；鼠标离开页面时淡出）。 */
 export const TacticalForeground: React.FC = () => {
     const crosshairRef = useRef<HTMLDivElement>(null);
     const coordsRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (crosshairRef.current) {
-                crosshairRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
-            }
-            if (coordsRef.current) {
-                coordsRef.current.textContent = `TARGET_COORDS: [${e.clientX}, ${e.clientY}]`;
-            }
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-        };
-    }, []);
+    useEffect(
+        () =>
+            subscribePointerFrame(
+                (x, y) => {
+                    if (crosshairRef.current) {
+                        crosshairRef.current.style.opacity = "1";
+                        crosshairRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+                    }
+                    if (coordsRef.current) {
+                        coordsRef.current.textContent = `TARGET_COORDS: [${x}, ${y}]`;
+                    }
+                },
+                () => {
+                    if (crosshairRef.current)
+                        crosshairRef.current.style.opacity = "0";
+                },
+            ),
+        [],
+    );
 
     return (
         <div className="fixed inset-0 pointer-events-none z-50">
             <div
                 ref={crosshairRef}
-                className="absolute top-0 left-0 will-change-transform"
+                className="absolute top-0 left-0 transition-opacity duration-300 will-change-transform"
                 style={{
+                    opacity: 0,
                     transform: "translate3d(0px, 0px, 0) translate(-50%, -50%)",
                 }}
             >
