@@ -4,17 +4,23 @@ import { subscribePointerFrame } from "../../../utils/pointerFrame";
 // Industrial 警告圈半径（容器 200x200，圆心对准光标）
 const INDUSTRIAL_RING_RADIUS = 100;
 
-/** Industrial 前景：鼠标跟随的脉冲警告圆圈（ref 直写 transform）。 */
+/** Industrial 前景：鼠标跟随的脉冲警告圆圈（ref 直写 transform；鼠标离开页面时淡出）。 */
 export const IndustrialForeground: React.FC = () => {
     const ringRef = useRef<HTMLDivElement>(null);
 
     useEffect(
         () =>
-            subscribePointerFrame((x, y) => {
-                if (ringRef.current) {
-                    ringRef.current.style.transform = `translate3d(${x - INDUSTRIAL_RING_RADIUS}px, ${y - INDUSTRIAL_RING_RADIUS}px, 0)`;
-                }
-            }),
+            subscribePointerFrame(
+                (x, y) => {
+                    if (ringRef.current) {
+                        ringRef.current.style.opacity = "1";
+                        ringRef.current.style.transform = `translate3d(${x - INDUSTRIAL_RING_RADIUS}px, ${y - INDUSTRIAL_RING_RADIUS}px, 0)`;
+                    }
+                },
+                () => {
+                    if (ringRef.current) ringRef.current.style.opacity = "0";
+                },
+            ),
         [],
     );
 
@@ -22,8 +28,9 @@ export const IndustrialForeground: React.FC = () => {
         <div className="fixed inset-0 pointer-events-none z-50">
             <div
                 ref={ringRef}
-                className="absolute top-0 left-0 will-change-transform"
+                className="absolute top-0 left-0 transition-opacity duration-300 will-change-transform"
                 style={{
+                    opacity: 0,
                     transform: `translate3d(${-INDUSTRIAL_RING_RADIUS}px, ${-INDUSTRIAL_RING_RADIUS}px, 0)`,
                     width: `${INDUSTRIAL_RING_RADIUS * 2}px`,
                     height: `${INDUSTRIAL_RING_RADIUS * 2}px`,
