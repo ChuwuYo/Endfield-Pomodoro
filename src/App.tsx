@@ -215,14 +215,17 @@ const App: React.FC = () => {
     // 其他标签页修改设置时同步到当前页
     useEffect(() => {
         const handleStorage = (e: StorageEvent) => {
-            if (e.key !== STORAGE_KEYS.SETTINGS) return;
+            // key 为 null 表示 localStorage.clear()，按默认设置处理
+            if (e.key !== null && e.key !== STORAGE_KEYS.SETTINGS) return;
             const notificationPermission =
                 "Notification" in window ? Notification.permission : null;
-            setSettings(
-                parseStoredSettings(e.newValue, DEFAULT_SETTINGS, {
-                    notificationPermission,
-                }),
+            const nextSettings = parseStoredSettings(
+                e.newValue,
+                DEFAULT_SETTINGS,
+                { notificationPermission },
             );
+            setSettings(nextSettings);
+            setTempMusicConfig(nextSettings.musicConfig);
         };
         window.addEventListener("storage", handleStorage);
         return () => window.removeEventListener("storage", handleStorage);
