@@ -21,6 +21,9 @@ export const THEME_MODES: Record<ThemePreset, ThemeMode> = {
     [ThemePreset.MIKU]: ThemeMode.LIGHT,
 };
 
+/** 无存档时的默认主题（与 index.css :root 默认变量一致） */
+export const DEFAULT_THEME: ThemePreset = ThemePreset.INDUSTRIAL;
+
 export const themeModeOf = (theme: ThemePreset): ThemeMode =>
     THEME_MODES[theme];
 
