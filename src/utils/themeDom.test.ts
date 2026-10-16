@@ -16,4 +16,15 @@ describe("applyThemeToRoot", () => {
         applyThemeToRoot(ThemePreset.MIKU, el);
         expect(el.style.colorScheme).toBe("light");
     });
+
+    it("syncs meta theme-color with the theme base color", () => {
+        const meta = document.createElement("meta");
+        meta.name = "theme-color";
+        meta.content = "#fff7d0";
+        document.head.appendChild(meta);
+
+        applyThemeToRoot(ThemePreset.ORIGIN, document.createElement("div"));
+        expect(meta.content).toBe(THEMES[ThemePreset.ORIGIN]["--color-base"]);
+        meta.remove();
+    });
 });
