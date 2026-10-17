@@ -11,7 +11,6 @@ type BeepType = "start" | "end" | "tick";
 /** autoplay 拦截下 resume() 可能永不 settle，超时后跳过本次蜂鸣 */
 const AUDIO_CONTEXT_RESUME_TIMEOUT_MS = 200;
 
-/** 模块级 AudioContext 单例 */
 let sharedAudioContext: AudioContext | null = null;
 
 const getAudioContext = (): AudioContext | null => {
@@ -60,7 +59,6 @@ const resumeAudioContext = async (ctx: AudioContext): Promise<boolean> => {
     }
 };
 
-// 简单的振荡器蜂鸣声（复用单例 AudioContext）
 const playBeep = async (vol: number = 0.5, type: BeepType = "tick") => {
     // exponentialRamp 要求正数起点；非正音量无法发出有效蜂鸣
     if (!(vol > 0)) return;
@@ -68,7 +66,6 @@ const playBeep = async (vol: number = 0.5, type: BeepType = "tick") => {
     const ctx = getAudioContext();
     if (!ctx) return;
 
-    // suspended 时超时跳过
     if (!(await resumeAudioContext(ctx))) return;
 
     const createdNodes: AudioNode[] = [];
@@ -105,7 +102,6 @@ const playBeep = async (vol: number = 0.5, type: BeepType = "tick") => {
                 300,
                 now + SOUND_END_DURATION,
             );
-            // 双重蜂鸣
             gain.gain.setValueAtTime(vol, now);
             gain.gain.exponentialRampToValueAtTime(
                 0.01,
@@ -114,7 +110,6 @@ const playBeep = async (vol: number = 0.5, type: BeepType = "tick") => {
             osc.start(now);
             osc.stop(now + SOUND_END_DURATION);
         } else {
-            // 滴答声
             osc.frequency.setValueAtTime(1000, now);
             gain.gain.setValueAtTime(vol * 0.2, now);
             gain.gain.exponentialRampToValueAtTime(
