@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
-/** Tactical 前景：十字准星（ref 直写 transform + 坐标直写，不重渲染；鼠标离开页面时淡出）。 */
 export const TacticalForeground: React.FC = () => {
     const crosshairRef = useRef<HTMLDivElement>(null);
     const coordsRef = useRef<HTMLDivElement>(null);
