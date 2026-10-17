@@ -1,4 +1,3 @@
-/** 碎片三角：位置 / 尺寸 / 动画时长 / 延迟 / 是否实心 / 飘动偏移 */
 const SHARDS = [
     {
         x: 8,
@@ -112,7 +111,6 @@ const SHARDS = [
     },
 ] as const;
 
-/** Azure 背景：天空渐变 + 云层 + 斜向光带 + 光环 + 漂浮碎片 + 网点。 */
 export const AzureGrid = () => (
     <div className="azure-bg absolute inset-0 overflow-hidden pointer-events-none">
         <div className="azure-bg__sky" />
