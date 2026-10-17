@@ -66,6 +66,31 @@ const trackIdFromUrl = (url: unknown): string => {
     }
 };
 
+/**
+ * 将上游返回的 http 地址改写为 https。
+ *
+ * 部分 Meting 实例会返回 `http://` 开头的歌曲、封面与歌词地址；页面在 https 下加载这些地址属于混合内容。
+ * 规则与 W3C Mixed Content 的自动升级一致：仅改写 http 协议，IP 地址与 localhost 保持原样。
+ */
+export const upgradeToHttps = (url: string): string => {
+    if (!/^http:\/\//i.test(url)) return url;
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname;
+        if (
+            host === "localhost" ||
+            host.startsWith("[") ||
+            /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+        ) {
+            return url;
+        }
+        parsed.protocol = "https:";
+        return parsed.toString();
+    } catch {
+        return url;
+    }
+};
+
 const parseMetingResponse = (data: unknown): MusicTrack[] => {
     if (!Array.isArray(data) || data.length === 0) {
         throw new EmptyPlaylistError();
@@ -74,9 +99,9 @@ const parseMetingResponse = (data: unknown): MusicTrack[] => {
         id: item.id || item.song_id || trackIdFromUrl(item.url),
         name: item.name || item.title || "Unknown Track",
         artist: item.artist || item.author || "Unknown Artist",
-        url: item.url || "",
-        cover: item.pic || item.cover || "",
-        lrc: item.lrc || "",
+        url: upgradeToHttps(item.url || ""),
+        cover: upgradeToHttps(item.pic || item.cover || ""),
+        lrc: upgradeToHttps(item.lrc || ""),
         theme: item.theme,
     }));
 };
