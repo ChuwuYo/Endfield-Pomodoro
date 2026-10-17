@@ -33,6 +33,22 @@ const isOffline = (): boolean =>
     typeof navigator !== "undefined" && navigator.onLine === false;
 
 /**
+ * 后台静默检查一次 SW 更新：正在安装或离线时跳过，失败只记录警告。
+ *
+ * registration.update() 在离线或服务器不可用时会 reject，未捕获会变成 unhandledrejection。
+ *
+ * @see https://vite-pwa-org.netlify.app/guide/periodic-sw-updates.html#handling-edge-cases
+ */
+export const updatePwaQuietly = (
+    registration: ServiceWorkerRegistration,
+): void => {
+    if (registration.installing || isOffline()) return;
+    registration.update().catch((error: unknown) => {
+        console.warn("[PWA] Background update check failed:", error);
+    });
+};
+
+/**
  * 手动触发一次 SW 更新检查。
  * 调用 registration.update()，期间监听 updatefound，结束后检查 installing / waiting：
  * 出现新 worker 即为 found，之后的安装与生效交给 autoUpdate 流程。
