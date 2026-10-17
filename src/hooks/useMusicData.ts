@@ -6,9 +6,6 @@ import { fetchWithTimeout, TimeoutError } from "../utils/fetchWithTimeout";
 import { EmptyPlaylistError, getAdapters } from "../utils/musicApiAdapters";
 import { useRetryOnReconnect } from "./useRetryOnReconnect";
 
-/**
- * 音乐曲目数据结构
- */
 export interface MusicTrack {
     /** 歌曲唯一标识符。如果不可用，可能为空字符串。 */
     id: string;
@@ -20,9 +17,6 @@ export interface MusicTrack {
     theme?: string;
 }
 
-/**
- * useMusicData Hook 的参数
- */
 interface UseMusicDataProps {
     server: string;
     type: string;
@@ -37,20 +31,6 @@ const withoutSignal = (fetchOptions?: RequestInit): RequestInit => {
     return safeFetchOptions;
 };
 
-/**
- * 获取音乐数据的 Hook
- *
- * 功能：
- * - 从音乐 API 获取歌单数据
- * - 支持多个 API 适配器的故障转移
- * - 自动超时控制
- * - 请求取消（组件卸载或参数变化时）
- * - 服务不可用时，网络恢复或页面重新可见后自动重新获取
- *
- * @param server - 音乐平台（netease/tencent/kugou/baidu/kuwo）
- * @param type - 操作类型（通常为 'playlist'）
- * @param id - 资源 ID（歌单 ID 或搜索关键词）
- */
 export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
     const [audioList, setAudioList] = useState<MusicTrack[]>([]);
     const [loading, setLoading] = useState(true);
@@ -59,7 +39,6 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
     const [activeAdapterIndex, setActiveAdapterIndex] = useState<number | null>(
         null,
     );
-    // 递增时以相同适配器顺序重新获取
     const [reloadToken, setReloadToken] = useState(0);
     const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -69,11 +48,8 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
         setAdapterStartIndex((prev) => (prev + 1) % adapters.length);
     }, []);
 
-    // 数据源是否有效；无效时对外暴露 loading=false（见 return）
     const hasSource = Boolean(server && type && id);
 
-    // 数据源变化时在渲染期间重置适配器起始索引
-    // （React 官方 "adjusting state when props change" 模式，替代 effect 中的同步 setState）
     const sourceKey = musicSourceKey({ server, type, id });
     const [prevSourceKey, setPrevSourceKey] = useState(sourceKey);
     if (prevSourceKey !== sourceKey) {
@@ -96,9 +72,7 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
             setActiveAdapterIndex(null);
 
             const adapters = getAdapters();
-            // 只有在没有任何数据源发生网络/超时/HTTP 失败时，才敢断言「歌单无效」。
-            // 混合失败（一源故障、另一源称歌单为空）会保守地归为服务问题：
-            // 误报服务问题只会让用户重试，而误报歌单无效会让用户去改一个本来正确的 ID。
+            // 任一源出现网络/超时/HTTP 失败时按服务故障处理，不判定歌单无效
             let sawServiceFailure = false;
 
             for (let i = 0; i < adapters.length; i += 1) {
@@ -130,7 +104,6 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                     setLoading(false);
                     return;
                 } catch (err) {
-                    // 如果是外部中止（组件卸载），则直接返回
                     if (controller.signal.aborted) {
                         return;
                     }
@@ -139,7 +112,6 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
                         continue;
                     }
                     sawServiceFailure = true;
-                    // 超时或内部中止：尝试下一个适配器
                     if (
                         err instanceof TimeoutError ||
                         (err instanceof DOMException &&
@@ -175,18 +147,15 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
         reload,
     );
 
-    // 尝试获取单曲的备用 URL
     const fetchTrackUrl = useCallback(
         async (
             trackId: string,
             signal?: AbortSignal,
         ): Promise<string | null> => {
             const adapters = getAdapters();
-            // 尝试除当前使用的适配器以外的其他适配器
             const otherAdapters = adapters.filter(
                 (_, index) => index !== activeAdapterIndex,
             );
-            // 如果没有其他适配器，或者当前还没有成功连接的适配器，则尝试所有适配器
             const targetAdapters =
                 otherAdapters.length > 0 ? otherAdapters : adapters;
 
