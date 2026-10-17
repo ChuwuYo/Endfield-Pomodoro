@@ -113,6 +113,25 @@ export default defineConfig({
                             },
                         },
                     },
+                    // 按需字体：CJK 字族 CSS 与字体分片不进预缓存，用到哪份缓存哪份，保证离线可用。
+                    // 文件名带内容哈希，可安全使用 CacheFirst
+                    // @see https://developer.chrome.com/docs/workbox/caching-strategies-overview#cache_first_falling_back_to_network
+                    {
+                        urlPattern: ({ sameOrigin, url }) =>
+                            sameOrigin &&
+                            url.pathname.startsWith("/assets/") &&
+                            (/\/(400|700)-[\w-]+\.css$/.test(url.pathname) ||
+                                /\.woff2$/.test(url.pathname)),
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "on-demand-fonts",
+                            cacheableResponse: { statuses: [200] },
+                            expiration: {
+                                maxEntries: 400,
+                                maxAgeSeconds: 60 * 60 * 24 * 365,
+                            },
+                        },
+                    },
                     // 所有音乐 API 都必须绕过缓存：歌单内容会变，且请求靠查询参数区分，
                     // 而 ignoreURLParametersMatching 会忽略查询参数做匹配
                     {
