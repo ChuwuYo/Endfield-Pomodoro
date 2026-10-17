@@ -1,6 +1,3 @@
-/**
- * Industrial 背景层：斜线纸面 + 左右竖字 + 左下网点块
- */
 export const IndustrialGrid = () => (
     <>
         <div
@@ -12,7 +9,6 @@ export const IndustrialGrid = () => (
             }}
         ></div>
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-theme-highlight/20 to-transparent"></div>
-        {/* 左侧竖字（桌面端） */}
         <div
             className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:block font-ui-mono text-ui-3xs text-theme-dim/60 tracking-ui-signal select-none"
             style={{ writingMode: "vertical-rl" }}
@@ -20,7 +16,6 @@ export const IndustrialGrid = () => (
         >
             HEAVY INDUSTRY // SECTOR-07
         </div>
-        {/* 右侧竖排大字（超宽屏，两侧留白够宽才不被内容盖住） */}
         <div
             className="ef-focus-word absolute right-6 top-1/2 -translate-y-1/2 hidden 2xl:block font-ui-sans font-bold leading-ui-none select-none"
             style={{
@@ -35,7 +30,6 @@ export const IndustrialGrid = () => (
         >
             FOCUS
         </div>
-        {/* 左下网点块 */}
         <div
             className="absolute bottom-8 left-8 w-64 h-64 pointer-events-none"
             style={{
