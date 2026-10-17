@@ -10,6 +10,7 @@ import {
     TIME_UPDATE_THROTTLE_SECONDS,
 } from "../constants";
 import { PlayMode } from "../types";
+import { useRetryOnReconnect } from "./useRetryOnReconnect";
 import { useShuffle } from "./useShuffle";
 
 export interface Song {
@@ -29,7 +30,7 @@ export const useOnlinePlayer = (
     /** 曲目已可播放时触发，供调用方清空自己的连续失败计数 */
     onTrackPlayable?: () => void,
 ) => {
-    // 音频实例用 ref 持有；Swap 时递增 generation，驱动监听器/加载 effect 重跑
+    // 主音频实例：整个生命周期复用同一个元素，切歌时只替换 src
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const getAudio = (): HTMLAudioElement => {
         if (!audioRef.current) {
@@ -37,9 +38,8 @@ export const useOnlinePlayer = (
         }
         return audioRef.current;
     };
-    const [audioGeneration, setAudioGeneration] = useState(0);
 
-    // 预加载的 Audio 实例引用
+    // 预加载的 Audio 实例引用（仅用于提前加载下一首）
     const preloadAudioRef = useRef<HTMLAudioElement | null>(null);
 
     const lastTimeRef = useRef(0);
@@ -83,6 +83,10 @@ export const useOnlinePlayer = (
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    // 离线时加载失败的曲目地址，网络恢复后重新加载
+    const [awaitingNetworkUrl, setAwaitingNetworkUrl] = useState<string | null>(
+        null,
+    );
     const retryTimerRef = useRef<number | null>(null);
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
     const consecutiveErrorsRef = useRef(0);
@@ -187,7 +191,7 @@ export const useOnlinePlayer = (
         handleNextRef.current = handleNext;
     }, [handleNext]);
 
-    // 初始化 Audio 对象事件监听 (当 audioGeneration 变化时重新绑定)
+    // 初始化 Audio 对象事件监听
     useEffect(() => {
         const audio = getAudio();
         let isMounted = true;
@@ -216,8 +220,19 @@ export const useOnlinePlayer = (
         };
         const handleWaiting = () => setIsLoading(true);
         const handleError = () => {
+            // 中止（MEDIA_ERR_ABORTED = 1，切换 src 时出现）或无错误码的事件不视为加载失败
+            const errorCode = audio.error?.code ?? 0;
+            if (errorCode === 0 || errorCode === 1) {
+                return;
+            }
             setIsLoading(false);
             console.error("Online playback error: Load failed");
+
+            // 离线：保留当前曲目，等待网络恢复后重新加载
+            if (navigator.onLine === false) {
+                setAwaitingNetworkUrl(audio.src);
+                return;
+            }
 
             const currentOnTrackFix = onTrackFixRef.current;
             const currentIsPlaying = isPlayingRef.current;
@@ -339,7 +354,6 @@ export const useOnlinePlayer = (
                 clearTimeout(retryTimerRef.current);
                 retryTimerRef.current = null;
             }
-            // 不清空 src：该 audio 可能复用为 preload
 
             audio.removeEventListener("timeupdate", handleTimeUpdate);
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -349,12 +363,12 @@ export const useOnlinePlayer = (
             audio.removeEventListener("error", handleError);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps -- volume 的变化由单独的 effect 处理，以避免每次音量变化都重新绑定所有事件监听器
-    }, [audioGeneration]);
+    }, []);
 
     // 监听音量变化
     useEffect(() => {
         getAudio().volume = volume;
-    }, [volume, audioGeneration]);
+    }, [volume]);
 
     useEffect(() => {
         try {
@@ -378,7 +392,7 @@ export const useOnlinePlayer = (
             getAudio().pause();
             queueMicrotask(() => setIsPlaying(false));
         }
-    }, [enabled, audioGeneration]);
+    }, [enabled]);
 
     // 预加载下一首（延迟执行）
     useEffect(() => {
@@ -447,25 +461,6 @@ export const useOnlinePlayer = (
         const currentSong = playlist[currentIndex];
         if (!currentSong?.url) return;
 
-        // 检查是否命中预加载 (无缝切换核心逻辑)
-        if (
-            preloadAudioRef.current &&
-            preloadAudioRef.current.src === currentSong.url
-        ) {
-            const newMain = preloadAudioRef.current;
-            const oldMain = getAudio();
-
-            // 交换实例：新实例进 ref，旧实例回收为 preload；bump generation 重绑监听
-            audioRef.current = newMain;
-            preloadAudioRef.current = oldMain;
-            setAudioGeneration((g) => g + 1);
-
-            // return 后 generation 更新会触发本 effect 再跑；此时 audioRef 已是 newMain
-            // 且 newMain.src === currentSong.url，会进入下方的 play 逻辑
-            return;
-        }
-
-        // 普通加载逻辑 (未命中预加载或无需交换)
         if (audio.src !== currentSong.url) {
             const wasPlaying = isPlaying;
 
@@ -507,11 +502,11 @@ export const useOnlinePlayer = (
 
             loadAndPlay();
         } else {
-            // 如果 src 相同 (例如刚刚完成了 Swap，或者重复点击同一首)
+            // src 相同（例如重复点击同一首）
             // 确保如果应该是播放状态，则进行播放
             if (isPlaying && audio.paused) {
                 audio.play().catch((err) => {
-                    console.error("Playback failed (swap resume):", err);
+                    console.error("Playback failed (resume):", err);
                     if (
                         err instanceof DOMException &&
                         (err.name === "AbortError" ||
@@ -523,7 +518,7 @@ export const useOnlinePlayer = (
                 });
             }
         }
-    }, [currentIndex, playlist, autoPlay, isPlaying, audioGeneration]);
+    }, [currentIndex, playlist, autoPlay, isPlaying]);
 
     // 监听播放状态变化 (Play/Pause 控制)
     useEffect(() => {
@@ -566,7 +561,7 @@ export const useOnlinePlayer = (
                 audio.pause();
             }
         }
-    }, [isPlaying, playlist.length, audioGeneration]);
+    }, [isPlaying, playlist.length]);
 
     // 播放控制
     const togglePlay = () => {
@@ -595,6 +590,60 @@ export const useOnlinePlayer = (
             }
         }
     };
+
+    // 播放（供系统媒体控件调用，与当前状态无关地确保播放）
+    const play = () => {
+        const audio = getAudio();
+        if (playlist.length === 0) return;
+        audio
+            .play()
+            .then(() => setIsPlaying(true))
+            .catch((err) => {
+                if (err instanceof DOMException && err.name === "AbortError") {
+                    return;
+                }
+                console.error("Playback failed:", err);
+                setIsPlaying(false);
+            });
+    };
+
+    // 暂停（供系统媒体控件调用）
+    const pause = () => {
+        getAudio().pause();
+        setIsPlaying(false);
+    };
+
+    // 网络恢复后从中断位置重新加载当前曲目
+    const currentUrl = playlist[currentIndex]?.url;
+    const reloadAfterReconnect = () => {
+        setAwaitingNetworkUrl(null);
+        const audio = getAudio();
+        if (!audio.src || audio.src !== awaitingNetworkUrl) return;
+        const resume = Math.max(
+            0,
+            lastTimeRef.current - RESUME_TIME_BUFFER_SECONDS,
+        );
+        setIsLoading(true);
+        audio.load();
+        try {
+            audio.currentTime = resume;
+        } catch {
+            void 0;
+        }
+        if (isPlayingRef.current) {
+            audio.play().catch((err) => {
+                if (err instanceof DOMException && err.name === "AbortError") {
+                    return;
+                }
+                console.warn("Auto-play after reconnect failed:", err);
+            });
+        }
+    };
+
+    useRetryOnReconnect(
+        awaitingNetworkUrl !== null && awaitingNetworkUrl === currentUrl,
+        reloadAfterReconnect,
+    );
 
     // 上一曲
     const handlePrev = useCallback(() => {
@@ -669,6 +718,8 @@ export const useOnlinePlayer = (
         isLoading,
         error,
         togglePlay,
+        play,
+        pause,
         handleNext: () => handleNext(false),
         handlePrev,
         seek,

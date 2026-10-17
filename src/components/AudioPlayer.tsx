@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { type MusicConfig, musicSourceKey } from "../config/musicConfig";
 import { STORAGE_KEYS } from "../constants";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
+import { useMediaSession } from "../hooks/useMediaSession";
 import { useModalA11y } from "../hooks/useModalA11y";
 import { Language } from "../types";
 import { useTranslation } from "../utils/i18n";
@@ -38,6 +39,31 @@ const AudioPlayer: React.FC<{
     // 使用本地播放器 hook
     const localPlayer = useLocalPlayer(audioSource === "local");
 
+    const localTrack = localPlayer.currentTrack;
+    useMediaSession({
+        enabled: audioSource === "local",
+        track: localTrack
+            ? {
+                  title: localTrack.name,
+                  artist: localTrack.artist,
+                  cover: localTrack.coverUrl,
+              }
+            : null,
+        isPlaying: localPlayer.isPlaying,
+        currentTime: localPlayer.currentTime,
+        duration: localPlayer.duration,
+        controls: {
+            play: localPlayer.play,
+            pause: localPlayer.pause,
+            next: localPlayer.handleNext,
+            prev: localPlayer.handlePrev,
+            seek: localPlayer.seek,
+        },
+    });
+
+    // 在线播放器是否正在播放
+    const [isOnlinePlaying, setIsOnlinePlaying] = useState(false);
+
     // 切换音频源或播放列表变化时清理 itemRefs
     useEffect(() => {
         itemRefs.current.clear();
@@ -54,9 +80,9 @@ const AudioPlayer: React.FC<{
 
     const prevOnlineRef = useRef(isOnline);
 
-    // 离线时自动切换到本地模式；离线→在线且仍在本地时提示可切回在线
+    // 离线时自动切换到本地模式（在线音乐仍在播放时保持不变）；离线→在线且仍在本地时提示可切回在线
     useEffect(() => {
-        if (!isOnline && audioSource === "online") {
+        if (!isOnline && audioSource === "online" && !isOnlinePlaying) {
             queueMicrotask(() => setAudioSource("local"));
         } else if (
             isOnline &&
@@ -75,7 +101,7 @@ const AudioPlayer: React.FC<{
         }
 
         prevOnlineRef.current = isOnline;
-    }, [isOnline, audioSource, snackbar]);
+    }, [isOnline, audioSource, snackbar, isOnlinePlaying]);
 
     const [showPlaylist, setShowPlaylist] = useState(false);
     const playlistModalRef = useRef<HTMLDivElement>(null);
@@ -147,6 +173,7 @@ const AudioPlayer: React.FC<{
                     config={musicConfig}
                     language={language}
                     enabled
+                    onPlayingChange={setIsOnlinePlaying}
                 />
             ) : (
                 <>
