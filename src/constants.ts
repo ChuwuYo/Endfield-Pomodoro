@@ -23,8 +23,8 @@ export const PRELOAD_DELAY_MS = 3000;
 export const TIME_UPDATE_THROTTLE_SECONDS = 0.25;
 export const RESUME_TIME_BUFFER_SECONDS = 0.2; // 修复音轨后恢复播放时的时间回退缓冲（秒）
 export const API_FETCH_DELAY_MS = 100;
-// 主源数据新鲜，给更长超时；备源响应快但数据可能陈旧
 export const API_TIMEOUT_MS = 3000;
+// 主源数据新鲜，给更长超时；备源响应快但数据可能陈旧
 export const PRIMARY_API_TIMEOUT_MS = 4000;
 export const FALLBACK_API_TIMEOUT_MS = 2000;
 export const ONLINE_CONSECUTIVE_ERROR_LIMIT = 5; // 连续加载失败达到该次数后停止自动切歌
