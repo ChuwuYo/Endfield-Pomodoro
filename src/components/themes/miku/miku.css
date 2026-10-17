@@ -1,7 +1,3 @@
-/**
- * MIKU 主题私有样式：底部频谱条动画（仅 MikuEqualizerBars 使用）。
- * transform/opacity 动画，纯合成器，不触发布局。
- */
 @keyframes equalizer {
     0% {
         transform: scaleY(0.16);
