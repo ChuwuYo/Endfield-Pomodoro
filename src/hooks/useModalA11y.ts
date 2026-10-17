@@ -3,9 +3,6 @@ import { useEffect, useRef } from "react";
 const FOCUSABLE_SELECTOR =
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/**
- * 模态层无障碍：Escape 关闭、焦点陷阱、打开时锁定 body 滚动并还原焦点。
- */
 export const useModalA11y = (
     open: boolean,
     onClose: () => void,
