@@ -126,9 +126,13 @@ export default defineConfig({
                         options: {
                             cacheName: "on-demand-fonts",
                             cacheableResponse: { statuses: [200] },
+                            // Workbox 不支持按总字节数淘汰：分片中位数约 20KB，
+                            // 200 条约 4MB；配额不足时整组清空，不影响其他缓存
+                            // @see https://developer.chrome.com/docs/workbox/understanding-storage-quota
                             expiration: {
-                                maxEntries: 400,
+                                maxEntries: 200,
                                 maxAgeSeconds: 60 * 60 * 24 * 365,
+                                purgeOnQuotaError: true,
                             },
                         },
                     },
