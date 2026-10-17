@@ -47,7 +47,7 @@ importers:
         version: 5.3.1
       '@fontsource/noto-sans-kr':
         specifier: ^5.3.0
-        version: 5.3.0
+        version: 5.3.1
       '@fontsource/noto-sans-sc':
         specifier: ^5.3.0
         version: 5.3.0
@@ -872,8 +872,8 @@ packages:
   '@fontsource/noto-sans-jp@5.3.1':
     resolution: {integrity: sha512-9NNBB/M9PextLYVXGSfIaLZsPnrt5UDw8g2B6T0M775H2yb/oekApSjuS1XKOP7FPcMMEnTavR5rJGDM66qKtA==}
 
-  '@fontsource/noto-sans-kr@5.3.0':
-    resolution: {integrity: sha512-/JnpTjaCOXW7xUoqOyCVYSr05VOkDy5Yla9O+WAEiS7u+yYLsmHoqj6v1W0bf91G8G3XA2+NnRS3CX2Tf/FVZg==}
+  '@fontsource/noto-sans-kr@5.3.1':
+    resolution: {integrity: sha512-aKnPug5P6zBHaiLbGEVNyBQesyOeEUYl6C3Xedb00xO3iAHJZPQs2JOsPNVqHanKSVe1fTVmTPuYIao4noImXw==}
 
   '@fontsource/noto-sans-sc@5.3.0':
     resolution: {integrity: sha512-HeqIlGm0+ohOKxZLuHj1qW6r6avHH0OWdKERAcSDI0RQ+MXrteuLKA+M+5eOA8rYy0MFvOR5AT0fQo2rUkye0Q==}
@@ -4038,7 +4038,7 @@ snapshots:
 
   '@fontsource/noto-sans-jp@5.3.1': {}
 
-  '@fontsource/noto-sans-kr@5.3.0': {}
+  '@fontsource/noto-sans-kr@5.3.1': {}
 
   '@fontsource/noto-sans-sc@5.3.0': {}
 
