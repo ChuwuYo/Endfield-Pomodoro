@@ -4,7 +4,11 @@ import {
     HOURLY_CHECK_INTERVAL_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
-import { setPwaRegistration, updatePwaQuietly } from "../utils/pwaRegistration";
+import {
+    setPwaRegistration,
+    updatePwaQuietly,
+    warmOnDemandFontCacheOnFirstControl,
+} from "../utils/pwaRegistration";
 import { decidePwaUpdateAction, reloadPage } from "../utils/pwaUpdate";
 import { useSnackbar } from "./snackbar";
 
@@ -41,6 +45,7 @@ export function PWAPrompt() {
         },
         onRegisteredSW(_swUrl, r) {
             if (r) {
+                warmOnDemandFontCacheOnFirstControl();
                 registrationRef.current = r;
                 setPwaRegistration(r);
 
@@ -82,18 +87,10 @@ export function PWAPrompt() {
             updatePwaQuietly(registration);
         };
 
-        // 动态导入失败：新版已接管时旧 chunk 已不在，直接刷新；否则立即检查一次更新
+        // 动态导入失败：没有待生效的新版时立即检查一次更新；已有新版则沿用切到后台再刷新的流程
         // @see https://vite.dev/guide/build#load-error-handling
-        let reloadingForPreloadError = false;
-        const handlePreloadError = (event: VitePreloadErrorEvent) => {
-            if (pendingReloadRef.current) {
-                // 刷新即恢复，不再抛出原始错误；只刷新一次
-                event.preventDefault();
-                if (reloadingForPreloadError) return;
-                reloadingForPreloadError = true;
-                reloadPage();
-                return;
-            }
+        const handlePreloadError = () => {
+            if (pendingReloadRef.current) return;
             const registration = registrationRef.current;
             if (registration) updatePwaQuietly(registration);
         };
