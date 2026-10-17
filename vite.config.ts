@@ -6,7 +6,6 @@ import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { buildThemeBootstrapScript } from "./src/config/themeBootstrap";
 
-/** 把主题引导脚本内联到 <head> 末尾（theme-color meta 之后），首帧即为已存主题 */
 const themeBootstrap = (): Plugin => ({
     name: "endfield:theme-bootstrap",
     transformIndexHtml: () => [
@@ -18,13 +17,10 @@ const themeBootstrap = (): Plugin => ({
     ],
 });
 
-// https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
         themeBootstrap(),
         react(),
-        // @vitejs/plugin-react 6 移除了 babel 选项，
-        // React Compiler 改经 @rolldown/plugin-babel 接入
         babel({ presets: [reactCompilerPreset()] }),
         tailwindcss(),
         VitePWA({
@@ -109,12 +105,10 @@ export default defineConfig({
                             fetchOptions: { cache: "no-store" },
                             expiration: {
                                 maxEntries: 1,
-                                maxAgeSeconds: 60 * 60 * 24 * 7, // 1周离线回退 (PWA Support)
+                                maxAgeSeconds: 60 * 60 * 24 * 7,
                             },
                         },
                     },
-                    // 按需字体：CJK 字族 CSS 与 woff2 分片，CacheFirst 运行时缓存
-                    // @see https://developer.chrome.com/docs/workbox/caching-strategies-overview#cache_first_falling_back_to_network
                     {
                         urlPattern: ({ sameOrigin, url }) =>
                             sameOrigin &&
@@ -125,8 +119,6 @@ export default defineConfig({
                         options: {
                             cacheName: "on-demand-fonts",
                             cacheableResponse: { statuses: [200] },
-                            // 最多 200 条，配额不足时清空本缓存
-                            // @see https://developer.chrome.com/docs/workbox/understanding-storage-quota
                             expiration: {
                                 maxEntries: 200,
                                 maxAgeSeconds: 60 * 60 * 24 * 365,
