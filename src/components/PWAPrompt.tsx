@@ -84,8 +84,13 @@ export function PWAPrompt() {
 
         // 动态导入失败：新版已接管时旧 chunk 已不在，直接刷新；否则立即检查一次更新
         // @see https://vite.dev/guide/build#load-error-handling
-        const handlePreloadError = () => {
+        let reloadingForPreloadError = false;
+        const handlePreloadError = (event: VitePreloadErrorEvent) => {
             if (pendingReloadRef.current) {
+                // 刷新即恢复，不再抛出原始错误；只刷新一次
+                event.preventDefault();
+                if (reloadingForPreloadError) return;
+                reloadingForPreloadError = true;
                 reloadPage();
                 return;
             }
