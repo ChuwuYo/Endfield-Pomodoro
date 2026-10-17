@@ -1,6 +1,3 @@
-/** AZURE 私有样式：天空背景层 + 点击爆散 + 斜切标题签 / 按钮 + 面板蓝顶线。 */
-
-/* ---------- 背景 ---------- */
 html[data-theme="AZURE"] .azure-bg__sky {
     position: absolute;
     inset: 0;
@@ -135,7 +132,6 @@ html[data-theme="AZURE"] .azure-bg__ground {
     }
 }
 
-/* ---------- 点击爆散 ---------- */
 html[data-theme="AZURE"] .azure-tap {
     position: absolute;
     top: 0;
@@ -186,7 +182,6 @@ html[data-theme="AZURE"] .azure-tap__shard {
     }
 }
 
-/* ---------- UI 皮肤 ---------- */
 html[data-theme="AZURE"] {
     --azure-ink: color-mix(in srgb, var(--color-primary) 82%, #001a40);
 }
