@@ -16,29 +16,13 @@ export class EmptyPlaylistError extends Error {
     }
 }
 
-/**
- * 音乐 API 适配器接口
- * 用于统一不同音乐 API 的调用方式和数据格式
- */
 export interface MusicAPIAdapter {
-    /**
-     * 构建请求 URL
-     */
     buildUrl(params: { server: string; type: string; id: string }): string;
 
-    /**
-     * 构建单曲请求 URL
-     */
     buildTrackUrl?(params: { server: string; id: string }): string;
 
-    /**
-     * 解析 API 响应为统一格式
-     */
     parseResponse(data: unknown): MusicTrack[];
 
-    /**
-     * 可选的请求配置
-     */
     fetchOptions?: RequestInit;
 
     /**
