@@ -72,7 +72,7 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
             setActiveAdapterIndex(null);
 
             const adapters = getAdapters();
-            // 任一源出现网络/超时/HTTP 失败时按服务故障处理，不判定歌单无效
+            // 除空歌单外的请求或解析失败都按服务故障处理，不判定歌单无效
             let sawServiceFailure = false;
 
             for (let i = 0; i < adapters.length; i += 1) {
