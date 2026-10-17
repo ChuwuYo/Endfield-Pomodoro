@@ -5,6 +5,7 @@ import { useTranslation } from "../utils/i18n";
 import { parseDurationInput } from "../utils/settings";
 import { Checkbox } from "./Checkbox";
 import { CustomSelect } from "./CustomSelect";
+import { SettingsUpdateSection } from "./SettingsUpdateSection";
 import { useSnackbar } from "./snackbar";
 import { ThemeSelector } from "./ThemeSelector";
 import { Button, Input, Panel } from "./ui";
@@ -404,6 +405,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             </Button>
                         </div>
                     </div>
+
+                    <SettingsUpdateSection t={t} />
                 </div>
             </Panel>
         </div>

@@ -4,6 +4,7 @@ import {
     HOURLY_CHECK_INTERVAL_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
+import { setPwaRegistration } from "../utils/pwaRegistration";
 import { decidePwaUpdateAction, reloadPage } from "../utils/pwaUpdate";
 import { useSnackbar } from "./snackbar";
 
@@ -41,6 +42,7 @@ export function PWAPrompt() {
         onRegistered(r) {
             if (r) {
                 registrationRef.current = r;
+                setPwaRegistration(r);
 
                 r.update();
 

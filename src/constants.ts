@@ -74,6 +74,8 @@ export const TRACK_FIX_FAILURE_LIMIT = 2; // 单曲回退连续失败达到该�
  * - App.tsx
  * - Pomodoro.tsx
  * - PWAPrompt.tsx
+ * - utils/pwaRegistration.ts
+ * - hooks/useManualUpdateCheck.ts
  */
 export const MS_PER_SECOND = 1000; // 毫秒转秒的转换系数
 export const SECONDS_PER_MINUTE = 60; // 秒转分钟的转换系数
@@ -81,6 +83,8 @@ export const SECONDS_PER_HOUR = 3600; // 秒转小时的转换系数
 export const MINUTES_PER_HOUR = 60; // 分钟转小时的转换系数
 export const HOURLY_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 每小时检查间隔（毫秒）
 export const VISIBILITY_CHECK_MIN_INTERVAL_MS = 30 * 60 * 1000; // 页面从隐藏到可见后的最小检查间隔（毫秒）
+export const MANUAL_UPDATE_CHECK_TIMEOUT_MS = 15 * 1000; // 手动检查更新的超时（毫秒）
+export const MANUAL_UPDATE_RESULT_RESET_MS = 4 * 1000; // 手动检查结果在按钮上停留的时长（毫秒）
 
 /**
  * 番茄钟计时器常量
