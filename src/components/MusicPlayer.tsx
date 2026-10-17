@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import type { MusicConfig } from "../config/musicConfig";
 import { TRACK_FIX_FAILURE_LIMIT } from "../constants";
+import { useMediaSession } from "../hooks/useMediaSession";
 import { type MusicTrack, useMusicData } from "../hooks/useMusicData";
 import { useOnlinePlayer } from "../hooks/useOnlinePlayer";
 import { Language, MusicDataError } from "../types";
@@ -26,6 +27,8 @@ interface MusicPlayerProps {
     config: MusicConfig;
     language: Language;
     enabled?: boolean;
+    /** 播放状态变化时通知调用方 */
+    onPlayingChange?: (isPlaying: boolean) => void;
 }
 
 const supportsPopoverApi = () =>
@@ -35,6 +38,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     config,
     language,
     enabled = true,
+    onPlayingChange,
 }) => {
     const t = useTranslation(language);
     const playlistPanelId = useId();
@@ -86,6 +90,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     /** 记录一次单曲回退失败；连续失败足够多次就整单切换数据源 */
     const registerTrackFixFailure = useCallback((): null => {
+        // 离线导致的失败不计数，避免误切换数据源
+        if (navigator.onLine === false) return null;
         errorCountRef.current += 1;
 
         if (errorCountRef.current >= TRACK_FIX_FAILURE_LIMIT) {
@@ -147,6 +153,32 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         handleTrackFix,
         handleTrackPlayable,
     );
+
+    useEffect(() => {
+        onPlayingChange?.(player.isPlaying);
+    }, [player.isPlaying, onPlayingChange]);
+
+    const mediaSessionSong = player.currentSong;
+    useMediaSession({
+        enabled: enabled && !dataLoading && !dataError,
+        track: mediaSessionSong
+            ? {
+                  title: mediaSessionSong.name,
+                  artist: mediaSessionSong.artist,
+                  cover: mediaSessionSong.cover,
+              }
+            : null,
+        isPlaying: player.isPlaying,
+        currentTime: player.currentTime,
+        duration: player.duration,
+        controls: {
+            play: player.play,
+            pause: player.pause,
+            next: player.handleNext,
+            prev: player.handlePrev,
+            seek: player.seek,
+        },
+    });
 
     const applyPlaylistPlacement = useCallback(() => {
         const popover = popoverRef.current;

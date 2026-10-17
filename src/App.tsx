@@ -152,16 +152,14 @@ const App: React.FC = () => {
     };
 
     // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
+    const appTitle = t("APP_TITLE");
+    const appTitleRef = useRef(appTitle);
     useEffect(() => {
-        const restoreTitle = () => {
-            document.title = t("APP_TITLE");
-        };
+        appTitleRef.current = appTitle;
+    }, [appTitle]);
 
-        const handleVisibility = () => {
-            if (!document.hidden) restoreTitle();
-        };
-        document.addEventListener("visibilitychange", handleVisibility);
-
+    useEffect(() => {
+        let nextTitle = appTitle;
         if (document.hidden && isTimerRunning && remainingSeconds != null) {
             const remaining = Math.max(0, remainingSeconds);
             const h = Math.floor(remaining / SECONDS_PER_HOUR);
@@ -178,19 +176,30 @@ const App: React.FC = () => {
                 remainingMode && remainingMode !== TimerMode.WORK
                     ? ` ${t("MODE_BREAK_SHORT")}`
                     : "";
-            document.title = `${fmt}${modeLabel} • ${t("APP_TITLE")}`;
-        } else {
-            // 标题与默认不同时才恢复
-            if (document.title !== t("APP_TITLE")) {
-                restoreTitle();
-            }
+            nextTitle = `${fmt}${modeLabel} • ${appTitle}`;
         }
+        // 每次只写入一次，且与当前标题相同时跳过
+        if (document.title !== nextTitle) {
+            document.title = nextTitle;
+        }
+    }, [isTimerRunning, remainingSeconds, remainingMode, t, appTitle]);
 
+    // 标签页重新可见时恢复应用标题；卸载时恢复应用标题
+    useEffect(() => {
+        const restoreTitle = () => {
+            if (document.title !== appTitleRef.current) {
+                document.title = appTitleRef.current;
+            }
+        };
+        const handleVisibility = () => {
+            if (!document.hidden) restoreTitle();
+        };
+        document.addEventListener("visibilitychange", handleVisibility);
         return () => {
             document.removeEventListener("visibilitychange", handleVisibility);
             restoreTitle();
         };
-    }, [isTimerRunning, remainingSeconds, remainingMode, t]);
+    }, []);
 
     // 应用主题（首帧由 index.html 内联脚本预先写入，这里负责后续切换）
     useLayoutEffect(() => {

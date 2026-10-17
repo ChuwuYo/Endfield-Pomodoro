@@ -51,6 +51,7 @@ export const MUSIC_API_URLS = [
  * - hooks/useOnlinePlayer.ts
  * - hooks/useLocalPlayer.ts
  * - hooks/useMusicData.ts
+ * - hooks/useMediaSession.ts
  */
 export const NEXT_TRACK_RETRY_DELAY_MS = 1000; // 音频加载失败后自动跳转下一曲的延迟（毫秒）
 export const AUDIO_LOADING_TIMEOUT_MS = 15000; // 音频加载超时时间（毫秒）
@@ -66,6 +67,8 @@ export const PRIMARY_API_TIMEOUT_MS = 4000; // 主源实测 ~1.1s，留约 3.6 �
 export const FALLBACK_API_TIMEOUT_MS = 2000; // 备源实测 ~0.1s，余量已极充裕
 export const ONLINE_CONSECUTIVE_ERROR_LIMIT = 5; // 在线播放连续加载失败达到该次数后停止自动切歌
 export const TRACK_FIX_FAILURE_LIMIT = 2; // 单曲回退连续失败达到该次数后，整单切换到下一个 API 适配器
+export const MEDIA_SESSION_SEEK_OFFSET_SECONDS = 10; // 系统媒体控件快退/快进的默认步长（秒）
+export const MEDIA_SESSION_POSITION_DRIFT_SECONDS = 1; // 播放进度偏离推算值超过该阈值时重新上报位置（秒）
 
 /**
  * 时间转换常量

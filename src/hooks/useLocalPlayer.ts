@@ -435,6 +435,31 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         setIsPlaying((prev) => !prev);
     }, [playlist.length, currentIndex, playTrack]);
 
+    // 播放（供系统媒体控件调用，与当前状态无关地确保播放）
+    const play = useCallback(() => {
+        if (playlist.length === 0) return;
+        if (currentIndex === -1) {
+            playTrack(0);
+            return;
+        }
+        const audio = audioRef.current;
+        if (audio && audio.paused && audio.readyState >= 2) {
+            audio.play().catch((err) => {
+                if (err instanceof DOMException && err.name === "AbortError")
+                    return;
+                console.error("Playback failed:", err);
+                setIsPlaying(false);
+            });
+        }
+        setIsPlaying(true);
+    }, [playlist.length, currentIndex, playTrack]);
+
+    // 暂停（供系统媒体控件调用）
+    const pause = useCallback(() => {
+        audioRef.current?.pause();
+        setIsPlaying(false);
+    }, []);
+
     // 上一曲
     const handlePrev = useCallback(() => {
         if (playlist.length === 0) return;
@@ -555,6 +580,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         addFiles,
         playTrack,
         togglePlay,
+        play,
+        pause,
         handleNext: () => handleNext(false),
         handlePrev,
         seek,
