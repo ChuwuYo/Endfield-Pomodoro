@@ -1,8 +1,3 @@
-/**
- * 订阅鼠标位置：同一帧内的多次 mousemove 合并为一次回调（rAF 内执行）。
- * 鼠标离开页面时调用 onLeave，再次移入后由 onFrame 恢复。
- * 返回取消订阅函数。
- */
 export const subscribePointerFrame = (
     onFrame: (x: number, y: number) => void,
     onLeave?: () => void,
