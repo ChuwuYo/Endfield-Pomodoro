@@ -4,7 +4,6 @@ import { Language, PlayMode } from "../types";
 import { useTranslation } from "../utils/i18n";
 
 export interface PlayerInterfaceProps {
-    // 状态
     isPlaying: boolean;
     currentTime: number;
     duration: number;
@@ -18,7 +17,6 @@ export interface PlayerInterfaceProps {
     language: Language;
     isLoading?: boolean;
 
-    // 回调
     onPlayPause: () => void;
     onNext: () => void;
     onPrev: () => void;
@@ -268,9 +266,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
 
     return (
         <div className="flex flex-col h-full w-full relative gap-3">
-            {/* 主要显示区域 */}
             <div className="flex-1 min-h-0 flex flex-col justify-start">
-                {/* 顶部信息栏 */}
                 <div className="flex justify-between items-end border-b border-theme-highlight/30 pb-2 mb-2">
                     <div className="flex flex-col overflow-hidden mr-4 flex-1">
                         <span className="text-ui-micro text-theme-dim uppercase tracking-ui-widest">
@@ -301,9 +297,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     </div>
                 </div>
 
-                {/* 中间：封面(可选) + 进度条 + 播放列表按钮 + 模式 */}
                 <div className="flex items-center gap-3">
-                    {/* 封面 */}
                     {renderedCoverUrl && (
                         <div
                             className="w-12 h-12 rounded-full border border-theme-primary/30 bg-cover bg-center shrink-0 animate-spin-slow"
@@ -316,10 +310,8 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         ></div>
                     )}
 
-                    {/* 块进度条 */}
                     <div className="flex-1 flex items-center justify-center px-2">
                         <div className="relative w-full h-12">
-                            {/* 进度轨道 */}
                             <div
                                 role="slider"
                                 tabIndex={hasFiniteDuration ? 0 : -1}
@@ -345,7 +337,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                 onPointerCancel={handleProgressPointerUp}
                                 onKeyDown={handleProgressKeyDown}
                             >
-                                {/* 进度填充 */}
                                 {hasFiniteDuration &&
                                     displayTime / duration > 0.01 && (
                                         <div
@@ -360,7 +351,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                     )}
                             </div>
 
-                            {/* 时间显示覆盖层 */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                 <div className="flex items-center gap-2 px-2 bg-black/60 backdrop-blur-sm rounded">
                                     <span
@@ -383,7 +373,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         </div>
                     </div>
 
-                    {/* 显示播放列表按钮 */}
                     <button
                         type="button"
                         onClick={
@@ -406,7 +395,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                         <i className="ri-play-list-line icon-ui-md"></i>
                     </button>
 
-                    {/* 模式切换 */}
                     <button
                         onClick={onModeToggle}
                         className="p-1.5 border border-theme-dim text-theme-dim hover:text-theme-primary hover:border-theme-primary transition-colors rounded-sm cursor-pointer"
@@ -430,9 +418,7 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                 </div>
             </div>
 
-            {/* 底部控制 */}
             <div className="flex items-center justify-between gap-3 shrink-0">
-                {/* 上一曲目 */}
                 <button
                     onClick={onPrev}
                     disabled={playlistCount === 0}
@@ -443,7 +429,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     <i className="ri-skip-back-line icon-ui-xl"></i>
                 </button>
 
-                {/* 播放/暂停 */}
                 <button
                     onClick={onPlayPause}
                     disabled={playlistCount === 0}
@@ -458,7 +443,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     )}
                 </button>
 
-                {/* 下一曲目 */}
                 <button
                     onClick={onNext}
                     disabled={playlistCount === 0}
@@ -469,7 +453,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                     <i className="ri-skip-forward-line icon-ui-xl"></i>
                 </button>
 
-                {/* 音量条 */}
                 <div className="flex-1 h-9 flex items-center gap-2 px-2 border border-theme-highlight/30 rounded-sm bg-black/10">
                     <i
                         className={`${displayVolume === 0 ? "ri-volume-mute-line" : "ri-volume-up-line"} icon-ui-md text-theme-dim hover:text-theme-primary shrink-0 cursor-pointer transition-colors`}
@@ -511,7 +494,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                 style={{ width: `${displayVolume * 100}%` }}
                             ></div>
                         </div>
-                        {/* 可拖拽的圆球滑块 */}
                         <div
                             className="absolute w-3 h-3 bg-theme-primary rounded-full shadow-lg cursor-grab active:cursor-grabbing transition-transform group-hover:scale-125 pointer-events-none"
                             style={{
@@ -519,7 +501,6 @@ const PlayerInterface: React.FC<PlayerInterfaceProps> = ({
                                 transform: "translateX(-50%)",
                             }}
                         ></div>
-                        {/* 拖动数值气泡 */}
                         <div
                             aria-hidden="true"
                             className={`absolute -top-7 px-1.5 py-0.5 rounded-sm border border-theme-highlight/50 bg-black/60 backdrop-blur-sm text-ui-3xs font-ui-mono text-white font-bold whitespace-nowrap pointer-events-none transition-opacity ${dragVolume !== null ? "opacity-100" : "opacity-0"}`}
