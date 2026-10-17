@@ -42,7 +42,6 @@ describe("ThemeSelector", () => {
     it("current selection display is unaffected by the filter", () => {
         setup(ThemePreset.AZURE);
         fireEvent.click(screen.getByRole("button", { name: "DARK" }));
-        // 显示本地化 label，而非 raw value "AZURE"
         expect(screen.getByRole("combobox")).toHaveTextContent("AZURE ARCHIVE");
         fireEvent.click(screen.getByRole("combobox"));
         expect(screen.getAllByRole("option")).toHaveLength(5);
