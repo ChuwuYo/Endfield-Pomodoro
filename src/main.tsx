@@ -13,8 +13,7 @@ import "remixicon/fonts/remixicon.css";
 // 渲染前同步 html lang
 syncDocumentLanguageBeforeApp();
 
-// CJK 字族 CSS 就位后再挂载
-loadCjkFontCss(resolveFallbackLanguage()).then(() => {
+const mountApp = () => {
     ReactDOM.createRoot(document.getElementById("root")!).render(
         <React.StrictMode>
             <ErrorBoundary>
@@ -22,4 +21,7 @@ loadCjkFontCss(resolveFallbackLanguage()).then(() => {
             </ErrorBoundary>
         </React.StrictMode>,
     );
-});
+};
+
+// CJK 字族 CSS 就位后再挂载；加载失败时照常挂载，失败日志由 App 统一记录
+loadCjkFontCss(resolveFallbackLanguage()).then(mountApp, mountApp);

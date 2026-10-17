@@ -4,6 +4,10 @@ import { PWAPrompt } from "./PWAPrompt";
 
 type CapturedRegisterOptions = {
     onNeedReload?: () => void;
+    onRegisteredSW?: (
+        swUrl: string,
+        registration: ServiceWorkerRegistration | undefined,
+    ) => void;
 };
 
 const mocks = vi.hoisted(() => ({
@@ -84,5 +88,39 @@ describe("PWAPrompt update application", () => {
         setVisibilityState("hidden");
 
         expect(mocks.reload).toHaveBeenCalledTimes(1);
+    });
+
+    it("checks for an update when a dynamic import fails", () => {
+        const update = vi.fn(() => Promise.resolve());
+        render(<PWAPrompt />);
+        act(() => {
+            mocks.options?.onRegisteredSW?.("/sw.js", {
+                update,
+            } as unknown as ServiceWorkerRegistration);
+        });
+        update.mockClear();
+
+        window.dispatchEvent(new Event("vite:preloadError"));
+
+        expect(update).toHaveBeenCalledTimes(1);
+        expect(mocks.reload).not.toHaveBeenCalled();
+    });
+
+    it("leaves a pending update to the next hide when a dynamic import fails", () => {
+        const update = vi.fn(() => Promise.resolve());
+        render(<PWAPrompt />);
+        setVisibilityState("visible");
+        act(() => {
+            mocks.options?.onRegisteredSW?.("/sw.js", {
+                update,
+            } as unknown as ServiceWorkerRegistration);
+        });
+        update.mockClear();
+        fireNeedReload();
+
+        window.dispatchEvent(new Event("vite:preloadError"));
+
+        expect(update).not.toHaveBeenCalled();
+        expect(mocks.reload).not.toHaveBeenCalled();
     });
 });

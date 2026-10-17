@@ -92,9 +92,26 @@ export const setMediaSessionActionHandler = (
     }
 };
 
-/** 生成封面列表：有封面时按多个尺寸列出同一地址，否则使用应用图标 */
+/**
+ * 封面地址是否可直接交给系统媒体控件：接受 https、blob、data 与同源地址。
+ */
+const isSecureArtworkSrc = (src: string): boolean => {
+    try {
+        const url = new URL(src, window.location.href);
+        return (
+            url.protocol === "https:" ||
+            url.protocol === "blob:" ||
+            url.protocol === "data:" ||
+            url.origin === window.location.origin
+        );
+    } catch {
+        return false;
+    }
+};
+
+/** 生成封面列表：有安全封面时按多个尺寸列出同一地址，否则使用应用图标 */
 export const buildMediaSessionArtwork = (cover?: string): MediaImage[] => {
-    if (cover) {
+    if (cover && isSecureArtworkSrc(cover)) {
         return COVER_SIZES.map((size) => ({
             src: cover,
             sizes: `${size}x${size}`,

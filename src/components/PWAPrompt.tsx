@@ -4,7 +4,11 @@ import {
     HOURLY_CHECK_INTERVAL_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
-import { setPwaRegistration } from "../utils/pwaRegistration";
+import {
+    setPwaRegistration,
+    updatePwaQuietly,
+    warmOnDemandFontCacheOnFirstControl,
+} from "../utils/pwaRegistration";
 import { decidePwaUpdateAction, reloadPage } from "../utils/pwaUpdate";
 import { useSnackbar } from "./snackbar";
 
@@ -39,17 +43,18 @@ export function PWAPrompt() {
             pendingReloadRef.current = true;
             setShowUpdated(true);
         },
-        onRegistered(r) {
+        onRegisteredSW(_swUrl, r) {
             if (r) {
+                warmOnDemandFontCacheOnFirstControl();
                 registrationRef.current = r;
                 setPwaRegistration(r);
 
-                r.update();
+                updatePwaQuietly(r);
 
                 if (intervalRef.current) clearInterval(intervalRef.current);
 
                 intervalRef.current = window.setInterval(() => {
-                    r.update();
+                    updatePwaQuietly(r);
                 }, HOURLY_CHECK_INTERVAL_MS);
             }
         },
@@ -79,16 +84,26 @@ export function PWAPrompt() {
                 return;
             }
             lastVisibilityCheckRef.current = now;
-            registration.update();
+            updatePwaQuietly(registration);
+        };
+
+        // 动态导入失败：没有待生效的新版时立即检查一次更新；已有新版则沿用切到后台再刷新的流程
+        // @see https://vite.dev/guide/build#load-error-handling
+        const handlePreloadError = () => {
+            if (pendingReloadRef.current) return;
+            const registration = registrationRef.current;
+            if (registration) updatePwaQuietly(registration);
         };
 
         document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("vite:preloadError", handlePreloadError);
 
         return () => {
             document.removeEventListener(
                 "visibilitychange",
                 handleVisibilityChange,
             );
+            window.removeEventListener("vite:preloadError", handlePreloadError);
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }

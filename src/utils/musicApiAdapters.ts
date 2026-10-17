@@ -66,6 +66,28 @@ const trackIdFromUrl = (url: unknown): string => {
     }
 };
 
+/**
+ * 将单个 http 地址改写为 https；IP 地址、localhost 与非地址文本（如内联歌词）保持原样。
+ */
+export const upgradeToHttps = (url: string): string => {
+    if (!/^http:\/\/\S+$/i.test(url)) return url;
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname;
+        if (
+            host === "localhost" ||
+            host.startsWith("[") ||
+            /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+        ) {
+            return url;
+        }
+        parsed.protocol = "https:";
+        return parsed.toString();
+    } catch {
+        return url;
+    }
+};
+
 const parseMetingResponse = (data: unknown): MusicTrack[] => {
     if (!Array.isArray(data) || data.length === 0) {
         throw new EmptyPlaylistError();
@@ -74,9 +96,9 @@ const parseMetingResponse = (data: unknown): MusicTrack[] => {
         id: item.id || item.song_id || trackIdFromUrl(item.url),
         name: item.name || item.title || "Unknown Track",
         artist: item.artist || item.author || "Unknown Artist",
-        url: item.url || "",
-        cover: item.pic || item.cover || "",
-        lrc: item.lrc || "",
+        url: upgradeToHttps(item.url || ""),
+        cover: upgradeToHttps(item.pic || item.cover || ""),
+        lrc: upgradeToHttps(item.lrc || ""),
         theme: item.theme,
     }));
 };

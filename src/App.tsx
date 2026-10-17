@@ -244,7 +244,9 @@ const App: React.FC = () => {
     useEffect(() => {
         document.documentElement.lang = languageToHtmlLang(settings.language);
         // CJK 字族 CSS 是按语言动态 import 的，运行中切换语言要补载对应字族
-        void loadCjkFontCss(settings.language);
+        loadCjkFontCss(settings.language).catch((error: unknown) => {
+            console.warn("[Font] CJK font CSS failed to load:", error);
+        });
     }, [settings.language]);
 
     useEffect(() => {
