@@ -1,10 +1,8 @@
 import { type FC, useEffect, useRef } from "react";
 import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
-// 光晕半径 400px：贴图固定尺寸、圆心居中，ref 平移跟随
 const ORIGIN_GLOW_RADIUS = 400;
 
-/** Origin 前景：鼠标光晕（ref 直写 transform，不重渲染；鼠标离开页面时淡出）。 */
 export const OriginForeground: FC = () => {
     const glowRef = useRef<HTMLDivElement>(null);
 
