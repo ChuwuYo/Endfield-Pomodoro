@@ -15,13 +15,11 @@ export const Panel: React.FC<{
             </div>
         )}
 
-        {/* 装饰性角落（ef-panel__corner--* 供主题样式单独改写） */}
         <div className="ef-panel__corner ef-panel__corner--tl absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-theme-primary"></div>
         <div className="ef-panel__corner ef-panel__corner--tr absolute -top-[1px] -right-[1px] w-4 h-4 border-t-2 border-r-2 border-theme-primary"></div>
         <div className="ef-panel__corner ef-panel__corner--bl absolute -bottom-[1px] -left-[1px] w-4 h-4 border-b-2 border-l-2 border-theme-primary"></div>
         <div className="ef-panel__corner ef-panel__corner--br absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-theme-primary"></div>
 
-        {/* 技术标记 */}
         <div className="ef-panel__mark absolute top-1/2 left-0 w-1 h-8 -translate-y-1/2 bg-theme-highlight/50"></div>
         <div className="ef-panel__mark absolute top-1/2 right-0 w-1 h-8 -translate-y-1/2 bg-theme-highlight/50"></div>
 
