@@ -20,7 +20,6 @@ export default defineConfig([
             globals: globals.browser,
         },
         rules: {
-            // 禁止调试日志进生产；保留 warn/error 供真实故障排查
             "no-console": ["warn", { allow: ["warn", "error"] }],
         },
     },
