@@ -4,6 +4,7 @@ import {
     getAdapters,
     metingAdapter,
     metingFallbackAdapter,
+    upgradeToHttps,
 } from "./musicApiAdapters";
 
 /**
@@ -144,7 +145,6 @@ describe("metingAdapter.parseResponse", () => {
     });
 
     it("upgrades http links from the fallback source to https", () => {
-        // 备用源（meting.jinghuashang.cn）实际返回 http 链接，HTTPS 页面里会触发混合内容
         const [track] = metingAdapter.parseResponse([
             {
                 name: "Song",
@@ -163,6 +163,17 @@ describe("metingAdapter.parseResponse", () => {
         expect(track.lrc).toBe(
             "https://meting.jinghuashang.cn/?server=netease&type=lrc&id=1",
         );
+    });
+
+    it("leaves localhost, IP addresses and inline lyrics unchanged", () => {
+        expect(upgradeToHttps("http://localhost/a.mp3")).toBe(
+            "http://localhost/a.mp3",
+        );
+        expect(upgradeToHttps("http://127.0.0.1/a.mp3")).toBe(
+            "http://127.0.0.1/a.mp3",
+        );
+        const lyric = "http://example.com\n[00:00.00]hi";
+        expect(upgradeToHttps(lyric)).toBe(lyric);
     });
 
     it("throws on empty array", () => {
