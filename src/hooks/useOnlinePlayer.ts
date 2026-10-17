@@ -105,6 +105,12 @@ export const useOnlinePlayer = (
         currentIndexRef.current = currentIndex;
     }, [currentIndex]);
 
+    // 保持最新的播放列表引用
+    const playlistRef = useRef(playlist);
+    useEffect(() => {
+        playlistRef.current = playlist;
+    }, [playlist]);
+
     // 保持最新的 isPlaying 引用
     const isPlayingRef = useRef(isPlaying);
     useEffect(() => {
@@ -229,10 +235,7 @@ export const useOnlinePlayer = (
             console.error("Online playback error: Load failed");
 
             // 离线：保留当前曲目，等待网络恢复后重新加载
-            if (navigator.onLine === false) {
-                setAwaitingNetworkUrl(audio.src);
-                return;
-            }
+            if (holdForNetwork()) return;
 
             const currentOnTrackFix = onTrackFixRef.current;
             const currentIsPlaying = isPlayingRef.current;
@@ -240,7 +243,8 @@ export const useOnlinePlayer = (
             // 单曲级回退逻辑
             if (currentOnTrackFix) {
                 const currentIdx = currentIndexRef.current;
-                const currentTrackId = playlist[currentIdx]?.id || "";
+                const currentTrackId =
+                    playlistRef.current[currentIdx]?.id || "";
 
                 // 如果是新的一首歌(索引或ID变化)，或者虽然是同一首但还没尝试修复过
                 if (
@@ -299,7 +303,19 @@ export const useOnlinePlayer = (
             proceedToErrorHandling();
         };
 
+        // 离线时清除待执行的切歌重试并保留当前曲目，返回是否已处理
+        const holdForNetwork = (): boolean => {
+            if (navigator.onLine !== false) return false;
+            if (retryTimerRef.current !== null) {
+                clearTimeout(retryTimerRef.current);
+                retryTimerRef.current = null;
+            }
+            setAwaitingNetworkUrl(audio.src);
+            return true;
+        };
+
         const proceedToErrorHandling = () => {
+            if (holdForNetwork()) return;
             setError("Load failed"); // Set error state only when we give up or skip
             consecutiveErrorsRef.current += 1;
             if (
@@ -320,10 +336,9 @@ export const useOnlinePlayer = (
                 clearTimeout(retryTimerRef.current);
             }
             retryTimerRef.current = window.setTimeout(() => {
-                if (isMounted) {
-                    handleNextRef.current?.(true);
-                }
                 retryTimerRef.current = null;
+                if (!isMounted || holdForNetwork()) return;
+                handleNextRef.current?.(true);
             }, NEXT_TRACK_RETRY_DELAY_MS);
         };
 
@@ -614,7 +629,15 @@ export const useOnlinePlayer = (
     };
 
     // 网络恢复后从中断位置重新加载当前曲目
-    const currentUrl = playlist[currentIndex]?.url;
+    const rawCurrentUrl = playlist[currentIndex]?.url;
+    let currentUrl: string | undefined;
+    try {
+        currentUrl = rawCurrentUrl
+            ? new URL(rawCurrentUrl, window.location.href).href
+            : undefined;
+    } catch {
+        currentUrl = rawCurrentUrl;
+    }
     const reloadAfterReconnect = () => {
         setAwaitingNetworkUrl(null);
         const audio = getAudio();

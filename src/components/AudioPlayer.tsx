@@ -78,11 +78,17 @@ const AudioPlayer: React.FC<{
         }
     }, [audioSource]);
 
-    const prevOnlineRef = useRef(isOnline);
+    // 初始值为 true，使首次渲染即离线时按在线→离线处理
+    const prevOnlineRef = useRef(true);
 
-    // 离线时自动切换到本地模式（在线音乐仍在播放时保持不变）；离线→在线且仍在本地时提示可切回在线
+    // 在线→离线时自动切换到本地模式（在线音乐仍在播放时保持不变）；离线→在线且仍在本地时提示可切回在线
     useEffect(() => {
-        if (!isOnline && audioSource === "online" && !isOnlinePlaying) {
+        if (
+            !isOnline &&
+            prevOnlineRef.current &&
+            audioSource === "online" &&
+            !isOnlinePlaying
+        ) {
             queueMicrotask(() => setAudioSource("local"));
         } else if (
             isOnline &&

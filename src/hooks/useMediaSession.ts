@@ -60,6 +60,8 @@ export const useMediaSession = ({
         at: number;
         playing: boolean;
     } | null>(null);
+    // 最近一次上报位置时的曲目标识
+    const reportedTrackRef = useRef<string | null>(null);
 
     useEffect(() => {
         controlsRef.current = controls;
@@ -93,7 +95,10 @@ export const useMediaSession = ({
         > = {
             play: () => controlsRef.current.play(),
             pause: () => controlsRef.current.pause(),
-            stop: () => controlsRef.current.pause(),
+            stop: () => {
+                controlsRef.current.pause();
+                controlsRef.current.seek(0);
+            },
             previoustrack: () => controlsRef.current.prev(),
             nexttrack: () => controlsRef.current.next(),
             seekto: (details) => {
@@ -146,8 +151,17 @@ export const useMediaSession = ({
 
     // 曲目、时长或播放状态变化时上报位置
     useEffect(() => {
-        if (!active) return;
-        const position = currentTimeRef.current;
+        if (!active) {
+            reportedTrackRef.current = null;
+            return;
+        }
+        // 曲目切换后从 0 开始上报，避免沿用上一首的进度
+        const trackKey = `${title ?? ""}\u0000${cover ?? ""}`;
+        const trackChanged =
+            reportedTrackRef.current !== null &&
+            reportedTrackRef.current !== trackKey;
+        reportedTrackRef.current = trackKey;
+        const position = trackChanged ? 0 : currentTimeRef.current;
         const ok = setMediaSessionPositionState({ duration, position });
         reportedRef.current = ok
             ? { position, at: performance.now(), playing: isPlaying }
