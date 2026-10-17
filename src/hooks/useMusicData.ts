@@ -4,6 +4,7 @@ import { API_FETCH_DELAY_MS } from "../constants";
 import { MusicDataError } from "../types";
 import { fetchWithTimeout, TimeoutError } from "../utils/fetchWithTimeout";
 import { EmptyPlaylistError, getAdapters } from "../utils/musicApiAdapters";
+import { useRetryOnReconnect } from "./useRetryOnReconnect";
 
 /**
  * 音乐曲目数据结构
@@ -44,6 +45,7 @@ const withoutSignal = (fetchOptions?: RequestInit): RequestInit => {
  * - 支持多个 API 适配器的故障转移
  * - 自动超时控制
  * - 请求取消（组件卸载或参数变化时）
+ * - 服务不可用时，网络恢复或页面重新可见后自动重新获取
  *
  * @param server - 音乐平台（netease/tencent/kugou/baidu/kuwo）
  * @param type - 操作类型（通常为 'playlist'）
@@ -57,6 +59,8 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
     const [activeAdapterIndex, setActiveAdapterIndex] = useState<number | null>(
         null,
     );
+    // 递增时以相同适配器顺序重新获取
+    const [reloadToken, setReloadToken] = useState(0);
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const retryWithNextAdapter = useCallback(() => {
@@ -160,7 +164,16 @@ export const useMusicData = ({ server, type, id }: UseMusicDataProps) => {
             clearTimeout(timeoutId);
             controller.abort();
         };
-    }, [server, type, id, adapterStartIndex]);
+    }, [server, type, id, adapterStartIndex, reloadToken]);
+
+    const reload = useCallback(() => {
+        setReloadToken((prev) => prev + 1);
+    }, []);
+
+    useRetryOnReconnect(
+        hasSource && error === MusicDataError.SERVICE_UNAVAILABLE,
+        reload,
+    );
 
     // 尝试获取单曲的备用 URL
     const fetchTrackUrl = useCallback(
