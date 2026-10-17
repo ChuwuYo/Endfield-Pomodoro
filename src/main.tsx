@@ -10,7 +10,6 @@ import {
 import "./index.css";
 import "remixicon/fonts/remixicon.css";
 
-// 渲染前同步 html lang
 syncDocumentLanguageBeforeApp();
 
 const mountApp = () => {
@@ -23,5 +22,4 @@ const mountApp = () => {
     );
 };
 
-// CJK 字族 CSS 就位后再挂载；加载失败时照常挂载，失败日志由 App 统一记录
 loadCjkFontCss(resolveFallbackLanguage()).then(mountApp, mountApp);
