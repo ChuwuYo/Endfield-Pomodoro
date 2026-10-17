@@ -144,7 +144,7 @@ describe("metingAdapter.parseResponse", () => {
         });
     });
 
-    it("upgrades http links from the fallback source to https", () => {
+    it("upgrades http links to https", () => {
         const [track] = metingAdapter.parseResponse([
             {
                 name: "Song",
