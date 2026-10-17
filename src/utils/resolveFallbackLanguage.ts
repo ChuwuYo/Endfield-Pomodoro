@@ -19,28 +19,18 @@ export const readStoredLanguage = (): Language | null => {
         if (typeof language === "string" && LANGUAGE_VALUES.has(language)) {
             return language as Language;
         }
+        return null;
     } catch {
-        // 损坏的 settings / 无 storage 不影响兜底 UI
+        return null;
     }
-    return null;
 };
 
-/**
- * 兜底语言优先级：
- * 1) 已持久化设置
- * 2) 当前 html lang（main 在挂载前已按存储/浏览器同步）
- */
 export const resolveFallbackLanguage = (): Language => {
     const stored = readStoredLanguage();
     if (stored) return stored;
     return htmlLangToLanguage(document.documentElement.lang);
 };
 
-/**
- * 在挂载 React 前同步 <html lang>：
- * - 有持久化设置 → 用设置
- * - 否则 → 与 App DEFAULT_SETTINGS 相同的浏览器推断
- */
 export const syncDocumentLanguageBeforeApp = (): void => {
     const language = readStoredLanguage() ?? detectBrowserLanguage();
     document.documentElement.lang = languageToHtmlLang(language);
