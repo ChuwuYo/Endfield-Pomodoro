@@ -143,6 +143,28 @@ describe("metingAdapter.parseResponse", () => {
         });
     });
 
+    it("upgrades http links from the fallback source to https", () => {
+        // 备用源（meting.jinghuashang.cn）实际返回 http 链接，HTTPS 页面里会触发混合内容
+        const [track] = metingAdapter.parseResponse([
+            {
+                name: "Song",
+                url: "http://meting.jinghuashang.cn/?server=netease&type=url&id=1",
+                pic: "http://meting.jinghuashang.cn/?server=netease&type=pic&id=1",
+                lrc: "http://meting.jinghuashang.cn/?server=netease&type=lrc&id=1",
+            },
+        ]);
+
+        expect(track.url).toBe(
+            "https://meting.jinghuashang.cn/?server=netease&type=url&id=1",
+        );
+        expect(track.cover).toBe(
+            "https://meting.jinghuashang.cn/?server=netease&type=pic&id=1",
+        );
+        expect(track.lrc).toBe(
+            "https://meting.jinghuashang.cn/?server=netease&type=lrc&id=1",
+        );
+    });
+
     it("throws on empty array", () => {
         expect(() => metingAdapter.parseResponse([])).toThrow("Empty playlist");
     });
