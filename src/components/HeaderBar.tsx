@@ -11,8 +11,6 @@ type HeaderBarProps = {
     t: ReturnType<typeof useTranslation>;
 };
 
-/** Wall clock isolated so App (and siblings) do not re-render every second.
- *  Interval runs only at Tailwind `md`+ — matches the previous `hidden md:flex` visibility. */
 const MD_UP_QUERY = "(min-width: 768px)";
 
 const HeaderClock: React.FC = () => {

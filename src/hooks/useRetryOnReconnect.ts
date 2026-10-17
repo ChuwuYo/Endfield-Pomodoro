@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
 
-/**
- * 在 active 为 true 期间，网络恢复（online）或页面重新可见时调用 retry。
- *
- * @param active - 是否需要重试（例如当前处于加载失败状态）
- * @param retry - 重试函数，始终调用最新传入的版本
- */
+/** active 期间，网络恢复或页面重新可见时调用 retry */
 export const useRetryOnReconnect = (
     active: boolean,
     retry: () => void,

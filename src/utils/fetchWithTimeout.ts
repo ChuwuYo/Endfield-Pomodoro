@@ -9,7 +9,6 @@ export class TimeoutError extends Error {
 
 type FetchWithTimeoutOptions = {
     timeoutMs?: number;
-    /** 外部取消信号（组件卸载 / 父级 AbortController） */
     externalSignal?: AbortSignal;
 };
 

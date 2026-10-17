@@ -2,15 +2,12 @@ import React from "react";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { subscribePointerFrame } from "../../../utils/pointerFrame";
 
-// 六边形网格背景 - 支持鼠标位置高亮
-
 // 六边形平铺周期（pattern 40x69.28 经 patternTransform scale(0.5) 后的实际尺寸）
 const HEX_TILE_W = 20;
 const HEX_TILE_H = 34.64;
 // 高亮窗口半径（与外层 mask 容器 360px 对应）
 const HEX_SPOT_RADIUS = 180;
 
-/** 高亮贴图：20x34.64 小块平铺（data-URL 内写死 MIKU highlight 色）。 */
 const hexHighlightTileUrl = (() => {
     const color = "#fdd1ff";
     const svg =
@@ -48,12 +45,10 @@ const MikuHexPattern: React.FC = () => {
                     const y = clientY - HEX_SPOT_RADIUS;
                     outerRef.current.style.opacity = "1";
                     outerRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-                    // 内层贴图按周期取余反向偏移，与基础网格对齐
                     innerRef.current.style.transform = `translate3d(${-mod(x, HEX_TILE_W)}px, ${-mod(y, HEX_TILE_H)}px, 0)`;
                 }
             },
             () => {
-                // 鼠标离开页面时淡出高亮
                 if (outerRef.current) outerRef.current.style.opacity = "0";
             },
         );
@@ -61,7 +56,6 @@ const MikuHexPattern: React.FC = () => {
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* 基础六角形网格 - primary color */}
             <svg
                 width="100%"
                 height="100%"
@@ -91,7 +85,6 @@ const MikuHexPattern: React.FC = () => {
                 />
             </svg>
 
-            {/* 鼠标位置高亮 */}
             {!isMobile && (
                 <div
                     ref={outerRef}
@@ -129,7 +122,6 @@ const MikuHexPattern: React.FC = () => {
     );
 };
 
-// Miku 频谱条动画
 const MikuEqualizerBars = () => {
     const bars = Array.from({ length: 20 }, (_, i) => ({
         id: i,
@@ -155,7 +147,6 @@ const MikuEqualizerBars = () => {
     );
 };
 
-// Miku 背景层容器 - 自带鼠标跟踪
 export const MikuBackgroundLayer: React.FC = () => {
     return (
         <>

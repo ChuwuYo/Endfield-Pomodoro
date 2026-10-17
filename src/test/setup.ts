@@ -2,16 +2,12 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-/**
- * 未开 vitest globals，手动注册 RTL cleanup。
- */
+// 未开 vitest globals，需手动注册 cleanup
 afterEach(() => {
     cleanup();
 });
 
-/**
- * Node 全局 localStorage 未启用时，测试里补一个内存 Storage。
- */
+// Node 未启用全局 localStorage 时补一个内存实现
 const installMemoryLocalStorage = () => {
     if (typeof window === "undefined") return;
     if (

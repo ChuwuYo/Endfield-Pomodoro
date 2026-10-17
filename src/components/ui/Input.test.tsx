@@ -14,7 +14,6 @@ const setup = (props: Record<string, unknown> = {}) => {
             {...props}
         />,
     );
-    // 顺序与 DOM 一致：先减后加
     const [decrement, increment] = document.querySelectorAll("button");
     return { onStep, decrement, increment };
 };

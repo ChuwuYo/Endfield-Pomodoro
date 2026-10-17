@@ -13,7 +13,6 @@ const prefersReducedMotion = (): boolean =>
     typeof window.matchMedia === "function" &&
     window.matchMedia(REDUCED_MOTION_QUERY).matches;
 
-/** 临时禁用全部 CSS transition，返回恢复函数。 */
 export const suppressTransitions = (): (() => void) => {
     const style = document.createElement("style");
     style.textContent =
@@ -27,11 +26,6 @@ export const suppressTransitions = (): (() => void) => {
 
 let activeToken = 0;
 
-/**
- * 以整页 View Transition 交叉淡入执行状态更新。
- * theme：过渡期间禁用逐元素 transition，由快照统一淡入；
- * 减弱动态效果或不支持 View Transition 时保持原有行为。
- */
 export const runViewTransition = (
     update: () => void,
     kind: ViewTransitionKind,

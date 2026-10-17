@@ -23,7 +23,6 @@ const detectFromTag = (raw: string): Language => {
     return Language.EN;
 };
 
-/** App / ErrorBoundary 共用的 Language ↔ html lang 映射 */
 export const languageToHtmlLang = (language: Language): string =>
     HTML_LANG[language];
 
@@ -31,7 +30,6 @@ export const htmlLangToLanguage = (
     htmlLang: string | null | undefined,
 ): Language => detectFromTag(htmlLang ?? "");
 
-/** 与 App DEFAULT_SETTINGS.language 相同的浏览器语言推断 */
 export const detectBrowserLanguage = (): Language => {
     const browserLangs =
         typeof navigator !== "undefined"

@@ -14,7 +14,6 @@ import {
     setPlaybackAudioSession,
 } from "../utils/mediaSession";
 
-/** 系统媒体控件触发的播放器操作 */
 export interface MediaSessionControls {
     play: () => void;
     pause: () => void;
@@ -24,7 +23,6 @@ export interface MediaSessionControls {
 }
 
 interface UseMediaSessionOptions {
-    /** 为 false 时不接管系统媒体控件 */
     enabled: boolean;
     track: MediaSessionTrackInfo | null;
     isPlaying: boolean;
@@ -33,15 +31,8 @@ interface UseMediaSessionOptions {
     controls: MediaSessionControls;
 }
 
-/** 当前接管系统媒体控件的实例标识 */
 let activeOwner: symbol | null = null;
 
-/**
- * 将播放器接入 Media Session：
- * 曲目信息与封面、播放状态、播放位置，以及播放/暂停/停止/上一首/下一首/跳转/快退/快进操作。
- *
- * 操作处理器只在启用时注册一次，通过 ref 调用最新的控制函数。
- */
 export const useMediaSession = ({
     enabled,
     track,
@@ -54,13 +45,11 @@ export const useMediaSession = ({
     const controlsRef = useRef(controls);
     const currentTimeRef = useRef(currentTime);
     const durationRef = useRef(duration);
-    // 最近一次上报的位置，用于推算当前进度
     const reportedRef = useRef<{
         position: number;
         at: number;
         playing: boolean;
     } | null>(null);
-    // 最近一次上报位置时的曲目标识
     const reportedTrackRef = useRef<string | null>(null);
 
     useEffect(() => {
@@ -71,7 +60,6 @@ export const useMediaSession = ({
 
     const active = enabled && track !== null;
 
-    // 注册操作处理器
     useEffect(() => {
         if (!active || !isMediaSessionSupported()) return;
         const owner = ownerRef.current;
@@ -132,7 +120,6 @@ export const useMediaSession = ({
         };
     }, [active]);
 
-    // 曲目信息
     const title = track?.title;
     const artist = track?.artist;
     const album = track?.album;
@@ -142,14 +129,12 @@ export const useMediaSession = ({
         setMediaSessionMetadata({ title, artist, album, cover });
     }, [active, title, artist, album, cover]);
 
-    // 播放状态
     useEffect(() => {
         if (!active) return;
         setMediaSessionPlaybackState(isPlaying ? "playing" : "paused");
         if (isPlaying) setPlaybackAudioSession();
     }, [active, isPlaying]);
 
-    // 曲目、时长或播放状态变化时上报位置
     useEffect(() => {
         if (!active) {
             reportedTrackRef.current = null;

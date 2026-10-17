@@ -7,7 +7,6 @@ import {
     subscribePwaRegistration,
 } from "../utils/pwaRegistration";
 
-/** 按钮状态：空闲 / 检查中 / 上次检查结果 */
 export type ManualUpdateCheckStatus =
     | "idle"
     | "checking"
@@ -15,10 +14,6 @@ export type ManualUpdateCheckStatus =
 
 const getServerRegistration = () => null;
 
-/**
- * 设置页「检查更新」：available 表示已有 SW 注册可供检查；
- * check() 触发一次检查，结果停留片刻后回到 idle。
- */
 export const useManualUpdateCheck = (
     onResult?: (result: ManualUpdateCheckResult) => void,
 ) => {

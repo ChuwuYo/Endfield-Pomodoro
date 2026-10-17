@@ -14,11 +14,6 @@ export type RestoredTimer = {
 
 const TIMER_MODE_VALUES = new Set<string>(Object.values(TimerMode));
 
-/**
- * 番茄钟阶段完成时的模式/会话数流转（不含音效、通知、自动开始副作用）。
- * 工作完成：session+1，每 longBreakInterval 次进入长休息，否则短休息。
- * 休息完成：回到工作，会话数不变。
- */
 export const advancePomodoroState = (
     mode: TimerMode,
     sessionCount: number,
@@ -36,11 +31,7 @@ export const advancePomodoroState = (
     return { nextMode: TimerMode.WORK, nextSessionCount: sessionCount };
 };
 
-/**
- * 解析 sessionStorage 中的计时器快照。
- * mode 必须是三个 TimerMode 之一；非法 mode 整份丢弃（回退 WORK/默认时长）。
- * 运行中快照用 startTs 表示「当时剩余 timeLeft 的采样时刻」。
- */
+// startTs 是剩余 timeLeft 的采样时刻
 export const parseStoredTimerPayload = (
     parsed: unknown,
     now: number = Date.now(),

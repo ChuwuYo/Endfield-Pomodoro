@@ -6,10 +6,6 @@ export const ThemeMode = {
 } as const;
 export type ThemeMode = (typeof ThemeMode)[keyof typeof ThemeMode];
 
-/**
- * 明暗分组：设置页先选模式再选主题，下拉只列同组。
- * 新增主题必须在这里归组（Record 穷尽，漏写编译报错）。
- */
 export const THEME_MODES: Record<ThemePreset, ThemeMode> = {
     [ThemePreset.ORIGIN]: ThemeMode.DARK,
     [ThemePreset.ABYSSAL]: ThemeMode.DARK,
@@ -29,7 +25,6 @@ export const themeModeOf = (theme: ThemePreset): ThemeMode =>
 
 export const THEMES: Record<ThemePreset, ThemeColors> = {
     [ThemePreset.ORIGIN]: {
-        // 终末地深色：炭黑底 + 信号黄主色 + 冷白文字，青色仅用于休息态
         "--color-base": "#0d0e10",
         "--color-surface": "#16171a",
         "--color-highlight": "#2c2e33",
@@ -42,7 +37,6 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-error": "#ff4d4f",
     },
     [ThemePreset.ABYSSAL]: {
-        // 深海黑蓝：底座下沉（与 AZURE 亮空蓝拉开），辉光色保持生物荧光感
         "--color-base": "#050b12",
         "--color-surface": "#0a1826",
         "--color-highlight": "#1c3446",
@@ -91,7 +85,6 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-error": "#dc2626",
     },
     [ThemePreset.INDUSTRIAL]: {
-        // 休息态：琥珀 700（数字）+ 钢印灰（图标/环尾）
         "--color-base": "#e5e5e5",
         "--color-surface": "#d4d4d4",
         "--color-highlight": "#a3a3a3",
@@ -104,7 +97,6 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         "--color-error": "#dc2626",
     },
     [ThemePreset.AZURE]: {
-        // 蔚蓝档案：白底天空 + 招牌蓝 + 光环青，深藏青文字
         "--color-base": "#f4f9ff",
         "--color-surface": "#ffffff",
         "--color-highlight": "#d3e6fb",

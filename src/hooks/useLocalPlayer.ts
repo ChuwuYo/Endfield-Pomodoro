@@ -22,10 +22,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const lastTimeRef = useRef(0);
     const [playlist, setPlaylist] = useState<LocalTrack[]>([]);
-    // 使用 ref 追踪 playlist，确保即使组件卸载也能正确清理 Blob URL
     const playlistRef = useRef<LocalTrack[]>([]);
 
-    // 更新 ref 以保持与 state 同步
     useEffect(() => {
         playlistRef.current = playlist;
     }, [playlist]);
@@ -69,28 +67,23 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // 用 ref 保存 handleNext
     const handleNextRef = useRef<((isAuto: boolean) => void) | null>(null);
-    // 用 ref 追踪播放状态
     const isPlayingRef = useRef(isPlaying);
     useEffect(() => {
         isPlayingRef.current = isPlaying;
     }, [isPlaying]);
 
-    // 用 ref 追踪 playMode，确保 addFiles 引用稳定
     const playModeRef = useRef(playMode);
     useEffect(() => {
         playModeRef.current = playMode;
     }, [playMode]);
 
-    // 使用提取的洗牌逻辑 Hook
     const { getNextRandomIndex, getPrevRandomIndex } = useShuffle(
         playlist.length,
         playMode,
         currentIndex,
     );
 
-    // 切歌逻辑
     const handleNext = useCallback(
         (isAuto: boolean = false) => {
             if (playlist.length === 0) return;
@@ -113,7 +106,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             }
 
             setCurrentIndex(nextIndex);
-            // 不调用 setIsPlaying，保持当前播放状态
         },
         [playlist.length, playMode, currentIndex, getNextRandomIndex],
     );
@@ -122,10 +114,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         handleNextRef.current = handleNext;
     }, [handleNext]);
 
-    // 初始化 Audio 对象（只执行一次）
     useEffect(() => {
         const audio = new Audio();
-        // 不在这里设置音量，由专门的音量 effect 处理
         audioRef.current = audio;
 
         const onTimeUpdate = () => {
@@ -170,7 +160,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         };
     }, []);
 
-    // 监听音量变化
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;
@@ -193,7 +182,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         }
     }, [playMode]);
 
-    // 监听当前曲目变化 - 加载音频
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio || currentIndex < 0 || currentIndex >= playlist.length)
@@ -202,7 +190,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         const track = playlist[currentIndex];
         if (!track?.blobUrl) return;
 
-        // 只在 URL 真正变化时才重新加载
         if (audio.src !== track.blobUrl) {
             const wasPlaying = isPlaying;
             setIsLoading(true);
@@ -211,7 +198,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
             if (wasPlaying) {
                 audio.play().catch((err) => {
-                    // 忽略 AbortError
                     if (
                         err instanceof DOMException &&
                         err.name === "AbortError"
@@ -224,23 +210,27 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         }
     }, [currentIndex, playlist, isPlaying]);
 
-    // 监听播放状态变化
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio || currentIndex < 0) return;
 
-        if (isPlaying && audio.paused && audio.readyState >= 2) {
+        if (
+            isPlaying &&
+            audio.paused &&
+            audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+        ) {
             audio.play().catch((err) => {
-                // 忽略 AbortError
                 if (err instanceof DOMException && err.name === "AbortError")
                     return;
                 console.error("Playback failed:", err);
                 setIsPlaying(false);
             });
-        } else if (isPlaying && audio.readyState < 2) {
+        } else if (
+            isPlaying &&
+            audio.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
+        ) {
             const onCanPlay = () => {
                 audio.play().catch((err) => {
-                    // 忽略 AbortError
                     if (
                         err instanceof DOMException &&
                         err.name === "AbortError"
@@ -253,7 +243,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             audio.addEventListener("canplay", onCanPlay, { once: true });
 
             const timeoutId = setTimeout(() => {
-                if (audioRef.current && audioRef.current.readyState < 2) {
+                if (
+                    audioRef.current &&
+                    audioRef.current.readyState <
+                        HTMLMediaElement.HAVE_CURRENT_DATA
+                ) {
                     console.warn("Audio loading timeout");
                     setIsPlaying(false);
                 }
@@ -268,18 +262,14 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         }
     }, [isPlaying, currentIndex]);
 
-    // 当禁用时暂停播放
     useEffect(() => {
         if (!enabled && audioRef.current) {
             audioRef.current.pause();
-            // queueMicrotask 中更新状态
             queueMicrotask(() => setIsPlaying(false));
         }
     }, [enabled]);
 
-    // 添加文件到播放列表（渐进式加载：先显示文件名，后台更新元数据）
     const addFiles = useCallback(async (files: File[]) => {
-        // 过滤重复文件
         const uniqueFiles = files.filter((file) => {
             const isDuplicate = playlistRef.current.some(
                 (track) =>
@@ -292,7 +282,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
         if (uniqueFiles.length === 0) return;
 
-        // 第一步：立即用文件名创建列表项
         const initialTracks: LocalTrack[] = uniqueFiles.map((file) => ({
             id: `${file.name}-${file.size}-${file.lastModified}`,
             file,
@@ -304,7 +293,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
         let startIndex = 0;
         const isFirstLoad = playlistRef.current.length === 0;
-        // 用 playModeRef 获取最新模式
         if (
             isFirstLoad &&
             playModeRef.current === PlayMode.RANDOM &&
@@ -321,14 +309,12 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             return updated;
         });
 
-        // 曲目已删时丢弃解析结果并回收封面 Blob URL
         const isTrackAlive = (id: string) =>
             playlistRef.current.some((track) => track.id === id);
         const revokeCover = (coverUrl?: string) => {
             if (coverUrl) URL.revokeObjectURL(coverUrl);
         };
 
-        // 单文件解析函数（动态导入 music-metadata）
         const parseFile = async (
             file: File,
         ): Promise<{
@@ -356,20 +342,15 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 return { id: trackId, name: title, artist, coverUrl };
             } catch (error) {
                 console.warn("Failed to extract metadata:", error);
-                return { id: trackId }; // Return partial or minimal update
+                return { id: trackId };
             }
         };
 
-        // 第二步：智能解析 (Priority + Concurrency Pool)
-
-        // 1. 优先解析当前选中曲目 (High Priority)
-        // 只有在首次加载且有有效 startIndex 时才执行优先逻辑
         if (isFirstLoad && uniqueFiles[startIndex]) {
             const metadata = await parseFile(uniqueFiles[startIndex]);
             if (!isTrackAlive(metadata.id)) {
                 revokeCover(metadata.coverUrl);
             } else if (metadata.name || metadata.artist) {
-                // 只有解析出有效信息才更新
                 setPlaylist((prev) =>
                     prev.map((track) =>
                         track.id === metadata.id
@@ -380,8 +361,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             }
         }
 
-        // 2. 解析其余文件 (Bulk with Pool)
-        // 过滤掉已经解析过的 startIndex 文件
         const restFiles = isFirstLoad
             ? uniqueFiles.filter((_, i) => i !== startIndex)
             : uniqueFiles;
@@ -399,7 +378,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
                 return false;
             });
 
-            // 3. 全量更新 (Final Update)
             setPlaylist((prev) => {
                 const updates = new Map(liveResults.map((r) => [r.id, r]));
                 return prev.map((track) => {
@@ -410,7 +388,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         }
     }, []);
 
-    // 播放指定曲目（可选保持当前播放状态）
     const playTrack = useCallback(
         (index: number, keepPlayState: boolean = false) => {
             if (index >= 0 && index < playlist.length) {
@@ -423,7 +400,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         [playlist.length],
     );
 
-    // 播放/暂停切换
     const togglePlay = useCallback(() => {
         if (playlist.length === 0) return;
 
@@ -435,7 +411,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         setIsPlaying((prev) => !prev);
     }, [playlist.length, currentIndex, playTrack]);
 
-    // 播放（供系统媒体控件调用，与当前状态无关地确保播放）
     const play = useCallback(() => {
         if (playlist.length === 0) return;
         if (currentIndex === -1) {
@@ -443,7 +418,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
             return;
         }
         const audio = audioRef.current;
-        if (audio && audio.paused && audio.readyState >= 2) {
+        if (
+            audio &&
+            audio.paused &&
+            audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+        ) {
             audio.play().catch((err) => {
                 if (err instanceof DOMException && err.name === "AbortError")
                     return;
@@ -454,13 +433,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         setIsPlaying(true);
     }, [playlist.length, currentIndex, playTrack]);
 
-    // 暂停（供系统媒体控件调用）
     const pause = useCallback(() => {
         audioRef.current?.pause();
         setIsPlaying(false);
     }, []);
 
-    // 上一曲
     const handlePrev = useCallback(() => {
         if (playlist.length === 0) return;
 
@@ -482,10 +459,8 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         }
 
         setCurrentIndex(prevIndex);
-        // 不调用 setIsPlaying，保持当前播放状态
     }, [playlist.length, playMode, currentIndex, getPrevRandomIndex]);
 
-    // 进度跳转
     const seek = useCallback(
         (time: number) => {
             if (audioRef.current && duration > 0) {
@@ -497,7 +472,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         [duration],
     );
 
-    // 切换播放模式
     const toggleMode = useCallback(() => {
         setPlayMode((prev) => {
             if (prev === PlayMode.SEQUENCE) return PlayMode.LOOP;
@@ -506,8 +480,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         });
     }, []);
 
-    // 删除曲目
-    // 先算新索引再更新状态
     const removeTrack = useCallback(
         (index: number) => {
             const currentList = playlistRef.current;
@@ -519,7 +491,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
 
             const newList = currentList.filter((_, i) => i !== index);
 
-            // 在更新状态之前计算新的索引
             let newIndex = currentIndex;
             if (index === currentIndex) {
                 if (newList.length === 0) {
@@ -540,9 +511,7 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         [currentIndex],
     );
 
-    // 清空播放列表
     const clearPlaylist = useCallback(() => {
-        // 用 playlistRef.current 清理最新 Blob URL
         playlistRef.current.forEach((track) => {
             URL.revokeObjectURL(track.blobUrl);
             if (track.coverUrl) URL.revokeObjectURL(track.coverUrl);
@@ -552,7 +521,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         setIsPlaying(false);
     }, []);
 
-    // 组件卸载时清理所有 Blob URL
     useEffect(() => {
         return () => {
             // 使用 ref 中的最新 playlist，而不是闭包中的初始空 playlist
@@ -566,7 +534,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
     const currentTrack = currentIndex >= 0 ? playlist[currentIndex] : null;
 
     return {
-        // 状态
         playlist,
         currentTrack,
         currentIndex,
@@ -576,7 +543,6 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         volume,
         playMode,
         isLoading,
-        // 控制方法
         addFiles,
         playTrack,
         togglePlay,

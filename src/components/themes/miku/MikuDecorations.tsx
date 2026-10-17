@@ -3,7 +3,6 @@ import mikuCharImg from "../../../assets/images/MIKU1.webp";
 import mikuLogoImg from "../../../assets/images/MIKULogo.svg";
 import { ThemePreset } from "../../../types";
 
-// Miku 角色图片装饰组件
 const MikuCharacter: React.FC<{ footerHeight: number }> = ({
     footerHeight,
 }) => {
@@ -22,7 +21,6 @@ const MikuCharacter: React.FC<{ footerHeight: number }> = ({
     );
 };
 
-// Miku Logo 装饰组件
 const MikuLogo: React.FC<{ footerHeight: number }> = ({ footerHeight }) => {
     return (
         <div
@@ -39,12 +37,10 @@ const MikuLogo: React.FC<{ footerHeight: number }> = ({ footerHeight }) => {
     );
 };
 
-// Miku 主题装饰层容器 - 自动处理主题检查
 export const MikuDecorations: React.FC<{
     theme: ThemePreset;
     footerHeight: number;
 }> = ({ theme, footerHeight }) => {
-    // 只在 Miku 主题时渲染
     if (theme !== ThemePreset.MIKU) {
         return null;
     }

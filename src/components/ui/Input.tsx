@@ -1,11 +1,7 @@
 import React from "react";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-    /**
-     * 传入后渲染自定义增减按钮（原生增减按钮已在 index.css 隐藏）。
-     * 按钮不进 tab 序：MDN 的 spinbutton 指引要求文本框是唯一可聚焦部件，
-     * 键盘用户用上下方向键，pointer 用户点按钮。
-     */
+    /** 自定义增减按钮不进 tab 序：spinbutton 中文本框应是唯一可聚焦部件（MDN） */
     onStep?: (delta: 1 | -1) => void;
 };
 

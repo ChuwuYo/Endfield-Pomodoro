@@ -85,7 +85,6 @@ const ridged = (x: number, y: number) => {
 
 const RIDGE_MIX = 0.55;
 
-/** 域扭曲 + fBm/山脊混合，得到有地貌逻辑的高度场 */
 const terrainAt = (u: number, v: number) => {
     const wx = perlinWarp(u * 1.6, v * 1.6) * 0.35;
     const wy = perlinWarp(u * 1.6 + 5.2, v * 1.6 + 1.3) * 0.35;
@@ -231,7 +230,6 @@ const smoothPolylines = (paths: string[]): string[] =>
         ];
     });
 
-// 地形网格 + 等高线分层：普通线 / 每四条一条计曲线，只算一次
 const buildContours = () => {
     const RES = 160;
     const grid = new Float32Array((RES + 1) * (RES + 1));
@@ -259,7 +257,6 @@ const buildContours = () => {
     return { normal, index };
 };
 
-/** TACTICAL 背景层：细密点阵 + 地形等高线（中心留空、四边压暗）。 */
 export const TacticalGrid = () => {
     const { normal, index } = useMemo(() => buildContours(), []);
     return (

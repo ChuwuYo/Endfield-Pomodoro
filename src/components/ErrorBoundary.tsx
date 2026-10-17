@@ -15,7 +15,6 @@ type ErrorFallbackProps = {
     onReload: () => void;
 };
 
-/** 根错误兜底 */
 export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onReload }) => {
     const language = resolveFallbackLanguage();
     const t = translations[language];
@@ -55,10 +54,6 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onReload }) => {
     );
 };
 
-/**
- * 根级错误边界：捕获渲染期异常。
- * 恢复路径仅 reload（不清 localStorage，保留设置与会话数据）。
- */
 export class ErrorBoundary extends React.Component<
     ErrorBoundaryProps,
     ErrorBoundaryState

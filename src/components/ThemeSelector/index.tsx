@@ -24,10 +24,6 @@ const themeOptionsOf = (
     { value: ThemePreset.MIKU, label: t("THEME_MIKU") },
 ];
 
-/**
- * 主题选择：明暗图标 + 下拉框（贴框一行，焦点环内嵌）。
- * 模式只筛选下拉，不改主题。
- */
 export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     theme,
     onThemeChange,
@@ -42,7 +38,6 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     const visibleOptions = options.filter(
         (option) => themeModeOf(option.value) === mode,
     );
-    // 选中显示走全量找 label，不受筛选影响
     const currentLabel = options.find(
         (option) => option.value === theme,
     )?.label;
@@ -60,7 +55,6 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <div
                     role="group"
                     aria-label={t("THEME_MODE")}
-                    // 与下拉同底同框
                     className="flex shrink-0 items-stretch border-l border-y border-theme-highlight bg-theme-highlight/20 h-form-control"
                 >
                     {(

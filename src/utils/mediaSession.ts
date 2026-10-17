@@ -1,10 +1,3 @@
-/**
- * Media Session API 工具函数
- *
- * 所有接口均做特性检测，不支持的环境下为空操作。
- */
-
-/** 系统媒体控件展示的曲目信息 */
 export interface MediaSessionTrackInfo {
     title: string;
     artist?: string;
@@ -12,17 +5,14 @@ export interface MediaSessionTrackInfo {
     cover?: string;
 }
 
-/** 系统媒体控件的位置信息 */
 export interface MediaSessionPosition {
     duration: number;
     position: number;
     playbackRate?: number;
 }
 
-/** 封面按从大到小列出的尺寸 */
 const COVER_SIZES = [512, 384, 256, 192, 128, 96];
 
-/** 无封面时使用的应用图标 */
 const FALLBACK_ARTWORK: ReadonlyArray<{ file: string; sizes: string }> = [
     { file: "pwa-512x512.png", sizes: "512x512" },
     { file: "pwa-192x192.png", sizes: "192x192" },
@@ -41,7 +31,6 @@ type NavigatorWithAudioSession = Navigator & {
     audioSession?: { type: AudioSessionType };
 };
 
-/** 当前环境是否支持 Media Session */
 export const isMediaSessionSupported = (): boolean =>
     typeof navigator !== "undefined" && "mediaSession" in navigator;
 
@@ -78,7 +67,6 @@ export const getSupportedMediaSessionActions = (): MediaSessionAction[] => {
     return actions;
 };
 
-/** 注册单个操作处理器，不支持的操作返回 false */
 export const setMediaSessionActionHandler = (
     action: MediaSessionAction,
     handler: MediaSessionActionHandler | null,
@@ -92,9 +80,6 @@ export const setMediaSessionActionHandler = (
     }
 };
 
-/**
- * 封面地址是否可直接交给系统媒体控件：接受 https、blob、data 与同源地址。
- */
 const isSecureArtworkSrc = (src: string): boolean => {
     try {
         const url = new URL(src, window.location.href);
@@ -109,7 +94,6 @@ const isSecureArtworkSrc = (src: string): boolean => {
     }
 };
 
-/** 生成封面列表：有安全封面时按多个尺寸列出同一地址，否则使用应用图标 */
 export const buildMediaSessionArtwork = (cover?: string): MediaImage[] => {
     if (cover && isSecureArtworkSrc(cover)) {
         return COVER_SIZES.map((size) => ({
@@ -125,7 +109,6 @@ export const buildMediaSessionArtwork = (cover?: string): MediaImage[] => {
     }));
 };
 
-/** 写入曲目信息；字段与当前一致时不重复赋值 */
 export const setMediaSessionMetadata = (
     track: MediaSessionTrackInfo | null,
 ): void => {
@@ -161,7 +144,6 @@ export const setMediaSessionMetadata = (
     }
 };
 
-/** 写入播放状态 */
 export const setMediaSessionPlaybackState = (
     state: MediaSessionPlaybackState,
 ): void => {
@@ -173,12 +155,6 @@ export const setMediaSessionPlaybackState = (
     }
 };
 
-/**
- * 写入播放位置
- *
- * 时长无效时清空位置信息；位置会被限制在 [0, duration] 内。
- * 返回是否写入成功。
- */
 export const setMediaSessionPositionState = (
     position: MediaSessionPosition | null,
 ): boolean => {

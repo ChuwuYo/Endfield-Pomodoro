@@ -2,7 +2,6 @@ import type { TranslationKey } from "../../utils/i18n";
 
 export type SnackbarTone = "info" | "success" | "warning" | "error";
 
-/** 条上可选的一枚操作按钮（如「切换至在线」「刷新页面」） */
 export type SnackbarAction = {
     textKey: TranslationKey;
     onClick: () => void;

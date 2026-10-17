@@ -8,12 +8,7 @@ import {
 } from "./musicApiAdapters";
 
 /**
- * 以下载荷复刻两个上游真实响应的结构（2026-08 实测）：
- * 两者都不返回 id/song_id，歌曲 id 只存在于 url 的查询参数中。
- *
- * i-meto 会在 id 之后再附加一个签名参数，这个「id 不在末尾」的形状正是夹具要保住的
- * 属性——它能挡住用贪婪正则截取 id 的错误实现。签名值本身不参与断言，
- * 故用占位符代替真实签名（真实签名有时效，写死进仓库既无意义也会触发密钥扫描）。
+ * 复刻上游真实响应：id 只在 url 查询参数里，i-meto 还在 id 之后附加签名参数（用占位符代替）。
  */
 const injahowPlaylistItem = {
     name: "ヨヅリナ - STUDY WITH MIKU ver. -",

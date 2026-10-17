@@ -10,7 +10,6 @@ import { Button } from "./ui";
 
 const MANUAL_UPDATE_SNACKBAR_ID = "pwa-manual-update-check";
 
-/** 各状态下按钮的文案与图标 */
 const STATUS_VIEW: Record<
     ManualUpdateCheckStatus,
     { labelKey: TranslationKey; icon: string }
@@ -26,7 +25,6 @@ const STATUS_VIEW: Record<
     error: { labelKey: "UPDATE_CHECK_FAILED", icon: "ri-error-warning-line" },
 };
 
-/** 各检查结果对应的 Snackbar 文案与色调 */
 const RESULT_SNACKBAR: Record<
     ManualUpdateCheckResult,
     { messageKey: TranslationKey; tone: SnackbarTone }
@@ -41,7 +39,6 @@ type SettingsUpdateSectionProps = {
     t: ReturnType<typeof useTranslation>;
 };
 
-/** 设置页「系统更新」分区：手动检查新版本；没有 SW 注册时不渲染 */
 export const SettingsUpdateSection: React.FC<SettingsUpdateSectionProps> = ({
     t,
 }) => {

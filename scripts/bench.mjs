@@ -569,7 +569,6 @@ if (cjkCssChunks > 0 && cjkCssLate > 0) {
 
 if (SAVE) {
     await mkdir(join(ROOT, "bench"), { recursive: true });
-    // 只更新 baseline 里已有的键，棘轮集合才不会自己膨胀
     const previous = existsSync(BASELINE)
         ? JSON.parse(await readFile(BASELINE, "utf8"))
         : numbers;

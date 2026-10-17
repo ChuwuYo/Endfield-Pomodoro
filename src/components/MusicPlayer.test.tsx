@@ -79,7 +79,6 @@ beforeEach(() => {
 
 describe("MusicPlayer adapter downgrade path", () => {
     it("switches adapters even when tracks carry no usable id", async () => {
-        // 无可用 id 时单曲回退无从下手，失败仍计入
         mocks.audioList = [
             {
                 id: "",
@@ -142,13 +141,10 @@ describe("MusicPlayer adapter downgrade path", () => {
 
         renderPlayer();
 
-        // 偶发的单曲失败：某首歌下架、某个链接坏掉
         await mocks.capturedTrackFix?.(0, "https://example.test/opaque.mp3");
 
-        // 之后有曲目正常播放，说明数据源本身是好的
         mocks.capturedTrackPlayable?.();
 
-        // 很久以后又有一首歌坏了——这不该被算作「连续」失败而整单换源
         await mocks.capturedTrackFix?.(0, "https://example.test/opaque.mp3");
 
         expect(mocks.retryWithNextAdapter).not.toHaveBeenCalled();
@@ -170,8 +166,6 @@ describe("MusicPlayer adapter downgrade path", () => {
         const { rerender } = renderPlayer();
         expect(mocks.capturedEnabled).toBe(true);
 
-        // 切换适配器会重新拉取歌单，界面切到 CONNECTING；
-        // 播放器必须同时停下，否则会「显示正在连接却仍在放旧数据源」
         mocks.loading = true;
         rerender(
             <MusicPlayer

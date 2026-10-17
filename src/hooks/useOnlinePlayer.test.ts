@@ -48,7 +48,6 @@ describe("useOnlinePlayer playlist shrink", () => {
 
         rerender({ playlist: makePlaylist(10, "short") });
 
-        // 收敛到最近合法位置
         expect(result.current.currentIndex).toBe(9);
         expect(result.current.currentSong?.name).toBe("short track 9");
     });
