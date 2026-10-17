@@ -13,7 +13,6 @@ interface TaskManagerProps {
 const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
     const t = useTranslation(language);
 
-    // 在挂载时从LocalStorage加载 - 直接初始化状态
     const [tasks, setTasks] = useState<Task[]>(() => {
         let saved: string | null = null;
         try {
@@ -44,7 +43,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
 
     const [inputValue, setInputValue] = useState("");
 
-    // 更新时保存到LocalStorage
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
@@ -88,7 +86,6 @@ const TaskManager: React.FC<TaskManagerProps> = ({ language }) => {
     return (
         <Panel className="h-full min-h-[16rem] p-6" title={t("TASK_MODULE")}>
             <div className="flex flex-col h-full w-full relative">
-                {/* Header Info with Counter */}
                 <div className="absolute -top-2 right-0 text-ui-micro font-ui-mono tracking-ui-widest text-theme-dim">
                     {t("CAPACITY")}:{" "}
                     <span
