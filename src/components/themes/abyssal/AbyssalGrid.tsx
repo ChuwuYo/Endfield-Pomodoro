@@ -1,6 +1,3 @@
-/** Abyssal 背景：深海雾（雾团/雨幕/凝水/星尘 + 左缘竖排字）。 */
-
-// 雨幕：28 道雨丝（长度参差，负延迟首屏分散）
 const RAINDROPS = [
     { left: 2, delay: -4, duration: 22, length: 42, opacity: 0.3 },
     { left: 5, delay: -17, duration: 27, length: 24, opacity: 0.2 },
@@ -37,7 +34,6 @@ const RAINDROPS = [
     { left: 98, delay: -7, duration: 22, length: 30, opacity: 0.18 },
 ];
 
-// 玻璃上的凝水（近景，静止，略亮）
 const CONDENSATION = [
     { left: 8, top: 80, size: 6, opacity: 0.5 },
     { left: 20, top: 15, size: 4, opacity: 0.4 },
@@ -47,7 +43,6 @@ const CONDENSATION = [
     { left: 93, top: 70, size: 4, opacity: 0.38 },
 ];
 
-// 浮尘 6 粒
 const MOTES = [
     { left: 18, top: 30, delay: -6, duration: 34, size: 5 },
     { left: 64, top: 22, delay: -18, duration: 42, size: 4 },
@@ -57,7 +52,6 @@ const MOTES = [
     { left: 72, top: 78, delay: -9, duration: 32, size: 5 },
 ];
 
-// 星野：18 点静星（上半区，透明度参差）
 const STARS = [
     { left: 4, top: 10, size: 1, opacity: 0.4 },
     { left: 9, top: 22, size: 1, opacity: 0.25 },
@@ -81,7 +75,6 @@ const STARS = [
 
 export const AbyssalGrid = () => (
     <>
-        {/* 星野 */}
         {STARS.map((star, i) => (
             <div
                 key={i}
@@ -97,7 +90,6 @@ export const AbyssalGrid = () => (
                 aria-hidden="true"
             ></div>
         ))}
-        {/* 深度渐变：亮顶 → 深底，给全屏一个亮度跨度*/}
         <div
             className="absolute inset-0"
             style={{
@@ -105,7 +97,6 @@ export const AbyssalGrid = () => (
                     "linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 22%, #1b3550) 0%, #0d1e30 30%, var(--color-base) 58%, rgb(0 0 0 / 0.55) 100%)",
             }}
         ></div>
-        {/* 雾团 ×3（页边空白处） */}
         <div
             className="ef-abyssal-drift absolute"
             style={{
@@ -144,8 +135,6 @@ export const AbyssalGrid = () => (
                 animationDelay: "-37s",
             }}
         ></div>
-        {/* 逆光带：横向压扁的椭圆压在雾团之上，模拟光从水面下来。
-            叠在雾团前 → 雾的暗部被点亮、亮部溢出，才有 IB 那张照片的通透。 */}
         <div
             className="absolute inset-0"
             style={{
@@ -154,7 +143,6 @@ export const AbyssalGrid = () => (
             }}
             aria-hidden="true"
         ></div>
-        {/* 雨幕 */}
         {RAINDROPS.map((drop, i) => (
             <div
                 key={i}
@@ -172,7 +160,6 @@ export const AbyssalGrid = () => (
                 aria-hidden="true"
             ></div>
         ))}
-        {/* 凝水 */}
         {CONDENSATION.map((drop, i) => (
             <div
                 key={i}
@@ -189,7 +176,6 @@ export const AbyssalGrid = () => (
                 aria-hidden="true"
             ></div>
         ))}
-        {/* 浮尘 */}
         {MOTES.map((mote, i) => (
             <div
                 key={i}
@@ -207,7 +193,6 @@ export const AbyssalGrid = () => (
                 aria-hidden="true"
             ></div>
         ))}
-        {/* 左缘竖排字 */}
         <div
             className="absolute left-4 top-1/3 hidden md:block select-none font-ui-sans font-medium text-ui-sm text-theme-text/50"
             style={{
@@ -219,7 +204,6 @@ export const AbyssalGrid = () => (
         >
             ABYSSAL
         </div>
-        {/* 底部居中 slogan */}
         <div className="absolute bottom-16 left-1/4 right-1/4 hidden md:flex items-center gap-4 select-none">
             <div className="flex-1 h-px bg-theme-dim/25"></div>
             <div className="font-ui-sans text-ui-3xs tracking-ui-signal text-theme-dim/70 whitespace-nowrap">
@@ -227,7 +211,6 @@ export const AbyssalGrid = () => (
             </div>
             <div className="flex-1 h-px bg-theme-dim/25"></div>
         </div>
-        {/* 四角收暗：中心留给内容，压到近黑拉开与亮带的跨度 */}
         <div
             className="absolute inset-0"
             style={{
