@@ -35,8 +35,6 @@ const isOffline = (): boolean =>
 /**
  * 后台静默检查一次 SW 更新：正在安装或离线时跳过，失败只记录警告。
  *
- * registration.update() 在离线或服务器不可用时会 reject，未捕获会变成 unhandledrejection。
- *
  * @see https://vite-pwa-org.netlify.app/guide/periodic-sw-updates.html#handling-edge-cases
  */
 export const updatePwaQuietly = (
@@ -91,4 +89,39 @@ export const checkForPwaUpdate = async (
     return updateFound || registration.installing || registration.waiting
         ? "found"
         : "latest";
+};
+
+/** 按需字体资源：CJK 字族 CSS 与 woff2 分片（与 vite.config.ts 中的运行时缓存规则一致） */
+export const isOnDemandFontAsset = (url: URL): boolean =>
+    url.pathname.startsWith("/assets/") &&
+    (/\/(400|700)-[\w-]+\.css$/.test(url.pathname) ||
+        /\.woff2$/.test(url.pathname));
+
+/**
+ * 首次安装时页面尚未受 SW 控制：SW 接管后重新请求一次已加载的按需字体资源，
+ * 使其经过 SW 写入运行时缓存。页面已受控时不做任何事。
+ */
+export const warmOnDemandFontCacheOnFirstControl = (): void => {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
+        return;
+    const container = navigator.serviceWorker;
+    if (container.controller) return;
+    const handleControllerChange = () => {
+        container.removeEventListener(
+            "controllerchange",
+            handleControllerChange,
+        );
+        const urls = performance
+            .getEntriesByType("resource")
+            .map((entry) => new URL(entry.name, window.location.href))
+            .filter(
+                (url) =>
+                    url.origin === window.location.origin &&
+                    isOnDemandFontAsset(url),
+            );
+        for (const url of urls) {
+            fetch(url).catch(() => undefined);
+        }
+    };
+    container.addEventListener("controllerchange", handleControllerChange);
 };
