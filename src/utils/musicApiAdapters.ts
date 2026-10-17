@@ -67,13 +67,10 @@ const trackIdFromUrl = (url: unknown): string => {
 };
 
 /**
- * 将上游返回的 http 地址改写为 https。
- *
- * 部分 Meting 实例会返回 `http://` 开头的歌曲、封面与歌词地址；页面在 https 下加载这些地址属于混合内容。
- * 规则与 W3C Mixed Content 的自动升级一致：仅改写 http 协议，IP 地址与 localhost 保持原样。
+ * 将单个 http 地址改写为 https；IP 地址、localhost 与非地址文本（如内联歌词）保持原样。
  */
 export const upgradeToHttps = (url: string): string => {
-    if (!/^http:\/\//i.test(url)) return url;
+    if (!/^http:\/\/\S+$/i.test(url)) return url;
     try {
         const parsed = new URL(url);
         const host = parsed.hostname;
