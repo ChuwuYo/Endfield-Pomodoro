@@ -22,7 +22,6 @@ interface PomodoroProps {
     settings: Settings;
     sessionCount: number;
     onSessionsUpdate: (count: number) => void;
-    // 将 isActive 明确传递给父组件，方便父组件区分「有剩余但已暂停」与「正在运行」
     onTick?: (timeLeft: number, mode: TimerMode, isActive: boolean) => void;
 }
 
@@ -51,7 +50,6 @@ const durationSecondsForMode = (
     }
 };
 
-// 读取持久化的计时器状态；仅在组件首次渲染的 state 惰性初始化中调用一次
 const readRestoredTimer = (): RestoredTimer | null => {
     try {
         const raw = sessionStorage.getItem(STORAGE_KEYS.TIMER);
@@ -84,10 +82,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         onTickRef.current = onTick;
     }, [onTick]);
 
-    // 惰性读取一次持久化状态（替代挂载 effect 中的同步 setState）
     const [restored] = useState(readRestoredTimer);
 
-    // 本地状态：模式、剩余时间、是否激活（优先采用恢复值）
     const [mode, setMode] = useState<TimerMode>(
         restored?.mode ?? TimerMode.WORK,
     );
@@ -105,7 +101,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
 
     const getTotalTime = () => durationSecondsForMode(mode, settings);
 
-    /** 显式应用某模式的时长（完成流转 / 手动重置） */
     const applyTimerForMode = (nextMode: TimerMode, autoStart: boolean) => {
         const newTime = durationSecondsForMode(nextMode, settingsRef.current);
         setTimeLeft(newTime);
@@ -114,7 +109,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         onTickRef.current?.(newTime, nextMode, autoStart);
     };
 
-    // 挂载时将初始状态同步给父组件（仅一次；故意不含 deps）
     useEffect(() => {
         onTickRef.current?.(timeLeft, mode, isActive);
         // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only parent sync
@@ -182,7 +176,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         applyTimerForMode(mode, false);
     };
 
-    // 计时器状态持久化到 sessionStorage（跟计时状态走）
     useEffect(() => {
         try {
             const payload: TimerPayload = { mode, timeLeft, isActive };
@@ -205,7 +198,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         }
     }, [mode, timeLeft, isActive]);
 
-    // 设置页改了时长：按当前模式重算剩余（签名未变跳过）
     const lastDurationKeyRef = useRef(
         `${settings.workDuration}|${settings.shortBreakDuration}|${settings.longBreakDuration}`,
     );
@@ -228,7 +220,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         settings.longBreakDuration,
     ]);
 
-    // 运行中的结束时刻锚点；暂停/归零时清空
     const endAtRef = useRef<number | null>(null);
     useEffect(() => {
         if (!isActive || timeLeft <= 0) {
@@ -268,7 +259,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
         if (!isActive) playSound("start");
         const next = !isActive;
         setIsActive(next);
-        // 主动通知父组件当前剩余时间、模式与运行状态，确保在暂停/恢复时父组件（footer/title）立即同步状态
         onTickRef.current?.(timeLeft, mode, next);
     };
 
@@ -308,7 +298,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
             title={t("CHRONO_MODULE")}
         >
             <div className="flex flex-col h-full w-full items-center gap-6 relative">
-                {/* 顶部信息 */}
                 <div className="w-full flex justify-between items-start border-b border-theme-highlight/30 pb-4 shrink-0">
                     <div className="flex flex-col">
                         <span className="text-ui-micro text-theme-dim tracking-ui-widest uppercase mb-1">
@@ -340,10 +329,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                     </div>
                 </div>
 
-                {/* 计时器显示 */}
                 <div className="flex-1 w-full flex items-center justify-center relative py-8 md:py-10 min-h-[22rem] md:min-h-[27rem]">
                     <div className="relative w-[var(--size-timer-ring)] h-[var(--size-timer-ring)] md:w-[var(--size-timer-ring-md)] md:h-[var(--size-timer-ring-md)] flex items-center justify-center shrink-0 group max-w-full max-h-full">
-                        {/* 脉冲背景环（呼吸效果） */}
                         {isActive && (
                             <div className="absolute inset-0 rounded-full border-2 border-theme-primary/30 animate-ping-slow"></div>
                         )}
@@ -370,7 +357,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                     />
                                 </linearGradient>
                             </defs>
-                            {/* 轨道 */}
                             <circle
                                 className="text-theme-highlight/20"
                                 strokeWidth="2"
@@ -380,7 +366,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                 cx="128"
                                 cy="128"
                             />
-                            {/* 进度 */}
                             <circle
                                 className={`${mode === TimerMode.WORK ? "text-theme-primary" : "text-theme-accent"}`}
                                 strokeWidth="4"
@@ -389,7 +374,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                                     2 * Math.PI * 120 * (1 - progress / 100)
                                 }
                                 strokeLinecap="round"
-                                stroke="currentColor" // Uses text color which we override via class if needed, or stick to solid
+                                stroke="currentColor"
                                 fill="transparent"
                                 r="120"
                                 cx="128"
@@ -411,7 +396,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             />
                         </svg>
 
-                        {/* 内部装饰元素 */}
                         <div
                             className={`absolute inset-8 border border-theme-highlight/20 rounded-full opacity-50 border-dashed ${isActive ? "animate-spin-slow" : ""}`}
                         ></div>
@@ -420,7 +404,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                             <div className="w-[90%] h-[1px] bg-theme-highlight/10 absolute -rotate-45"></div>
                         </div>
 
-                        {/* 倒计时文本：可查询，无 aria-live */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 select-none">
                             <span
                                 className={`text-ui-display md:text-ui-display-xl font-ui-mono font-bold text-theme-text drop-shadow-2xl tabular-nums transition-transform will-change-transform`}
@@ -453,7 +436,6 @@ const Pomodoro: React.FC<PomodoroProps> = ({
                     </div>
                 </div>
 
-                {/* 控制 */}
                 <div className="w-full grid grid-cols-4 gap-4 shrink-0">
                     <div
                         className={`col-span-2 h-[var(--size-control-lg)] relative ${!isActive ? "group" : ""}`}
