@@ -93,10 +93,7 @@ export const setMediaSessionActionHandler = (
 };
 
 /**
- * 封面地址是否可直接交给系统媒体控件。
- *
- * 系统媒体控件拉取封面的请求不一定经过页面的混合内容自动升级，
- * 因此只接受 https、blob、data 与同源地址，其余情况改用应用图标。
+ * 封面地址是否可直接交给系统媒体控件：接受 https、blob、data 与同源地址。
  */
 const isSecureArtworkSrc = (src: string): boolean => {
     try {
