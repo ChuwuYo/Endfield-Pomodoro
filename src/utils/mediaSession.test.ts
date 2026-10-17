@@ -17,4 +17,14 @@ describe("buildMediaSessionArtwork", () => {
         );
         expect(artwork[0]?.type).toBe("image/png");
     });
+
+    it("keeps blob, data and same-origin covers", () => {
+        for (const src of [
+            "blob:http://localhost:3000/abc",
+            "data:image/png;base64,AAAA",
+            `${window.location.origin}/cover.png`,
+        ]) {
+            expect(buildMediaSessionArtwork(src)[0]?.src).toBe(src);
+        }
+    });
 });
