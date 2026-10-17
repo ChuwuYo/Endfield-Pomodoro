@@ -24,8 +24,6 @@ const AudioPlayer: React.FC<{
     const fileInputRef = useRef<HTMLInputElement>(null);
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
 
-    // 音频源模式：'local' 本地文件 | 'online' 在线音乐
-    // 优先从 localStorage 读取，如果没有则默认为 'online'
     const [audioSource, setAudioSource] = useState<"local" | "online">(() => {
         try {
             const saved = localStorage.getItem(STORAGE_KEYS.AUDIO_SOURCE);
@@ -36,7 +34,6 @@ const AudioPlayer: React.FC<{
         }
     });
 
-    // 使用本地播放器 hook
     const localPlayer = useLocalPlayer(audioSource === "local");
 
     const localTrack = localPlayer.currentTrack;
@@ -61,15 +58,12 @@ const AudioPlayer: React.FC<{
         },
     });
 
-    // 在线播放器是否正在播放
     const [isOnlinePlaying, setIsOnlinePlaying] = useState(false);
 
-    // 切换音频源或播放列表变化时清理 itemRefs
     useEffect(() => {
         itemRefs.current.clear();
     }, [audioSource, localPlayer.playlist]);
 
-    // 持久化音频源选择
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEYS.AUDIO_SOURCE, audioSource);
@@ -81,7 +75,6 @@ const AudioPlayer: React.FC<{
     // 初始值为 true，使首次渲染即离线时按在线→离线处理
     const prevOnlineRef = useRef(true);
 
-    // 在线→离线时自动切换到本地模式（在线音乐仍在播放时保持不变）；离线→在线且仍在本地时提示可切回在线
     useEffect(() => {
         if (
             !isOnline &&
@@ -114,7 +107,6 @@ const AudioPlayer: React.FC<{
     const closePlaylist = useCallback(() => setShowPlaylist(false), []);
     useModalA11y(showPlaylist, closePlaylist, playlistModalRef);
 
-    // 当播放列表打开或当前索引变化时，滚动到当前项
     useEffect(() => {
         if (showPlaylist && localPlayer.currentIndex >= 0) {
             const rafId = requestAnimationFrame(() => {
@@ -130,7 +122,6 @@ const AudioPlayer: React.FC<{
         }
     }, [showPlaylist, localPlayer.currentIndex]);
 
-    // 处理文件选择
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             localPlayer.addFiles(Array.from(e.target.files));
@@ -173,8 +164,6 @@ const AudioPlayer: React.FC<{
         >
             {audioSource === "online" ? (
                 <MusicPlayer
-                    // 换歌单即换播放上下文：用 key 重建播放器，
-                    // 让播放位置/进度/播放状态一并重置（React 官方推荐的状态重置方式）
                     key={musicSourceKey(musicConfig)}
                     config={musicConfig}
                     language={language}
@@ -216,7 +205,6 @@ const AudioPlayer: React.FC<{
                         onPlaylistToggle={() => setShowPlaylist(true)}
                     />
 
-                    {/* 播放列表弹出模态框 */}
                     {showPlaylist &&
                         createPortal(
                             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
