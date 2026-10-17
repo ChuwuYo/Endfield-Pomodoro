@@ -2,13 +2,11 @@ import { Language } from "../types";
 
 export const translations = {
     [Language.EN]: {
-        // App
         APP_TITLE: "Endfield Pomodoro",
         DASHBOARD: "DASHBOARD",
         SYSTEM_CONFIG: "SYSTEM CONFIG",
         SYSTEM_TIME: "SYS.TIME",
 
-        // Settings
         WORK_DURATION: "WORK CYCLE (MIN)",
         SHORT_BREAK_DURATION: "MAINTENANCE (S)",
         LONG_BREAK_DURATION: "REBOOT (L)",
@@ -61,7 +59,6 @@ export const translations = {
         PLAYLIST_UNAVAILABLE: "PLAYLIST UNAVAILABLE",
         PLAYLIST_TITLE: "PLAYLIST",
 
-        // Themes
         THEME_ORIGIN: "01: ENDFIELD PROTOCOL",
         THEME_ABYSSAL: "02: ABYSSAL ECHO",
         THEME_NEON: "03: NEON CITY",
@@ -74,7 +71,6 @@ export const translations = {
         THEME_MODE_LIGHT: "LIGHT",
         THEME_MODE_DARK: "DARK",
 
-        // Pomodoro
         CHRONO_MODULE: "CHRONO MODULE",
         STATUS: "STATUS",
         TIME_REMAINING: "T-MINUS",
@@ -84,7 +80,6 @@ export const translations = {
         MODE_WORK: "OPERATIONAL",
         MODE_SHORT: "COOLDOWN",
         MODE_LONG: "HIBERNATION",
-        /** 隐藏标签页标题里短休/长休共用的短标签 */
         MODE_BREAK_SHORT: "Break",
         STANDBY: "STANDBY",
         PAUSED_STATUS: "PAUSED",
@@ -95,7 +90,6 @@ export const translations = {
         NOTIFICATION_PERMISSION_DENIED:
             "Notification permission denied. Please enable it in browser settings.",
 
-        // Task Manager
         TASK_MODULE: "MISSION PROTOCOLS",
         ADD_TASK_PLACEHOLDER: "Input tasks...",
         ADD_TASK: "ADD",
@@ -105,7 +99,6 @@ export const translations = {
         CAPACITY: "CAPACITY",
         CAPACITY_REACHED: "CAPACITY REACHED",
 
-        // Audio Player
         AUDIO_MODULE: "AUDIO FEED",
         SELECT_TRACK: "LOAD FREQUENCY",
         NO_TRACK: "NO SIGNAL",
@@ -130,7 +123,6 @@ export const translations = {
         ONLINE_MODE_AVAILABLE: "Online mode now available",
         SWITCH: "SWITCH",
 
-        // Button Tooltips
         PLAY_PAUSE: "PLAY/PAUSE",
         RESET_TIMER: "RESET TIMER",
         PREVIOUS_TRACK_TOOLTIP: "PREVIOUS TRACK",
@@ -145,19 +137,16 @@ export const translations = {
         VOLUME_SLIDER: "Volume",
         CLOSE_PLAYLIST: "Close playlist",
 
-        // Error Boundary
         ERROR_BOUNDARY_TITLE: "SYSTEM FAULT",
         ERROR_BOUNDARY_MESSAGE:
             "The interface crashed. Reload to restore the session.",
         ERROR_BOUNDARY_RELOAD: "RELOAD",
 
-        // PWA
         pwa_updated:
             "A new version is ready. It refreshes automatically in the background.",
         pwa_offline: "OFFLINE MODE",
         CLOSE: "Close",
 
-        // Footer
         TOTAL_STUDY_TIME: "SESSION OPERATION TIME",
         COPYRIGHT: "© 2026 ALL RIGHTS RESERVED.",
         HOURS: "H",
@@ -165,13 +154,11 @@ export const translations = {
         SECONDS: "S",
     },
     [Language.CN]: {
-        // App
         APP_TITLE: "末端番茄钟",
         DASHBOARD: "总控台",
         SYSTEM_CONFIG: "系统设置",
         SYSTEM_TIME: "系统时间",
 
-        // Settings
         WORK_DURATION: "作业周期 (分)",
         SHORT_BREAK_DURATION: "短程维护 (分)",
         LONG_BREAK_DURATION: "系统重启 (分)",
@@ -222,7 +209,6 @@ export const translations = {
         PLAYLIST_UNAVAILABLE: "歌单无效或为空",
         PLAYLIST_TITLE: "播放列表",
 
-        // Themes
         THEME_ORIGIN: "01: 末端协议",
         THEME_ABYSSAL: "02: 深海回响",
         THEME_NEON: "03: 霓虹都市",
@@ -235,7 +221,6 @@ export const translations = {
         THEME_MODE_LIGHT: "浅色",
         THEME_MODE_DARK: "深色",
 
-        // Pomodoro
         CHRONO_MODULE: "计时模块",
         STATUS: "当前状态",
         TIME_REMAINING: "剩余时间",
@@ -245,7 +230,6 @@ export const translations = {
         MODE_WORK: "作业中",
         MODE_SHORT: "冷却模式",
         MODE_LONG: "深度休眠",
-        /** 隐藏标签页标题里短休/长休共用的短标签 */
         MODE_BREAK_SHORT: "休息",
         STANDBY: "待机中",
         PAUSED_STATUS: "已暂停",
@@ -256,7 +240,6 @@ export const translations = {
         NOTIFICATION_PERMISSION_DENIED:
             "通知权限已被拒绝，请在浏览器设置中手动允许。",
 
-        // Task Manager
         TASK_MODULE: "任务协议",
         ADD_TASK_PLACEHOLDER: "输入任务指令...",
         ADD_TASK: "添加",
@@ -266,7 +249,6 @@ export const translations = {
         CAPACITY: "容量",
         CAPACITY_REACHED: "容量已满",
 
-        // Audio Player
         AUDIO_MODULE: "音频讯号",
         SELECT_TRACK: "加载音频",
         NO_TRACK: "无信号",
@@ -291,7 +273,6 @@ export const translations = {
         ONLINE_MODE_AVAILABLE: "在线模式现已可用",
         SWITCH: "切换",
 
-        // Button Tooltips
         PLAY_PAUSE: "播放/暂停",
         RESET_TIMER: "重置计时器",
         PREVIOUS_TRACK_TOOLTIP: "上一曲目",
@@ -306,17 +287,14 @@ export const translations = {
         VOLUME_SLIDER: "音量",
         CLOSE_PLAYLIST: "关闭播放列表",
 
-        // Error Boundary
         ERROR_BOUNDARY_TITLE: "系统异常",
         ERROR_BOUNDARY_MESSAGE: "界面发生错误。刷新页面可恢复会话。",
         ERROR_BOUNDARY_RELOAD: "刷新页面",
 
-        // PWA
         pwa_updated: "新版本已就绪，将在后台自动刷新。",
         pwa_offline: "离线模式",
         CLOSE: "关闭",
 
-        // Footer
         TOTAL_STUDY_TIME: "本次累计作业时长",
         COPYRIGHT: "© 2026 版权所有.",
         HOURS: "小时",
@@ -324,13 +302,11 @@ export const translations = {
         SECONDS: "秒",
     },
     [Language.TW]: {
-        // App
         APP_TITLE: "末端番茄鐘",
         DASHBOARD: "總控台",
         SYSTEM_CONFIG: "系統設定",
         SYSTEM_TIME: "系統時間",
 
-        // Settings
         WORK_DURATION: "作業週期 (分)",
         SHORT_BREAK_DURATION: "短程維護 (分)",
         LONG_BREAK_DURATION: "系統重啟 (分)",
@@ -381,7 +357,6 @@ export const translations = {
         PLAYLIST_UNAVAILABLE: "歌單無效或為空",
         PLAYLIST_TITLE: "播放清單",
 
-        // Themes
         THEME_ORIGIN: "01: 末端協議",
         THEME_ABYSSAL: "02: 深海回響",
         THEME_NEON: "03: 霓虹都市",
@@ -394,7 +369,6 @@ export const translations = {
         THEME_MODE_LIGHT: "淺色",
         THEME_MODE_DARK: "深色",
 
-        // Pomodoro
         CHRONO_MODULE: "計時模組",
         STATUS: "目前狀態",
         TIME_REMAINING: "剩餘時間",
@@ -404,7 +378,6 @@ export const translations = {
         MODE_WORK: "作業中",
         MODE_SHORT: "冷卻模式",
         MODE_LONG: "深度休眠",
-        /** 隱藏標籤頁標題裡短休/長休共用的短標籤 */
         MODE_BREAK_SHORT: "休息",
         STANDBY: "待命中",
         PAUSED_STATUS: "已暫停",
@@ -415,7 +388,6 @@ export const translations = {
         NOTIFICATION_PERMISSION_DENIED:
             "通知權限已被拒絕，請在瀏覽器設定中手動允許。",
 
-        // Task Manager
         TASK_MODULE: "任務協議",
         ADD_TASK_PLACEHOLDER: "輸入任務指令...",
         ADD_TASK: "新增",
@@ -425,7 +397,6 @@ export const translations = {
         CAPACITY: "容量",
         CAPACITY_REACHED: "容量已滿",
 
-        // Audio Player
         AUDIO_MODULE: "音訊訊號",
         SELECT_TRACK: "載入音訊",
         NO_TRACK: "無訊號",
@@ -450,7 +421,6 @@ export const translations = {
         ONLINE_MODE_AVAILABLE: "線上模式現已可用",
         SWITCH: "切換",
 
-        // Button Tooltips
         PLAY_PAUSE: "播放/暫停",
         RESET_TIMER: "重設計時器",
         PREVIOUS_TRACK_TOOLTIP: "上一曲目",
@@ -465,17 +435,14 @@ export const translations = {
         VOLUME_SLIDER: "音量",
         CLOSE_PLAYLIST: "關閉播放清單",
 
-        // Error Boundary
         ERROR_BOUNDARY_TITLE: "系統異常",
         ERROR_BOUNDARY_MESSAGE: "介面發生錯誤。重新整理頁面可恢復工作階段。",
         ERROR_BOUNDARY_RELOAD: "重新整理",
 
-        // PWA
         pwa_updated: "新版本已就緒，將在背景自動重新整理。",
         pwa_offline: "離線模式",
         CLOSE: "關閉",
 
-        // Footer
         TOTAL_STUDY_TIME: "本次累計作業時長",
         COPYRIGHT: "© 2026 版權所有.",
         HOURS: "小時",
@@ -483,13 +450,11 @@ export const translations = {
         SECONDS: "秒",
     },
     [Language.JA]: {
-        // App
         APP_TITLE: "エンドフィールド ポモドーロ",
         DASHBOARD: "ダッシュボード",
         SYSTEM_CONFIG: "システム設定",
         SYSTEM_TIME: "システム時間",
 
-        // Settings
         WORK_DURATION: "作業サイクル (分)",
         SHORT_BREAK_DURATION: "短い休憩 (分)",
         LONG_BREAK_DURATION: "長い休憩 (分)",
@@ -543,7 +508,6 @@ export const translations = {
         PLAYLIST_UNAVAILABLE: "プレイリストが無効か空です",
         PLAYLIST_TITLE: "プレイリスト",
 
-        // Themes
         THEME_ORIGIN: "01: エンドフィールド・プロトコル",
         THEME_ABYSSAL: "02: 深海の残響",
         THEME_NEON: "03: ネオンシティ",
@@ -556,7 +520,6 @@ export const translations = {
         THEME_MODE_LIGHT: "ライト",
         THEME_MODE_DARK: "ダーク",
 
-        // Pomodoro
         CHRONO_MODULE: "クロノモジュール",
         STATUS: "状態",
         TIME_REMAINING: "残り時間",
@@ -566,7 +529,6 @@ export const translations = {
         MODE_WORK: "作業中",
         MODE_SHORT: "休憩中",
         MODE_LONG: "長時間休憩",
-        /** タブタイトルで短休/長休が共有する短いラベル */
         MODE_BREAK_SHORT: "休憩",
         STANDBY: "待機中",
         PAUSED_STATUS: "一時停止中",
@@ -577,7 +539,6 @@ export const translations = {
         NOTIFICATION_PERMISSION_DENIED:
             "通知の許可が拒否されました。ブラウザ設定で許可してください。",
 
-        // Task Manager
         TASK_MODULE: "ミッションプロトコル",
         ADD_TASK_PLACEHOLDER: "タスクを入力...",
         ADD_TASK: "追加",
@@ -587,7 +548,6 @@ export const translations = {
         CAPACITY: "容量",
         CAPACITY_REACHED: "容量が上限に達しました",
 
-        // Audio Player
         AUDIO_MODULE: "オーディオフィード",
         SELECT_TRACK: "曲を読み込む",
         NO_TRACK: "信号なし",
@@ -612,7 +572,6 @@ export const translations = {
         ONLINE_MODE_AVAILABLE: "オンラインモードが利用可能です",
         SWITCH: "切替",
 
-        // Button Tooltips
         PLAY_PAUSE: "再生/一時停止",
         RESET_TIMER: "タイマーをリセット",
         PREVIOUS_TRACK_TOOLTIP: "前の曲",
@@ -627,19 +586,16 @@ export const translations = {
         VOLUME_SLIDER: "音量",
         CLOSE_PLAYLIST: "プレイリストを閉じる",
 
-        // Error Boundary
         ERROR_BOUNDARY_TITLE: "システム障害",
         ERROR_BOUNDARY_MESSAGE:
             "インターフェースがクラッシュしました。再読み込みでセッションを復元します。",
         ERROR_BOUNDARY_RELOAD: "再読み込み",
 
-        // PWA
         pwa_updated:
             "新しいバージョンが利用可能です。バックグラウンドで自動更新されます。",
         pwa_offline: "オフラインモード",
         CLOSE: "閉じる",
 
-        // Footer
         TOTAL_STUDY_TIME: "今回の累計作業時間",
         COPYRIGHT: "© 2026 無断複写・転載を禁じます。",
         HOURS: "時間",
@@ -647,13 +603,11 @@ export const translations = {
         SECONDS: "秒",
     },
     [Language.KO]: {
-        // App
         APP_TITLE: "엔드필드 포모도로",
         DASHBOARD: "대시보드",
         SYSTEM_CONFIG: "시스템 설정",
         SYSTEM_TIME: "시스템 시간",
 
-        // Settings
         WORK_DURATION: "작업 주기 (분)",
         SHORT_BREAK_DURATION: "짧은 휴식 (분)",
         LONG_BREAK_DURATION: "긴 휴식 (분)",
@@ -706,7 +660,6 @@ export const translations = {
         PLAYLIST_UNAVAILABLE: "플레이리스트가 유효하지 않거나 비어 있습니다",
         PLAYLIST_TITLE: "플레이리스트",
 
-        // Themes
         THEME_ORIGIN: "01: 엔드필드 프로토콜",
         THEME_ABYSSAL: "02: 심해의 메아리",
         THEME_NEON: "03: 네온 시티",
@@ -719,7 +672,6 @@ export const translations = {
         THEME_MODE_LIGHT: "라이트",
         THEME_MODE_DARK: "다크",
 
-        // Pomodoro
         CHRONO_MODULE: "크로노 모듈",
         STATUS: "상태",
         TIME_REMAINING: "남은 시간",
@@ -729,7 +681,6 @@ export const translations = {
         MODE_WORK: "작업 중",
         MODE_SHORT: "휴식 중",
         MODE_LONG: "장기 휴면",
-        /** 탭 제목에서 짧은 휴식/긴 휴식이 공유하는 짧은 라벨 */
         MODE_BREAK_SHORT: "휴식",
         STANDBY: "대기 중",
         PAUSED_STATUS: "일시정지됨",
@@ -740,7 +691,6 @@ export const translations = {
         NOTIFICATION_PERMISSION_DENIED:
             "알림 권한이 거부되었습니다. 브라우저 설정에서 허용해 주세요.",
 
-        // Task Manager
         TASK_MODULE: "미션 프로토콜",
         ADD_TASK_PLACEHOLDER: "작업 입력...",
         ADD_TASK: "추가",
@@ -750,7 +700,6 @@ export const translations = {
         CAPACITY: "용량",
         CAPACITY_REACHED: "용량이 가득 찼습니다",
 
-        // Audio Player
         AUDIO_MODULE: "오디오 피드",
         SELECT_TRACK: "곡 불러오기",
         NO_TRACK: "신호 없음",
@@ -775,7 +724,6 @@ export const translations = {
         ONLINE_MODE_AVAILABLE: "온라인 모드를 사용할 수 있습니다",
         SWITCH: "전환",
 
-        // Button Tooltips
         PLAY_PAUSE: "재생/일시정지",
         RESET_TIMER: "타이머 재설정",
         PREVIOUS_TRACK_TOOLTIP: "이전 곡",
@@ -790,19 +738,16 @@ export const translations = {
         VOLUME_SLIDER: "볼륨",
         CLOSE_PLAYLIST: "플레이리스트 닫기",
 
-        // Error Boundary
         ERROR_BOUNDARY_TITLE: "시스템 오류",
         ERROR_BOUNDARY_MESSAGE:
             "인터페이스가 충돌했습니다. 새로고침하면 세션이 복구됩니다.",
         ERROR_BOUNDARY_RELOAD: "새로고침",
 
-        // PWA
         pwa_updated:
             "새 버전이 준비되었습니다. 백그라운드에서 자동으로 새로고침됩니다.",
         pwa_offline: "오프라인 모드",
         CLOSE: "닫기",
 
-        // Footer
         TOTAL_STUDY_TIME: "이번 누적 작업 시간",
         COPYRIGHT: "© 2026 모든 권리 보유.",
         HOURS: "시간",
