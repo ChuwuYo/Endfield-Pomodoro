@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from "react";
 
-/** 单次点击碎片数量 */
 const TAP_SHARDS = 5;
-/** 点击特效持续时长（ms） */
 const TAP_LIFETIME = 600;
 
-/** Azure 前景：点击处生成光环 + 三角碎片爆散（直接操作 DOM，不重渲染）。 */
 export const AzureForeground: React.FC = () => {
     const layerRef = useRef<HTMLDivElement>(null);
 
