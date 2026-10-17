@@ -16,10 +16,13 @@ const STATUS_VIEW: Record<
     { labelKey: TranslationKey; icon: string }
 > = {
     idle: { labelKey: "CHECK_UPDATE", icon: "ri-refresh-line" },
-    checking: { labelKey: "CHECKING_UPDATE", icon: "ri-loader-4-line" },
+    checking: {
+        labelKey: "CHECKING_UPDATE",
+        icon: "ri-loader-4-line animate-spin",
+    },
     latest: { labelKey: "UPDATE_LATEST", icon: "ri-checkbox-circle-line" },
     found: { labelKey: "UPDATE_FOUND", icon: "ri-download-2-line" },
-    offline: { labelKey: "UPDATE_CHECK_FAILED", icon: "ri-wifi-off-line" },
+    offline: { labelKey: "UPDATE_OFFLINE", icon: "ri-wifi-off-line" },
     error: { labelKey: "UPDATE_CHECK_FAILED", icon: "ri-error-warning-line" },
 };
 

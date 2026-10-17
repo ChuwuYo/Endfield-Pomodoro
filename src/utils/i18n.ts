@@ -43,6 +43,7 @@ export const translations = {
         UPDATE_LATEST: "UP TO DATE",
         UPDATE_FOUND: "UPDATE FOUND",
         UPDATE_CHECK_FAILED: "CHECK FAILED",
+        UPDATE_OFFLINE: "OFFLINE",
         UPDATE_LATEST_MESSAGE: "You're on the latest version.",
         UPDATE_FOUND_MESSAGE: "New version found. Downloading...",
         UPDATE_CHECK_FAILED_MESSAGE:
@@ -205,6 +206,7 @@ export const translations = {
         UPDATE_LATEST: "已是最新版本",
         UPDATE_FOUND: "发现新版本",
         UPDATE_CHECK_FAILED: "检查失败",
+        UPDATE_OFFLINE: "离线",
         UPDATE_LATEST_MESSAGE: "当前已是最新版本。",
         UPDATE_FOUND_MESSAGE: "发现新版本，正在下载…",
         UPDATE_CHECK_FAILED_MESSAGE: "检查更新失败，请稍后重试。",
@@ -363,6 +365,7 @@ export const translations = {
         UPDATE_LATEST: "已是最新版本",
         UPDATE_FOUND: "發現新版本",
         UPDATE_CHECK_FAILED: "檢查失敗",
+        UPDATE_OFFLINE: "離線",
         UPDATE_LATEST_MESSAGE: "目前已是最新版本。",
         UPDATE_FOUND_MESSAGE: "發現新版本，正在下載…",
         UPDATE_CHECK_FAILED_MESSAGE: "檢查更新失敗，請稍後再試。",
@@ -521,6 +524,7 @@ export const translations = {
         UPDATE_LATEST: "最新バージョンです",
         UPDATE_FOUND: "新バージョンあり",
         UPDATE_CHECK_FAILED: "確認に失敗",
+        UPDATE_OFFLINE: "オフライン",
         UPDATE_LATEST_MESSAGE: "最新バージョンを使用しています。",
         UPDATE_FOUND_MESSAGE:
             "新しいバージョンが見つかりました。ダウンロード中…",
@@ -684,6 +688,7 @@ export const translations = {
         UPDATE_LATEST: "최신 버전입니다",
         UPDATE_FOUND: "새 버전 발견",
         UPDATE_CHECK_FAILED: "확인 실패",
+        UPDATE_OFFLINE: "오프라인",
         UPDATE_LATEST_MESSAGE: "최신 버전을 사용 중입니다.",
         UPDATE_FOUND_MESSAGE: "새 버전을 찾았습니다. 다운로드 중…",
         UPDATE_CHECK_FAILED_MESSAGE:

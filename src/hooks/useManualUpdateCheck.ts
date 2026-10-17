@@ -44,9 +44,9 @@ export const useManualUpdateCheck = (
         if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
         setStatus("checking");
         const result = await checkForPwaUpdate(registration);
+        onResult?.(result);
         if (!mountedRef.current) return;
         setStatus(result);
-        onResult?.(result);
         resetTimerRef.current = setTimeout(
             () => setStatus("idle"),
             MANUAL_UPDATE_RESULT_RESET_MS,
