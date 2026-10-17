@@ -22,8 +22,6 @@ vi.mock("../utils/musicApiAdapters", async () => {
     >("../utils/musicApiAdapters");
     return {
         ...actual,
-        // 保持真实的「主源 + 备源」两级结构，只替换请求地址；
-        // 解析仍走真实适配器，使错误分类测试覆盖 adapter → hook 的真实链路
         getAdapters: () => [
             {
                 buildUrl: () => "https://example.test/primary",
@@ -111,7 +109,6 @@ describe("useMusicData", () => {
     it("stays conservative when one source fails and another reports an empty playlist", async () => {
         vi.useFakeTimers();
 
-        // 第一次请求网络失败，第二次上游称歌单为空
         let call = 0;
         vi.stubGlobal(
             "fetch",
@@ -134,8 +131,6 @@ describe("useMusicData", () => {
             await vi.advanceTimersByTimeAsync(API_FETCH_DELAY_MS);
         });
 
-        // 无法确定歌单本身有问题时，宁可提示服务故障（让用户重试），
-        // 也不要让用户去修改一个可能正确的歌单 ID
         expect(result.current.error).toBe(MusicDataError.SERVICE_UNAVAILABLE);
     });
 
