@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PlayMode } from "../types";
 import { useShuffle } from "./useShuffle";
 
-/** Flush queueMicrotask used by useShuffle's init effect */
 const flushMicrotasks = async () => {
     await act(async () => {
         await Promise.resolve();
