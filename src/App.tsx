@@ -35,7 +35,6 @@ import { parseStoredSettings } from "./utils/settings";
 import { applyThemeToRoot } from "./utils/themeDom";
 import { runViewTransition } from "./utils/viewTransition";
 
-/** 设置持久化：成功时兑现「应用配置」success；失败时 warning（在 SnackbarProvider 内） */
 function SettingsPersistence({
     settings,
     pendingMusicConfigFeedbackRef,
@@ -88,7 +87,6 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 const App: React.FC = () => {
-    // 从localStorage加载设置
     const [settings, setSettings] = useState<Settings>(() => {
         const notificationPermission =
             "Notification" in window ? Notification.permission : null;
@@ -96,7 +94,6 @@ const App: React.FC = () => {
         try {
             saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         } catch (e) {
-            // 存储不可用（隐私模式、沙箱 iframe、阻止站点数据）时退回默认设置
             console.error("Failed to load settings", e);
         }
         return parseStoredSettings(saved, DEFAULT_SETTINGS, {
@@ -104,7 +101,6 @@ const App: React.FC = () => {
         });
     });
 
-    // 应用前暂存的音乐配置
     const [tempMusicConfig, setTempMusicConfig] = useState(
         settings.musicConfig,
     );
@@ -124,12 +120,10 @@ const App: React.FC = () => {
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-    // Footer ref 和高度 - 用于 footer 元素和 Miku 装饰组件
     const { footerRef, footerHeight } = useFooterHeight();
 
     const t = useTranslation(settings.language);
 
-    // 更新暂存音乐配置
     const handleMusicConfigChange = (
         key: keyof Settings["musicConfig"],
         value: string,
@@ -142,7 +136,6 @@ const App: React.FC = () => {
 
     const pendingMusicConfigFeedbackRef = useRef(false);
 
-    // 应用音乐配置；成功/失败反馈由 SettingsPersistence 在写入后发出
     const applyMusicConfig = () => {
         pendingMusicConfigFeedbackRef.current = true;
         setSettings((prev) => ({
@@ -151,7 +144,6 @@ const App: React.FC = () => {
         }));
     };
 
-    // 更新文档标题：当标签页不可见且计时器在运行时显示实时倒计时，否则显示应用标题
     const appTitle = t("APP_TITLE");
     const appTitleRef = useRef(appTitle);
     useEffect(() => {
@@ -171,20 +163,17 @@ const App: React.FC = () => {
                 h > 0
                     ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
                     : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-            // 休息时也显示模式标签（短休/长休共用 MODE_BREAK_SHORT）
             const modeLabel =
                 remainingMode && remainingMode !== TimerMode.WORK
                     ? ` ${t("MODE_BREAK_SHORT")}`
                     : "";
             nextTitle = `${fmt}${modeLabel} • ${appTitle}`;
         }
-        // 每次只写入一次，且与当前标题相同时跳过
         if (document.title !== nextTitle) {
             document.title = nextTitle;
         }
     }, [isTimerRunning, remainingSeconds, remainingMode, t, appTitle]);
 
-    // 标签页重新可见时恢复应用标题；卸载时恢复应用标题
     useEffect(() => {
         const restoreTitle = () => {
             if (document.title !== appTitleRef.current) {
@@ -206,7 +195,6 @@ const App: React.FC = () => {
         applyThemeToRoot(settings.theme);
     }, [settings.theme]);
 
-    // 切换主题：整页交叉淡入
     const handleThemeChange = (theme: ThemePreset) => {
         if (theme === settings.theme) return;
         runViewTransition(
@@ -215,13 +203,11 @@ const App: React.FC = () => {
         );
     };
 
-    // 切换视图：整页交叉淡入
     const handleViewChange = (view: View) => {
         if (view === currentView) return;
         runViewTransition(() => setCurrentView(view), "view");
     };
 
-    // 其他标签页修改设置时同步到当前页
     useEffect(() => {
         const handleStorage = (e: StorageEvent) => {
             // key 为 null 表示 localStorage.clear()，按默认设置处理
@@ -240,10 +226,8 @@ const App: React.FC = () => {
         return () => window.removeEventListener("storage", handleStorage);
     }, []);
 
-    // 同步 html lang，供屏幕阅读器与浏览器拼写/翻译使用
     useEffect(() => {
         document.documentElement.lang = languageToHtmlLang(settings.language);
-        // CJK 字族 CSS 是按语言动态 import 的，运行中切换语言要补载对应字族
         loadCjkFontCss(settings.language).catch((error: unknown) => {
             console.warn("[Font] CJK font CSS failed to load:", error);
         });
@@ -269,16 +253,13 @@ const App: React.FC = () => {
                 pendingMusicConfigFeedbackRef={pendingMusicConfigFeedbackRef}
             />
             <div className="h-[100dvh] bg-theme-base text-theme-text font-ui-sans selection:bg-theme-primary selection:text-theme-base flex flex-col overflow-hidden transition-colors duration-500 relative cursor-default">
-                {/* 背景视觉效果 (Z-0) */}
                 <BackgroundLayer theme={settings.theme} />
 
-                {/* Miku 主题专属装饰元素 (Z-5) - 在背景之上，内容之下 */}
                 <MikuDecorations
                     theme={settings.theme}
                     footerHeight={footerHeight}
                 />
 
-                {/* 前景HUD视觉效果 (Z-50, pointer-events-none) - 视觉覆盖层 */}
                 <ForegroundLayer theme={settings.theme} />
 
                 <HeaderBar
@@ -337,7 +318,6 @@ const App: React.FC = () => {
                     t={t}
                 />
 
-                {/* PWA 更新提示 */}
                 <PWAPrompt />
             </div>
         </SnackbarProvider>
