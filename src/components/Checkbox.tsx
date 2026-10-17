@@ -22,7 +22,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         ${className}
       `}
         >
-            {/* 隐藏的原生 checkbox */}
             <input
                 type="checkbox"
                 checked={checked}
@@ -30,7 +29,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
                 className="sr-only"
             />
 
-            {/* 自定义勾选框 */}
             <div
                 className={`
           relative w-4 h-4 flex items-center justify-center 
@@ -42,7 +40,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
           }
         `}
             >
-                {/* 勾选图标 */}
                 <i
                     className="ri-check-line icon-ui-xs font-bold text-theme-base transition-all duration-150"
                     style={{
@@ -51,13 +48,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({
                     }}
                 />
 
-                {/* 选中时的外发光 */}
                 {checked && (
                     <div className="absolute inset-0 bg-theme-primary/30 blur-sm -z-10" />
                 )}
             </div>
 
-            {/* 标签文字 */}
             <span
                 className={`
           text-ui-xs font-ui-mono uppercase tracking-ui-wider truncate flex-1
@@ -72,7 +67,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
                 {label}
             </span>
 
-            {/* 右侧状态指示 */}
             <div
                 className={`
           w-1.5 h-1.5 transition-all duration-150
