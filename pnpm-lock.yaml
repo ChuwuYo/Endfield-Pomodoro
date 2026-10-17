@@ -53,7 +53,7 @@ importers:
         version: 5.3.0
       '@fontsource/noto-sans-tc':
         specifier: ^5.3.0
-        version: 5.3.0
+        version: 5.3.1
       '@fontsource/rajdhani':
         specifier: ^5.3.0
         version: 5.3.0
@@ -878,8 +878,8 @@ packages:
   '@fontsource/noto-sans-sc@5.3.0':
     resolution: {integrity: sha512-HeqIlGm0+ohOKxZLuHj1qW6r6avHH0OWdKERAcSDI0RQ+MXrteuLKA+M+5eOA8rYy0MFvOR5AT0fQo2rUkye0Q==}
 
-  '@fontsource/noto-sans-tc@5.3.0':
-    resolution: {integrity: sha512-+0MguVH2vIxkVJLiaMHVKHk+yJZmZvMU9d8z88JdUx8C2CgMLOtm7WNloi3HYlvCNy7TpuvjIUvh5iiGp6INxQ==}
+  '@fontsource/noto-sans-tc@5.3.1':
+    resolution: {integrity: sha512-kiOTKRnkEV4dsMqfmIuH3TnkYp5Rqq2f4LgAArx0Y5eVzCebU2TgWup5TWCWWSk28nBf4mgunLTyQP+xQ74gcQ==}
 
   '@fontsource/rajdhani@5.3.0':
     resolution: {integrity: sha512-oBJgSIibWJvVBKseme1JczqPLoDHN97LHti4uh0LjfcJqQoVmnQQlRKIpEjTJV559rmVQ6qbVZZwKwk2wkBTtw==}
@@ -4042,7 +4042,7 @@ snapshots:
 
   '@fontsource/noto-sans-sc@5.3.0': {}
 
-  '@fontsource/noto-sans-tc@5.3.0': {}
+  '@fontsource/noto-sans-tc@5.3.1': {}
 
   '@fontsource/rajdhani@5.3.0': {}
 
