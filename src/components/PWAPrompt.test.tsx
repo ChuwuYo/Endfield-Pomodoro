@@ -32,13 +32,11 @@ vi.mock("./snackbar", () => ({
     useSnackbar: () => ({ show: mocks.show, dismiss: mocks.dismiss }),
 }));
 
-// 只 mock 掉刷新，其余走真实实现
 vi.mock("../utils/pwaUpdate", async (importOriginal) => ({
     ...(await importOriginal<typeof import("../utils/pwaUpdate")>()),
     reloadPage: mocks.reload,
 }));
 
-/** 覆盖 jsdom 的可见性状态，并触发 visibilitychange */
 const setVisibilityState = (state: DocumentVisibilityState) => {
     Object.defineProperty(document, "visibilityState", {
         configurable: true,
@@ -47,7 +45,6 @@ const setVisibilityState = (state: DocumentVisibilityState) => {
     document.dispatchEvent(new Event("visibilitychange"));
 };
 
-/** 模拟 workbox-window 的 activated(isUpdate) */
 const fireNeedReload = () => {
     act(() => {
         mocks.options?.onNeedReload?.();
