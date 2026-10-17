@@ -1,6 +1,3 @@
-/** INDUSTRIAL 私有样式：面板底边条纹 + 深色标题签 + 哑角框 + 主按钮纹理。 */
-
-/* 面板底边 4px 条纹 */
 html[data-theme="INDUSTRIAL"] .ef-panel::after {
     content: "";
     position: absolute;
@@ -17,7 +14,6 @@ html[data-theme="INDUSTRIAL"] .ef-panel::after {
     pointer-events: none;
 }
 
-/* 标题签：深底浅字 */
 html[data-theme="INDUSTRIAL"] .ef-panel__title {
     background: var(--color-accent);
     color: var(--color-base);
@@ -48,12 +44,10 @@ html[data-theme="INDUSTRIAL"] .ef-panel__title::before {
     opacity: 0.8;
 }
 
-/* 角框改走 dim */
 html[data-theme="INDUSTRIAL"] .ef-panel__corner {
     border-color: color-mix(in srgb, var(--color-dim) 65%, transparent);
 }
 
-/* 主按钮斜纹质感 */
 html[data-theme="INDUSTRIAL"] .ef-btn--primary {
     background-image: repeating-linear-gradient(
         -45deg,
