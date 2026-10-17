@@ -50,7 +50,6 @@ export const ThemePreset = {
 } as const;
 export type ThemePreset = (typeof ThemePreset)[keyof typeof ThemePreset];
 
-/** 主题颜色配置：每个主题预设的 CSS 变量值（10 个 `--color-*` 键必填） */
 export interface ThemeColors {
     "--color-base": string;
     "--color-surface": string;
