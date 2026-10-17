@@ -105,4 +105,22 @@ describe("PWAPrompt update application", () => {
         expect(update).toHaveBeenCalledTimes(1);
         expect(mocks.reload).not.toHaveBeenCalled();
     });
+
+    it("leaves a pending update to the next hide when a dynamic import fails", () => {
+        const update = vi.fn(() => Promise.resolve());
+        render(<PWAPrompt />);
+        setVisibilityState("visible");
+        act(() => {
+            mocks.options?.onRegisteredSW?.("/sw.js", {
+                update,
+            } as unknown as ServiceWorkerRegistration);
+        });
+        update.mockClear();
+        fireNeedReload();
+
+        window.dispatchEvent(new Event("vite:preloadError"));
+
+        expect(update).not.toHaveBeenCalled();
+        expect(mocks.reload).not.toHaveBeenCalled();
+    });
 });
