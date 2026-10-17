@@ -27,7 +27,6 @@ interface MusicPlayerProps {
     config: MusicConfig;
     language: Language;
     enabled?: boolean;
-    /** 播放状态变化时通知调用方 */
     onPlayingChange?: (isPlaying: boolean) => void;
 }
 
@@ -82,15 +81,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         }));
     }, [metingData, urlOverrides]);
 
-    // 有曲目成功播放，说明数据源整体可用：清空计数，
-    // 使阈值只对「连续」失败生效，而不会把相隔很远的偶发失败累加成换源
     const handleTrackPlayable = useCallback(() => {
         errorCountRef.current = 0;
     }, []);
 
-    /** 记录一次单曲回退失败；连续失败足够多次就整单切换数据源 */
     const registerTrackFixFailure = useCallback((): null => {
-        // 离线导致的失败不计数，避免误切换数据源
         if (navigator.onLine === false) return null;
         errorCountRef.current += 1;
 
@@ -117,7 +112,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             const track = metingData[index];
             if (!track) return null;
 
-            // 缺少 id/url 无法单曲回退，仍计入失败次数
             if (!track.id || !track.url) {
                 return registerTrackFixFailure();
             }
@@ -144,8 +138,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         [metingData, fetchTrackUrl, registerTrackFixFailure],
     );
 
-    // 切换适配器会重新拉取歌单，此时界面已切到 CONNECTING；
-    // 切换数据源时一并停掉旧音频
     const player = useOnlinePlayer(
         playlist,
         false,
@@ -200,7 +192,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         popoverRef.current?.classList.remove(PLAYLIST_POSITIONED_CLASS);
     }, []);
 
-    /** 先定位再显示（visibility + is-positioned） */
     const revealPlaylistPlacement = useCallback(() => {
         const popover = popoverRef.current;
         if (!popover) return;
@@ -221,7 +212,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         queueMicrotask(() => {
             const popover = popoverRef.current;
             const active = document.activeElement;
-            // 点外部关：焦点已在其它控件上 → 不抢；body / 面板内关闭 → 归还触发器
             if (!shouldRestoreFocusAfterPopoverClose(popover, active)) {
                 return;
             }
@@ -251,7 +241,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             el.togglePopover();
             return;
         }
-        // 无 Popover：触发按钮点击切换；焦点已在按钮上，无需副作用恢复
         setIsListOpen((open) => !open);
     }, []);
 
@@ -262,7 +251,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         Boolean(player.currentSong),
     );
 
-    // popovertarget / showPopover 的开关同步到 React（含 Esc、点外部）
     useEffect(() => {
         if (!playlistUiReady) return;
         const el = popoverRef.current;
@@ -298,7 +286,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         restorePlaylistFocus,
     ]);
 
-    // 无 Popover API：Esc / 点外部
     useEffect(() => {
         if (!isListOpen || supportsPopoverApi()) return;
         const onKeyDown = (e: KeyboardEvent) => {
@@ -325,7 +312,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         };
     }, [isListOpen, closePlaylist]);
 
-    // 打开后跟随锚点；resize/scroll 时重算（下方不够 5 行则 flip）
     useEffect(() => {
         if (!isListOpen) return;
         if (!supportsPopoverApi()) {
@@ -374,7 +360,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
 
     if (dataError) {
-        // 歌单不存在/私密与服务故障是两回事，提示不同才能指导用户下一步
         const isPlaylistProblem =
             dataError === MusicDataError.PLAYLIST_UNAVAILABLE;
         return (
@@ -402,7 +387,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         );
     }
 
-    // 面板外观由 .playlist-dropdown CSS 统一；这里只拼内容结构
     const playlistPanel = (
         <>
             <div className="playlist-dropdown__header">
