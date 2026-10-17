@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* 字体自托管：latin 随包；CJK 字族按当前语言动态 import（见 utils/cjkFont.ts）。
-   unicode-range 分片按需下载。 */
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-700.css";
 @import "@fontsource/rajdhani/latin-500.css";
@@ -9,13 +7,9 @@
 @import "@fontsource/rajdhani/latin-700.css";
 
 @theme {
-  /* 字体配置（字体 stylesheet 在 index.html 中 preconnect + link 加载） */
-  /* --font-cjk 随 <html lang> 切换（见下方 html[lang] 规则），未命中时回退系统字体 */
   --font-mono: "JetBrains Mono", var(--font-cjk), monospace;
   --font-sans: "Rajdhani", var(--font-cjk), sans-serif;
 
-  /* 颜色配置 - 映射到CSS变量 */
-  /* 这会自动创建像bg-theme-primary、text-theme-base这样的类 */
   --color-theme-base: var(--color-base);
   --color-theme-surface: var(--color-surface);
   --color-theme-highlight: var(--color-highlight);
@@ -27,19 +21,13 @@
   --color-theme-success: var(--color-success);
   --color-theme-error: var(--color-error);
 
-  /* 动画配置 */
   --animate-pulse-fast: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-spin-slow: spin 12s linear infinite;
   --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 
-  /*
-    表单控件高度：设计稿 36px @ root 15px → 2.4rem，随 --ui-scale 缩放。
-  */
   --spacing-form-control: 2.4rem;
 }
 
-/* CJK 字体：随 <html lang> 切换 Noto 变体（Google unicode-range 切片，只下载用到的字）；
-   未命中（如 en）或 CDN 不可达（大陆/离线）时回退系统字体 */
 :root {
   --font-cjk: sans-serif;
 }
@@ -60,12 +48,7 @@ html[lang="ko"] {
   --font-cjk: "Noto Sans KR";
 }
 
-/*
-  UI 密度（单一旋钮）
-  - --ui-scale 驱动 html 根字号 → 所有 rem（Tailwind p/gap/w/h、本文件 token）一起缩放
-  - 设计基准：scale=1 时根字号 15px；token 用「设计 px / 15」的 rem，避免再乘一次 scale
-  - 禁止用 transform:scale / zoom 做全局缩放（糊字、弄坏 fixed）
-*/
+/* --ui-scale 驱动根字号统一缩放 rem；token 取「设计 px / 15」。不用 transform/zoom 缩放：会糊字并破坏 fixed */
 :root {
   --ui-scale: 0.9;
   --ui-root-font-size: 15px;
@@ -81,7 +64,6 @@ html[lang="ko"] {
   --color-success: #16a34a;
   --color-error: #dc2626;
 
-  /* 字号 token（设计 px → rem） */
   --text-ui-3xs: calc(8 / 15 * 1rem);
   --text-ui-2xs: calc(9 / 15 * 1rem);
   --text-ui-micro: calc(10 / 15 * 1rem);
@@ -94,7 +76,6 @@ html[lang="ko"] {
   --text-ui-display: calc(48 / 15 * 1rem);
   --text-ui-display-xl: calc(64 / 15 * 1rem);
 
-  /* 图标 token */
   --icon-ui-xs: calc(12 / 15 * 1rem);
   --icon-ui-sm: calc(14 / 15 * 1rem);
   --icon-ui-md: calc(16 / 15 * 1rem);
@@ -103,7 +84,6 @@ html[lang="ko"] {
   --icon-ui-2xl: calc(24 / 15 * 1rem);
   --icon-ui-display: calc(48 / 15 * 1rem);
 
-  /* 关键尺寸 token（原硬编码 px） */
   --size-timer-ring: calc(256 / 15 * 1rem);
   --size-timer-ring-md: calc(320 / 15 * 1rem);
   --size-control-lg: calc(56 / 15 * 1rem);
@@ -236,7 +216,6 @@ html {
   line-height: 1;
 }
 
-/* 隐藏 number 原生增减按钮，改用 Input 内自定义按钮。 */
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
@@ -255,13 +234,11 @@ button:has(> i:only-child) {
   justify-content: center;
 }
 
-/* 基础样式 */
 body {
   @apply bg-theme-base text-theme-text overflow-hidden;
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* 自定义滚动条 - 在移动端隐藏，在桌面端显示 */
 ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
@@ -286,17 +263,14 @@ body {
   background: var(--color-primary);
 }
 
-/* 斜切效果的工具类 */
 .clip-path-slant {
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 
-/* 小型斜切 - 适用于小组件如 Checkbox */
 .clip-path-slant-sm {
   clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
 }
 
-/* Checkbox 专用样式 */
 .checkbox-endfield {
   position: relative;
   background: color-mix(in srgb, var(--color-highlight) 20%, transparent);
@@ -324,7 +298,6 @@ body {
   opacity: 1;
 }
 
-/* Checkbox 勾选框样式 */
 .checkbox-box {
   position: relative;
   border: 1.5px solid var(--color-dim);
@@ -350,7 +323,6 @@ body {
   border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
-/* 数据流动画：伪元素 400% 宽承载渐变纹理，transform 平移。 */
 @keyframes data-flow {
   0% {
     transform: translateX(0);
@@ -391,7 +363,6 @@ body {
   }
 }
 
-/* Snackbar 入场：替代未配置的 tailwindcss-animate（animate-in / slide-in-from-bottom-*） */
 @keyframes snackbar-in {
   from {
     opacity: 0;
@@ -408,7 +379,6 @@ body {
   animation: snackbar-in 300ms ease-out both;
 }
 
-/* 主题装饰动画（原散落在组件内联 <style>） */
 @keyframes scan {
   0% {
     transform: translateY(0);
@@ -485,7 +455,6 @@ body {
   );
 }
 
-/* 流光效果 */
 .glow-conic-secondary {
   background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--color-secondary) 180deg, transparent 300deg);
 }
@@ -494,11 +463,9 @@ body {
   animation: spin-slow-linear 4s linear infinite;
 }
 
-/* 文本悬停填充效果 */
 .text-hover-fill {
   position: relative;
   text-decoration: none;
-  /* 基础颜色由父级决定，这里继承 */
 }
 
 .text-hover-fill::before {
@@ -520,7 +487,6 @@ body {
   filter: drop-shadow(0 0 5px var(--color-primary));
 }
 
-/* 主题 / 视图切换：整页 View Transition 交叉淡入（见 utils/viewTransition.ts） */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.5s;
@@ -532,16 +498,11 @@ html[data-vt="view"]::view-transition-new(root) {
   animation-duration: 0.2s;
 }
 
-/* 全局键盘焦点环（鼠标点击不显示） */
 :where(a, button, input, select, textarea, [role="button"], [role="slider"], [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-/*
-  在线播放列表下拉：外观与 Popover UA 重置都集中在这里。
-  组件只挂 class / popover 属性，不再用 Tailwind 重复写底色、模糊、描边。
-*/
 .playlist-dropdown {
   color: inherit;
   background: transparent;
@@ -555,8 +516,7 @@ html[data-vt="view"]::view-transition-new(root) {
     0 calc(8px * var(--ui-scale)) calc(10px * var(--ui-scale))
       rgb(0 0 0 / 0.25);
   overflow: hidden;
-  max-height: 15rem; /* 原 max-h-60 */
-  /* 定位完成前隐藏 */
+  max-height: 15rem;
   visibility: hidden;
 }
 
@@ -588,7 +548,6 @@ html[data-vt="view"]::view-transition-new(root) {
   list-style: none;
 }
 
-/* 无 Popover API 的 fallback：普通定位容器 */
 .playlist-dropdown:not([popover]) {
   display: flex;
   flex-direction: column;
