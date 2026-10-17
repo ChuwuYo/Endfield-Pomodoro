@@ -1,6 +1,5 @@
 import { MANUAL_UPDATE_CHECK_TIMEOUT_MS } from "../constants";
 
-/** 手动检查更新的结果 */
 export type ManualUpdateCheckResult = "latest" | "found" | "offline" | "error";
 
 type Listener = () => void;
@@ -8,7 +7,6 @@ type Listener = () => void;
 let currentRegistration: ServiceWorkerRegistration | null = null;
 const listeners = new Set<Listener>();
 
-/** 记录当前 SW 注册对象，并通知订阅方 */
 export const setPwaRegistration = (
     registration: ServiceWorkerRegistration | null,
 ): void => {
@@ -17,11 +15,9 @@ export const setPwaRegistration = (
     for (const listener of listeners) listener();
 };
 
-/** 读取当前 SW 注册对象；未注册（开发模式 / 不支持 SW）时为 null */
 export const getPwaRegistration = (): ServiceWorkerRegistration | null =>
     currentRegistration;
 
-/** 订阅注册对象变化，供 useSyncExternalStore 使用 */
 export const subscribePwaRegistration = (listener: Listener): (() => void) => {
     listeners.add(listener);
     return () => {
@@ -32,11 +28,6 @@ export const subscribePwaRegistration = (listener: Listener): (() => void) => {
 const isOffline = (): boolean =>
     typeof navigator !== "undefined" && navigator.onLine === false;
 
-/**
- * 后台静默检查一次 SW 更新：正在安装或离线时跳过，失败只记录警告。
- *
- * @see https://vite-pwa-org.netlify.app/guide/periodic-sw-updates.html#handling-edge-cases
- */
 export const updatePwaQuietly = (
     registration: ServiceWorkerRegistration,
 ): void => {
@@ -46,14 +37,6 @@ export const updatePwaQuietly = (
     });
 };
 
-/**
- * 手动触发一次 SW 更新检查。
- * 调用 registration.update()，期间监听 updatefound，结束后检查 installing / waiting：
- * 出现新 worker 即为 found，之后的安装与生效交给 autoUpdate 流程。
- *
- * @see https://vite-pwa-org.netlify.app/guide/periodic-sw-updates.html
- * @see https://web.dev/articles/service-worker-lifecycle#manual_updates
- */
 export const checkForPwaUpdate = async (
     registration: ServiceWorkerRegistration,
     timeoutMs: number = MANUAL_UPDATE_CHECK_TIMEOUT_MS,
