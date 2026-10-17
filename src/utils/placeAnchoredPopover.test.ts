@@ -81,7 +81,6 @@ describe("computeAnchoredPopoverPlacement", () => {
     });
 
     it("stays below only when at least minHeight fits under the anchor", () => {
-        // 锚点靠上：下方充足
         const below = computeAnchoredPopoverPlacement(
             rect(80, 40, 300, 40),
             { width: 800, height: 700 },
