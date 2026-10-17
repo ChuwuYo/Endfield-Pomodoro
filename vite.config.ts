@@ -113,8 +113,7 @@ export default defineConfig({
                             },
                         },
                     },
-                    // 按需字体：CJK 字族 CSS 与字体分片不进预缓存，用到哪份缓存哪份，保证离线可用。
-                    // 文件名带内容哈希，可安全使用 CacheFirst
+                    // 按需字体：CJK 字族 CSS 与 woff2 分片，CacheFirst 运行时缓存
                     // @see https://developer.chrome.com/docs/workbox/caching-strategies-overview#cache_first_falling_back_to_network
                     {
                         urlPattern: ({ sameOrigin, url }) =>
@@ -126,8 +125,7 @@ export default defineConfig({
                         options: {
                             cacheName: "on-demand-fonts",
                             cacheableResponse: { statuses: [200] },
-                            // Workbox 不支持按总字节数淘汰：分片中位数约 20KB，
-                            // 200 条约 4MB；配额不足时整组清空，不影响其他缓存
+                            // 最多 200 条，配额不足时清空本缓存
                             // @see https://developer.chrome.com/docs/workbox/understanding-storage-quota
                             expiration: {
                                 maxEntries: 200,
