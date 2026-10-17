@@ -15,19 +15,13 @@ import { useSnackbar } from "./snackbar";
 const PWA_UPDATED_SNACKBAR_ID = "pwa-updated";
 
 /**
- * SW 注册 / 轮询 / 可见性检查，以及新版本何时生效。
- *
- * 这里接管了 workbox-window 默认的「新 SW 一激活就 reload」：页面可见时先弹 Snackbar，
- * 切到后台再刷新（时机判断见 utils/pwaUpdate.ts），免得打断正在跑的番茄钟或音乐。
- *
+ * 不用 workbox-window 默认的激活即 reload：前台先提示，切到后台再刷新，避免打断番茄钟或音乐。
  * @see https://vite-pwa-org.netlify.app/guide/auto-update.html
- * @see https://web.dev/articles/service-worker-lifecycle
  */
 export function PWAPrompt() {
     const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
     const intervalRef = useRef<number | null>(null);
     const lastVisibilityCheckRef = useRef<number>(0);
-    /** 新版已接管，等页面切到后台再刷新 */
     const pendingReloadRef = useRef(false);
     const [showUpdated, setShowUpdated] = useState(false);
     const snackbar = useSnackbar();
@@ -66,7 +60,6 @@ export function PWAPrompt() {
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState !== "visible") {
-                // 切到后台正好刷新，用户看不到跳变
                 if (pendingReloadRef.current) {
                     reloadPage();
                 }
@@ -87,8 +80,6 @@ export function PWAPrompt() {
             updatePwaQuietly(registration);
         };
 
-        // 动态导入失败：没有待生效的新版时立即检查一次更新；已有新版则沿用切到后台再刷新的流程
-        // @see https://vite.dev/guide/build#load-error-handling
         const handlePreloadError = () => {
             if (pendingReloadRef.current) return;
             const registration = registrationRef.current;
