@@ -28,6 +28,22 @@ export const subscribePwaRegistration = (listener: Listener): (() => void) => {
 const isOffline = (): boolean =>
     typeof navigator !== "undefined" && navigator.onLine === false;
 
+const updatePromptListeners = new Set<() => void>();
+
+/** 已有等待生效的新版时，重新显示更新提示 */
+export const requestPwaUpdatePrompt = (): void => {
+    for (const listener of updatePromptListeners) listener();
+};
+
+export const subscribePwaUpdatePrompt = (
+    listener: () => void,
+): (() => void) => {
+    updatePromptListeners.add(listener);
+    return () => {
+        updatePromptListeners.delete(listener);
+    };
+};
+
 export const updatePwaQuietly = (
     registration: ServiceWorkerRegistration,
 ): void => {
