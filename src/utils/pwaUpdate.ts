@@ -3,16 +3,21 @@ export const reloadPage = (): void => {
     window.location.reload();
 };
 
-/** 当前页面的入口脚本是否在该 SW 的预缓存清单里，即页面已经是新版 */
+/** 当前页面引用的构建资源（入口脚本和样式）是否都在该 SW 的预缓存清单里，即页面已经是新版 */
 export const isPageCurrentFor = async (scriptURL: string): Promise<boolean> => {
-    const entry = document.querySelector<HTMLScriptElement>(
-        'script[type="module"][src]',
-    );
-    if (!entry) return false;
-    const entryPath = new URL(entry.src).pathname.replace(/^\//, "");
+    const assetPaths = Array.from(
+        document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>(
+            'script[type="module"][src], link[rel="stylesheet"][href]',
+        ),
+        (el) => new URL(el instanceof HTMLScriptElement ? el.src : el.href),
+    )
+        .filter((url) => url.origin === location.origin)
+        .map((url) => url.pathname.replace(/^\//, ""));
+    if (assetPaths.length === 0) return false;
     try {
         const response = await fetch(scriptURL, { cache: "no-store" });
-        return (await response.text()).includes(`"${entryPath}"`);
+        const manifest = await response.text();
+        return assetPaths.every((path) => manifest.includes(`"${path}"`));
     } catch {
         return false;
     }
