@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { type MusicConfig, musicSourceKey } from "../config/musicConfig";
 import { STORAGE_KEYS } from "../constants";
+import { useAppBusy } from "../hooks/useAppBusy";
 import { useLocalPlayer } from "../hooks/useLocalPlayer";
 import { useMediaSession } from "../hooks/useMediaSession";
 import { useModalA11y } from "../hooks/useModalA11y";
@@ -59,6 +60,8 @@ const AudioPlayer: React.FC<{
     });
 
     const [isOnlinePlaying, setIsOnlinePlaying] = useState(false);
+    useAppBusy("audio", isOnlinePlaying || localPlayer.isPlaying);
+    useAppBusy("local-playlist", localPlayer.playlist.length > 0);
 
     useEffect(() => {
         itemRefs.current.clear();
