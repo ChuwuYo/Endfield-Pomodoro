@@ -135,6 +135,11 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         const onEnded = () => handleNextRef.current?.(true);
         const onCanPlay = () => setIsLoading(false);
         const onWaiting = () => setIsLoading(true);
+        // 同步系统或浏览器发起的暂停/恢复（耳机断开、来电等）；播放结束的 pause 交给 ended 处理
+        const onPause = () => {
+            if (!audio.ended) setIsPlaying(false);
+        };
+        const onPlay = () => setIsPlaying(true);
         const onError = () => {
             setIsLoading(false);
             console.error("Audio playback error");
@@ -146,8 +151,12 @@ export const useLocalPlayer = (enabled: boolean = true) => {
         audio.addEventListener("canplay", onCanPlay);
         audio.addEventListener("waiting", onWaiting);
         audio.addEventListener("error", onError);
+        audio.addEventListener("pause", onPause);
+        audio.addEventListener("play", onPlay);
 
         return () => {
+            audio.removeEventListener("pause", onPause);
+            audio.removeEventListener("play", onPlay);
             audio.pause();
             audio.removeAttribute("src");
             audio.load();

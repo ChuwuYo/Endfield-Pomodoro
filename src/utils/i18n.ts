@@ -35,7 +35,7 @@ export const translations = {
         SETTINGS_PERSIST_FAILED: "Settings could not be saved.",
         RESET_MUSIC_CONFIG: "RESET TO DEFAULT",
         APP_UPDATE: "SYSTEM UPDATE",
-        CHECK_UPDATE_HINT: "NEW VERSIONS INSTALL AUTOMATICALLY",
+        CHECK_UPDATE_HINT: "NEW VERSIONS APPLY AFTER A REFRESH",
         CHECK_UPDATE: "CHECK FOR UPDATES",
         CHECKING_UPDATE: "CHECKING...",
         UPDATE_LATEST: "UP TO DATE",
@@ -142,8 +142,7 @@ export const translations = {
             "The interface crashed. Reload to restore the session.",
         ERROR_BOUNDARY_RELOAD: "RELOAD",
 
-        pwa_updated:
-            "A new version is ready. It refreshes automatically in the background.",
+        pwa_updated: "A new version is ready. Refresh to use it.",
         pwa_offline: "OFFLINE MODE",
         CLOSE: "Close",
 
@@ -187,7 +186,7 @@ export const translations = {
         SETTINGS_PERSIST_FAILED: "设置未能保存。",
         RESET_MUSIC_CONFIG: "重置为默认",
         APP_UPDATE: "系统更新",
-        CHECK_UPDATE_HINT: "新版本会自动下载并生效",
+        CHECK_UPDATE_HINT: "新版本自动下载，刷新后生效",
         CHECK_UPDATE: "检查更新",
         CHECKING_UPDATE: "检查中…",
         UPDATE_LATEST: "已是最新版本",
@@ -291,7 +290,7 @@ export const translations = {
         ERROR_BOUNDARY_MESSAGE: "界面发生错误。刷新页面可恢复会话。",
         ERROR_BOUNDARY_RELOAD: "刷新页面",
 
-        pwa_updated: "新版本已就绪，将在后台自动刷新。",
+        pwa_updated: "新版本已就绪，刷新即可使用。",
         pwa_offline: "离线模式",
         CLOSE: "关闭",
 
@@ -335,7 +334,7 @@ export const translations = {
         SETTINGS_PERSIST_FAILED: "設定未能儲存。",
         RESET_MUSIC_CONFIG: "重設為預設",
         APP_UPDATE: "系統更新",
-        CHECK_UPDATE_HINT: "新版本會自動下載並生效",
+        CHECK_UPDATE_HINT: "新版本自動下載，重新整理後生效",
         CHECK_UPDATE: "檢查更新",
         CHECKING_UPDATE: "檢查中…",
         UPDATE_LATEST: "已是最新版本",
@@ -439,7 +438,7 @@ export const translations = {
         ERROR_BOUNDARY_MESSAGE: "介面發生錯誤。重新整理頁面可恢復工作階段。",
         ERROR_BOUNDARY_RELOAD: "重新整理",
 
-        pwa_updated: "新版本已就緒，將在背景自動重新整理。",
+        pwa_updated: "新版本已就緒，重新整理即可使用。",
         pwa_offline: "離線模式",
         CLOSE: "關閉",
 
@@ -483,7 +482,7 @@ export const translations = {
         SETTINGS_PERSIST_FAILED: "設定を保存できませんでした。",
         RESET_MUSIC_CONFIG: "デフォルトに戻す",
         APP_UPDATE: "システム更新",
-        CHECK_UPDATE_HINT: "新しいバージョンは自動で適用されます",
+        CHECK_UPDATE_HINT: "新しいバージョンは再読み込み後に適用されます",
         CHECK_UPDATE: "更新を確認",
         CHECKING_UPDATE: "確認中…",
         UPDATE_LATEST: "最新バージョンです",
@@ -592,7 +591,7 @@ export const translations = {
         ERROR_BOUNDARY_RELOAD: "再読み込み",
 
         pwa_updated:
-            "新しいバージョンが利用可能です。バックグラウンドで自動更新されます。",
+            "新しいバージョンが利用可能です。再読み込みすると適用されます。",
         pwa_offline: "オフラインモード",
         CLOSE: "閉じる",
 
@@ -636,7 +635,7 @@ export const translations = {
         SETTINGS_PERSIST_FAILED: "설정을 저장하지 못했습니다.",
         RESET_MUSIC_CONFIG: "기본값으로 재설정",
         APP_UPDATE: "시스템 업데이트",
-        CHECK_UPDATE_HINT: "새 버전은 자동으로 적용됩니다",
+        CHECK_UPDATE_HINT: "새 버전은 새로고침 후 적용됩니다",
         CHECK_UPDATE: "업데이트 확인",
         CHECKING_UPDATE: "확인 중…",
         UPDATE_LATEST: "최신 버전입니다",
@@ -743,8 +742,7 @@ export const translations = {
             "인터페이스가 충돌했습니다. 새로고침하면 세션이 복구됩니다.",
         ERROR_BOUNDARY_RELOAD: "새로고침",
 
-        pwa_updated:
-            "새 버전이 준비되었습니다. 백그라운드에서 자동으로 새로고침됩니다.",
+        pwa_updated: "새 버전이 준비되었습니다. 새로고침하면 적용됩니다.",
         pwa_offline: "오프라인 모드",
         CLOSE: "닫기",
 

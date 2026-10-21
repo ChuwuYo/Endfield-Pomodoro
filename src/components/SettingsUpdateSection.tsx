@@ -4,7 +4,11 @@ import {
     useManualUpdateCheck,
 } from "../hooks/useManualUpdateCheck";
 import type { TranslationKey, useTranslation } from "../utils/i18n";
-import type { ManualUpdateCheckResult } from "../utils/pwaRegistration";
+import {
+    getPwaRegistration,
+    type ManualUpdateCheckResult,
+    requestPwaUpdatePrompt,
+} from "../utils/pwaRegistration";
 import { type SnackbarTone, useSnackbar } from "./snackbar";
 import { Button } from "./ui";
 
@@ -44,6 +48,11 @@ export const SettingsUpdateSection: React.FC<SettingsUpdateSectionProps> = ({
 }) => {
     const snackbar = useSnackbar();
     const { available, status, check } = useManualUpdateCheck((result) => {
+        if (result === "found" && getPwaRegistration()?.waiting) {
+            snackbar.dismiss(MANUAL_UPDATE_SNACKBAR_ID);
+            requestPwaUpdatePrompt();
+            return;
+        }
         snackbar.show({
             id: MANUAL_UPDATE_SNACKBAR_ID,
             ...RESULT_SNACKBAR[result],

@@ -205,6 +205,11 @@ export const useOnlinePlayer = (
             }
         };
         const handleWaiting = () => setIsLoading(true);
+        // 同步系统或浏览器发起的暂停/恢复（耳机断开、来电等）；播放结束的 pause 交给 ended 处理
+        const handlePause = () => {
+            if (!audio.ended) setIsPlaying(false);
+        };
+        const handlePlay = () => setIsPlaying(true);
         const handleError = () => {
             // 中止（MEDIA_ERR_ABORTED = 1，切换 src 时出现）或无错误码的事件不视为加载失败
             const errorCode = audio.error?.code ?? 0;
@@ -319,6 +324,8 @@ export const useOnlinePlayer = (
         audio.addEventListener("canplay", handleCanPlay);
         audio.addEventListener("waiting", handleWaiting);
         audio.addEventListener("error", handleError);
+        audio.addEventListener("pause", handlePause);
+        audio.addEventListener("play", handlePlay);
 
         audio.volume = volume;
 
@@ -331,6 +338,8 @@ export const useOnlinePlayer = (
 
         return () => {
             isMounted = false;
+            audio.removeEventListener("pause", handlePause);
+            audio.removeEventListener("play", handlePlay);
             audio.pause();
             if (retryTimerRef.current !== null) {
                 clearTimeout(retryTimerRef.current);

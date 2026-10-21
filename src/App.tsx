@@ -21,6 +21,7 @@ import {
     SECONDS_PER_MINUTE,
     STORAGE_KEYS,
 } from "./constants";
+import { useAppBusy } from "./hooks/useAppBusy";
 import { getThemeExtraSpacing, useFooterHeight } from "./hooks/useFooterHeight";
 import { useSessionStats } from "./hooks/useSessionStats";
 import type { Settings } from "./types";
@@ -116,6 +117,7 @@ const App: React.FC = () => {
         onSessionsUpdate,
         onTick,
     } = useSessionStats(settings.workDuration);
+    useAppBusy("timer", isTimerRunning);
 
     const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
     const [isOnline, setIsOnline] = useState(navigator.onLine);

@@ -1,41 +1,57 @@
 import { useRegisterSW } from "virtual:pwa-register/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import {
     HOURLY_CHECK_INTERVAL_MS,
+    SW_ACTIVATION_RELOAD_FALLBACK_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
+import { isAppBusy, subscribeAppActivity } from "../utils/appActivity";
 import {
     setPwaRegistration,
+    subscribePwaUpdatePrompt,
     updatePwaQuietly,
     warmOnDemandFontCacheOnFirstControl,
 } from "../utils/pwaRegistration";
-import { decidePwaUpdateAction, reloadPage } from "../utils/pwaUpdate";
+import { isPageCurrentFor, reloadPage } from "../utils/pwaUpdate";
 import { useSnackbar } from "./snackbar";
 
 const PWA_UPDATED_SNACKBAR_ID = "pwa-updated";
 
 /**
- * 不用 workbox-window 默认的激活即 reload：前台先提示，切到后台再刷新，避免打断番茄钟或音乐。
- * @see https://vite-pwa-org.netlify.app/guide/auto-update.html
+ * prompt 模式：新版 SW 安装后等待，旧版继续服务当前页面。
+ * - 页面已是新版（打开时拿到了新 HTML）：直接激活，不刷新
+ * - 页面是旧版且应用空闲（无计时、播放、本地歌单），并且页面在后台或用户还没操作过：激活并刷新
+ * - 其他情况只提示，由用户点击刷新
+ * @see https://vite-pwa-org.netlify.app/guide/prompt-for-update.html
  */
 export function PWAPrompt() {
     const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
     const intervalRef = useRef<number | null>(null);
     const lastVisibilityCheckRef = useRef<number>(0);
-    const pendingReloadRef = useRef(false);
-    const [showUpdated, setShowUpdated] = useState(false);
+    const activationRequestedRef = useRef(false);
+    const interactedRef = useRef(false);
+    const [updatePending, setUpdatePending] = useState(false);
+    const [promptRequest, setPromptRequest] = useState(0);
     const snackbar = useSnackbar();
 
-    useRegisterSW({
-        onNeedReload() {
-            if (
-                decidePwaUpdateAction(document.visibilityState) === "reload-now"
-            ) {
-                reloadPage();
+    const markUpdatePending = () => {
+        setUpdatePending(true);
+        setPromptRequest((n) => n + 1);
+    };
+
+    const { updateServiceWorker } = useRegisterSW({
+        async onNeedRefresh() {
+            const waiting = registrationRef.current?.waiting;
+            if (waiting && (await isPageCurrentFor(waiting.scriptURL))) {
+                activationRequestedRef.current = true;
+                void updateServiceWorker(true);
                 return;
             }
-            pendingReloadRef.current = true;
-            setShowUpdated(true);
+            markUpdatePending();
+        },
+        // 其他标签页切换到新版时提示；本页发起的激活不在这里刷新
+        onNeedReload() {
+            if (!activationRequestedRef.current) markUpdatePending();
         },
         onRegisteredSW(_swUrl, r) {
             if (r) {
@@ -57,18 +73,53 @@ export function PWAPrompt() {
         },
     });
 
+    const applyUpdate = useEffectEvent(() => {
+        if (!registrationRef.current?.waiting) {
+            reloadPage();
+            return;
+        }
+        activationRequestedRef.current = true;
+        // workbox 的 controlling 事件在本次会话首次安装后不带 isUpdate，不会触发 onNeedReload；
+        // controllerchange 没有到达时按超时兜底刷新
+        const reloadOnce = () => {
+            clearTimeout(fallbackId);
+            navigator.serviceWorker.removeEventListener(
+                "controllerchange",
+                reloadOnce,
+            );
+            reloadPage();
+        };
+        const fallbackId = window.setTimeout(
+            reloadOnce,
+            SW_ACTIVATION_RELOAD_FALLBACK_MS,
+        );
+        navigator.serviceWorker.addEventListener(
+            "controllerchange",
+            reloadOnce,
+        );
+        void updateServiceWorker(true);
+    });
+
     useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState !== "visible") {
-                if (pendingReloadRef.current) {
-                    reloadPage();
-                }
-                return;
-            }
+        const markInteracted = () => {
+            interactedRef.current = true;
+        };
+        window.addEventListener("pointerdown", markInteracted, {
+            once: true,
+            capture: true,
+        });
+        window.addEventListener("keydown", markInteracted, {
+            once: true,
+            capture: true,
+        });
+
+        const checkForUpdate = () => {
             const registration = registrationRef.current;
-            if (!registration) {
-                return;
-            }
+            if (registration) updatePwaQuietly(registration);
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState !== "visible") return;
             const now = Date.now();
             if (
                 now - lastVisibilityCheckRef.current <
@@ -77,24 +128,30 @@ export function PWAPrompt() {
                 return;
             }
             lastVisibilityCheckRef.current = now;
-            updatePwaQuietly(registration);
+            checkForUpdate();
         };
 
-        const handlePreloadError = () => {
-            if (pendingReloadRef.current) return;
-            const registration = registrationRef.current;
-            if (registration) updatePwaQuietly(registration);
-        };
+        const unsubscribeUpdatePrompt =
+            subscribePwaUpdatePrompt(markUpdatePending);
 
         document.addEventListener("visibilitychange", handleVisibilityChange);
-        window.addEventListener("vite:preloadError", handlePreloadError);
+        window.addEventListener("vite:preloadError", checkForUpdate);
+        window.addEventListener("online", checkForUpdate);
 
         return () => {
+            window.removeEventListener("pointerdown", markInteracted, {
+                capture: true,
+            });
+            window.removeEventListener("keydown", markInteracted, {
+                capture: true,
+            });
             document.removeEventListener(
                 "visibilitychange",
                 handleVisibilityChange,
             );
-            window.removeEventListener("vite:preloadError", handlePreloadError);
+            window.removeEventListener("vite:preloadError", checkForUpdate);
+            window.removeEventListener("online", checkForUpdate);
+            unsubscribeUpdatePrompt();
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
@@ -102,11 +159,39 @@ export function PWAPrompt() {
     }, []);
 
     useEffect(() => {
-        if (!showUpdated) {
-            snackbar.dismiss(PWA_UPDATED_SNACKBAR_ID);
-            return;
-        }
+        if (!updatePending) return;
 
+        const applyWhenIdle = () => {
+            if (activationRequestedRef.current || isAppBusy()) return;
+            if (
+                document.visibilityState === "hidden" ||
+                !interactedRef.current
+            ) {
+                applyUpdate();
+            }
+        };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                setPromptRequest((n) => n + 1);
+            }
+            applyWhenIdle();
+        };
+
+        applyWhenIdle();
+        const unsubscribeActivity = subscribeAppActivity(applyWhenIdle);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            unsubscribeActivity();
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange,
+            );
+        };
+    }, [updatePending]);
+
+    // 提示被关闭或被队列挤掉后，回到页面时再显示
+    useEffect(() => {
+        if (!updatePending || promptRequest === 0) return;
         snackbar.show({
             id: PWA_UPDATED_SNACKBAR_ID,
             messageKey: "pwa_updated",
@@ -114,13 +199,10 @@ export function PWAPrompt() {
             durationMs: null,
             action: {
                 textKey: "ERROR_BOUNDARY_RELOAD",
-                onClick: () => {
-                    window.location.reload();
-                },
+                onClick: () => applyUpdate(),
             },
-            onDismiss: () => setShowUpdated(false),
         });
-    }, [showUpdated, snackbar]);
+    }, [updatePending, promptRequest, snackbar]);
 
     return null;
 }

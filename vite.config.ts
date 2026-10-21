@@ -24,7 +24,7 @@ export default defineConfig({
         babel({ presets: [reactCompilerPreset()] }),
         tailwindcss(),
         VitePWA({
-            registerType: "autoUpdate",
+            registerType: "prompt",
             includeAssets: [
                 "favicon-32x32.png",
                 "apple-touch-icon-180x180.png",
@@ -64,6 +64,8 @@ export default defineConfig({
             },
             workbox: {
                 cleanupOutdatedCaches: true,
+                // 首次安装后立即接管页面；更新仍要等用户确认（prompt 模式）
+                clientsClaim: true,
                 // 预缓存是 cache-first，index.html 放进去会让在线用户一直看到旧版
                 globPatterns: ["**/*.{js,css,ico,png,svg,webp,woff,woff2}"],
                 // 浏览器只取 woff2，svg/woff 是死重（仅 remixicon 就 3.2MB）
