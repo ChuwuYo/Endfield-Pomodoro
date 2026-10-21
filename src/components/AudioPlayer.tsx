@@ -60,7 +60,11 @@ const AudioPlayer: React.FC<{
     });
 
     const [isOnlinePlaying, setIsOnlinePlaying] = useState(false);
-    useAppBusy("audio", isOnlinePlaying || localPlayer.isPlaying);
+    // 切到本地模式时在线播放器已卸载，isOnlinePlaying 会停在最后一次的值
+    useAppBusy(
+        "audio",
+        (audioSource === "online" && isOnlinePlaying) || localPlayer.isPlaying,
+    );
     useAppBusy("local-playlist", localPlayer.playlist.length > 0);
 
     useEffect(() => {
