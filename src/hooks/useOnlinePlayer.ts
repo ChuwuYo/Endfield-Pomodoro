@@ -205,15 +205,9 @@ export const useOnlinePlayer = (
             }
         };
         const handleWaiting = () => setIsLoading(true);
-        // 系统或浏览器暂停/恢复（耳机断开、来电、其他应用占用音频）时同步状态；切歌和播放结束时忽略
+        // 同步系统或浏览器发起的暂停/恢复（耳机断开、来电等）；播放结束的 pause 交给 ended 处理
         const handlePause = () => {
-            if (
-                audio.ended ||
-                audio.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
-            ) {
-                return;
-            }
-            setIsPlaying(false);
+            if (!audio.ended) setIsPlaying(false);
         };
         const handlePlay = () => setIsPlaying(true);
         const handleError = () => {
