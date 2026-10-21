@@ -2,6 +2,7 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import {
     HOURLY_CHECK_INTERVAL_MS,
+    SW_ACTIVATION_RELOAD_FALLBACK_MS,
     VISIBILITY_CHECK_MIN_INTERVAL_MS,
 } from "../constants";
 import { isAppBusy, subscribeAppActivity } from "../utils/appActivity";
@@ -29,8 +30,14 @@ export function PWAPrompt() {
     const lastVisibilityCheckRef = useRef<number>(0);
     const activationRequestedRef = useRef(false);
     const interactedRef = useRef(false);
-    const [updateReady, setUpdateReady] = useState(false);
+    const [updatePending, setUpdatePending] = useState(false);
+    const [promptRequest, setPromptRequest] = useState(0);
     const snackbar = useSnackbar();
+
+    const markUpdatePending = () => {
+        setUpdatePending(true);
+        setPromptRequest((n) => n + 1);
+    };
 
     const { updateServiceWorker } = useRegisterSW({
         async onNeedRefresh() {
@@ -40,11 +47,11 @@ export function PWAPrompt() {
                 void updateServiceWorker(true);
                 return;
             }
-            setUpdateReady(true);
+            markUpdatePending();
         },
         // 其他标签页切换到新版时提示；本页发起的激活不在这里刷新
         onNeedReload() {
-            if (!activationRequestedRef.current) setUpdateReady(true);
+            if (!activationRequestedRef.current) markUpdatePending();
         },
         onRegisteredSW(_swUrl, r) {
             if (r) {
@@ -72,13 +79,23 @@ export function PWAPrompt() {
             return;
         }
         activationRequestedRef.current = true;
-        // workbox 的 controlling 事件在本次会话首次安装后不带 isUpdate，不会触发 onNeedReload
+        // workbox 的 controlling 事件在本次会话首次安装后不带 isUpdate，不会触发 onNeedReload；
+        // controllerchange 没有到达时按超时兜底刷新
+        const reloadOnce = () => {
+            clearTimeout(fallbackId);
+            navigator.serviceWorker.removeEventListener(
+                "controllerchange",
+                reloadOnce,
+            );
+            reloadPage();
+        };
+        const fallbackId = window.setTimeout(
+            reloadOnce,
+            SW_ACTIVATION_RELOAD_FALLBACK_MS,
+        );
         navigator.serviceWorker.addEventListener(
             "controllerchange",
-            reloadPage,
-            {
-                once: true,
-            },
+            reloadOnce,
         );
         void updateServiceWorker(true);
     });
@@ -114,9 +131,8 @@ export function PWAPrompt() {
             checkForUpdate();
         };
 
-        const unsubscribeUpdatePrompt = subscribePwaUpdatePrompt(() =>
-            setUpdateReady(true),
-        );
+        const unsubscribeUpdatePrompt =
+            subscribePwaUpdatePrompt(markUpdatePending);
 
         document.addEventListener("visibilitychange", handleVisibilityChange);
         window.addEventListener("vite:preloadError", checkForUpdate);
@@ -143,7 +159,7 @@ export function PWAPrompt() {
     }, []);
 
     useEffect(() => {
-        if (!updateReady) return;
+        if (!updatePending) return;
 
         const applyWhenIdle = () => {
             if (activationRequestedRef.current || isAppBusy()) return;
@@ -154,22 +170,28 @@ export function PWAPrompt() {
                 applyUpdate();
             }
         };
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                setPromptRequest((n) => n + 1);
+            }
+            applyWhenIdle();
+        };
 
         applyWhenIdle();
         const unsubscribeActivity = subscribeAppActivity(applyWhenIdle);
-        document.addEventListener("visibilitychange", applyWhenIdle);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
         return () => {
             unsubscribeActivity();
-            document.removeEventListener("visibilitychange", applyWhenIdle);
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange,
+            );
         };
-    }, [updateReady]);
+    }, [updatePending]);
 
+    // 提示被关闭或被队列挤掉后，回到页面时再显示
     useEffect(() => {
-        if (!updateReady) {
-            snackbar.dismiss(PWA_UPDATED_SNACKBAR_ID);
-            return;
-        }
-
+        if (!updatePending || promptRequest === 0) return;
         snackbar.show({
             id: PWA_UPDATED_SNACKBAR_ID,
             messageKey: "pwa_updated",
@@ -179,9 +201,8 @@ export function PWAPrompt() {
                 textKey: "ERROR_BOUNDARY_RELOAD",
                 onClick: () => applyUpdate(),
             },
-            onDismiss: () => setUpdateReady(false),
         });
-    }, [updateReady, snackbar]);
+    }, [updatePending, promptRequest, snackbar]);
 
     return null;
 }
