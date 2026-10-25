@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          # jsdom 30 (Vitest) needs >=22.22.2; pnpm 12 itself needs >=18
-          node-version: 22.23.3
+          # 跟随 Node.js 24 LTS 的最新补丁版本
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
