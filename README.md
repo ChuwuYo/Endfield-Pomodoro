@@ -67,6 +67,8 @@
 
 ## Getting Started
 
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2FChuwuYo%2FEndfield-Pomodoro)
+
 ### Prerequisites
 
 - Node.js >= 22.22.2
