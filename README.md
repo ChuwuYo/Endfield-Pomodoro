@@ -39,7 +39,7 @@
 - **Dual playback modes**:
   - **Local mode**: import any audio type supported by modern browsers, with progress and playlist management
   - **Online mode**: MetingAPI integration for playlists from NetEase, QQ Music, and other platforms
-- **Terminal interaction**: metadata display, playback controls, cover art, and background playback
+- **Terminal interaction**: metadata display, playback controls, cover art, background playback, and system media controls
 
 ### Missions & Config
 
@@ -50,6 +50,7 @@
 
 - **Offline support**: Service Worker based offline caching
 - **Online music in PWA**: filtered API path so online music keeps working in the installed app
+- **Prompted updates**: new versions apply automatically when idle and only show a prompt while you are busy
 
 ## Tech Stack
 
@@ -63,13 +64,15 @@
 | **Icons** | [Remixicon](https://remixicon.com/) | Consistent modern icon set |
 | **Fonts** | [Fontsource](https://fontsource.org/) | Self-hosted JetBrains Mono / Rajdhani / Noto CJK, unicode-range subsetting |
 | **State** | React Hooks | Native Hook-based reusable state logic |
+| **PWA** | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | Workbox-based offline caching and prompted updates |
+| **Testing** | [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) | Unit and component tests in jsdom |
 | **Quality** | [ESLint](https://eslint.org/) + [Biome](https://biomejs.dev/) | Linting and high-performance formatting |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js >= 22.22.2
+- Node.js >= 22.22.2 (CI uses Node.js 24 LTS)
 - pnpm (recommended), or npm / yarn
 
 ### Setup
@@ -109,14 +112,14 @@
 
 ## Internationalization (i18n)
 
-The app supports English and Simplified Chinese. All UI strings are managed in `src/utils/i18n.ts`, including:
+The app supports English, Simplified Chinese, Traditional Chinese, Japanese, and Korean. All UI strings are managed in `src/utils/i18n.ts`, including:
 
 - Labels and button text
 - Status messages
 - Music platform / type options
 - Error and loading hints
 
-To add a new language, extend the `translations` map in `src/utils/i18n.ts` and update both language entries when UI text changes.
+When UI text changes, update every locale entry in `src/utils/i18n.ts`.
 
 ## Theme System
 
@@ -152,7 +155,7 @@ Add a preset in `src/config/themes.ts`:
 }
 ```
 
-For visual effects, add the corresponding components in `src/components/themes/BackgroundEffects.tsx` and `src/components/themes/ForegroundEffects.tsx`.
+For visual effects, create `src/components/themes/<preset>/` with an `index.ts`, the background / foreground components, and a `<preset>.css` scoped under `html[data-theme="<PRESET>"]`, then export them from `src/components/themes/index.ts`.
 
 ### Add a new language
 
@@ -162,6 +165,8 @@ export const translations = {
   [Language.NEW_LANG]: { /* translated strings */ }
 }
 ```
+
+Also add the language to `Language` in `src/types.ts` and its font family to `src/utils/cjkFont.ts`.
 
 ### Change the default music config
 
@@ -190,6 +195,7 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 | `pnpm format` | Format code with Biome |
 | `pnpm check` | Run Biome checks |
 | `pnpm test` | Run tests with Vitest |
+| `pnpm test:watch` | Run Vitest in watch mode |
 | `pnpm bench` | Perf ratchet: launch + timer-tick measurements against `bench/baseline.json` (run `pnpm build` first, local only) |
 | `pnpm bench:save` | Lower the ratchet to the current measurements |
 
