@@ -17,7 +17,10 @@
 
 ## Source Map
 - App entry: `src/main.tsx`, `src/App.tsx`
-- Core components: `src/components/`
+- Core components: `src/components/` (`ui/`, `themes/`, `snackbar/`, `ThemeSelector/`)
+- Hooks (players, media session, PWA update checks): `src/hooks/`
+- PWA (prompt-mode updates, precache): `vite.config.ts`, `src/components/PWAPrompt.tsx`
+- Tests: colocated `*.test.ts(x)`; setup in `src/test/setup.ts`
 - Theme config: `src/config/themes.ts`
 - i18n: `src/utils/i18n.ts`
 - CJK webfonts: `src/utils/cjkFont.ts` (per-language dynamic import)
@@ -39,8 +42,9 @@
 - One folder per theme: `src/components/themes/<preset>/` holds `index.ts`
   (imports private css + re-exports), background/foreground components (keep
   existing export names), and `<preset>.css` scoped under
-  `html[data-theme="<PRESET>"]`. `src/index.css` stays generic; unmigrated
-  themes remain in `BackgroundEffects.tsx` / `ForegroundEffects.tsx`.
+  `html[data-theme="<PRESET>"]`, exported from `src/components/themes/index.ts`.
+  `src/index.css` stays generic; unmigrated effects (`NeonGrid`, `MatrixRain`)
+  remain in `BackgroundEffects.tsx`.
 - Fonts are self-hosted via `@fontsource/*`; never reintroduce a third-party font
   stylesheet. Adding a language means adding its family to `src/utils/cjkFont.ts`.
 - Keep `vite.config.ts` precache lean: exclude large dead assets (`globIgnores`) and

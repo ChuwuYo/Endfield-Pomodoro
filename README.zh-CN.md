@@ -42,7 +42,7 @@
 - **双模式播放**：
   - **本地模式**：支持导入现代浏览器支持的所有音频类型，具备进度与播放列表管理
   - **在线模式**：集成 MetingAPI，支持网易云音乐 / QQ 音乐等平台的歌单解析
-- **终端交互**：支持基本信息、播放控制、封面展示及后台播放等功能
+- **终端交互**：支持基本信息、播放控制、封面展示、后台播放及系统媒体控件
 
 ### 任务与配置 (Mission & Config)
 
@@ -53,6 +53,7 @@
 
 - **离线支持**：通过 Service Worker 实现离线缓存
 - **在线音乐**：实现 API 过滤，在 PWA 环境下也能播放在线音乐
+- **提示式更新**：空闲时自动应用新版本，忙碌时只提示
 
 ## 技术栈 (Tech Stack)
 
@@ -66,13 +67,15 @@
 | **图标库** | [Remixicon](https://remixicon.com/) | 风格统一的现代化图标集 |
 | **字体** | [Fontsource](https://fontsource.org/) | 自托管 JetBrains Mono / Rajdhani / Noto CJK，按 unicode-range 分片 |
 | **状态管理** | React Hooks | 基于 Hook 的原生状态逻辑复用 |
+| **PWA** | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | 基于 Workbox 的离线缓存与提示式更新 |
+| **测试** | [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) | 基于 jsdom 的单元与组件测试 |
 | **代码质量** | [ESLint](https://eslint.org/) + [Biome](https://biomejs.dev/) | 代码检查与高性能格式化 |
 
 ## 快速开始 (Getting Started)
 
 ### 环境要求
 
-- Node.js >= 22.22.2
+- Node.js >= 22.22.2（CI 使用 Node.js 24 LTS）
 - pnpm（推荐）或 npm / yarn
 
 ### 安装步骤
@@ -112,7 +115,7 @@
 
 ## 国际化支持 (i18n)
 
-项目支持中英双语，所有 UI 文本均通过 `src/utils/i18n.ts` 管理，包括：
+项目支持英语、简体中文、繁体中文、日语和韩语，所有 UI 文本均通过 `src/utils/i18n.ts` 管理，包括：
 
 - 界面标签和按钮文本
 - 状态提示信息
@@ -153,7 +156,7 @@
 }
 ```
 
-如需添加主题特效，可在 `src/components/themes/BackgroundEffects.tsx` 和 `src/components/themes/ForegroundEffects.tsx` 中添加对应的效果组件。
+如需添加主题特效，新建 `src/components/themes/<preset>/` 目录，包含 `index.ts`、背景 / 前景组件以及作用于 `html[data-theme="<PRESET>"]` 的 `<preset>.css`，再从 `src/components/themes/index.ts` 导出。
 
 ### 添加新语言
 
@@ -165,6 +168,8 @@ export const translations = {
   [Language.NEW_LANG]: { /* 翻译内容 */ }
 }
 ```
+
+同时在 `src/types.ts` 的 `Language` 中添加该语言，并在 `src/utils/cjkFont.ts` 中添加对应字体。
 
 ### 修改默认音乐配置
 
@@ -193,12 +198,13 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 | `pnpm format` | 使用 Biome 格式化代码 |
 | `pnpm check` | 运行 Biome 综合检查 |
 | `pnpm test` | 使用 Vitest 运行测试 |
+| `pnpm test:watch` | 以监听模式运行 Vitest |
 | `pnpm bench` | 性能棘轮：按 `bench/baseline.json` 比对首屏与计时走秒指标（需先 `pnpm build`，仅本地运行） |
 | `pnpm bench:save` | 把棘轮基线降到当前测量值 |
 
 ## 贡献 (Contributing)
 
-欢迎提交 Issue 或 Pull Request，请确保遵循现有的代码风格。
+欢迎提交 Issue 或 Pull Request，请遵循现有代码风格（见 `AGENTS.md`：需通过 `pnpm lint` 和 `pnpm check`）。
 
 ## 许可证 (License)
 
@@ -206,12 +212,5 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 
 ## 鸣谢 (Acknowledgments)
 
-- [Gemini](https://gemini.google.com/) - 用于初期界面代码生成和优化、文档撰写
-- [TailwindCSS](https://tailwindcss.com/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [pnpm](https://pnpm.io/)
-- [Vite](https://vite.dev/)
-- [React](https://react.dev/)
 - [MetingJS](https://github.com/metowolf/MetingJS)
 - 在线 Meting API 源：`api.injahow.cn`、`meting.furwolf.com`、`meting.api.418121.xyz`、`meting.jinghuashang.cn`
-- [music-metadata](https://github.com/Borewit/music-metadata)
