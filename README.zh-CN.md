@@ -198,7 +198,7 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 
 ## 贡献 (Contributing)
 
-欢迎提交 Issue 或 Pull Request，请确保遵循现有的代码风格。
+欢迎提交 Issue 或 Pull Request，请遵循现有代码风格（见 `AGENTS.md`：需通过 `pnpm lint` 和 `pnpm check`）。
 
 ## 许可证 (License)
 
@@ -206,12 +206,5 @@ export const DEFAULT_MUSIC_VOLUME = 0.5;
 
 ## 鸣谢 (Acknowledgments)
 
-- [Gemini](https://gemini.google.com/) - 用于初期界面代码生成和优化、文档撰写
-- [TailwindCSS](https://tailwindcss.com/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [pnpm](https://pnpm.io/)
-- [Vite](https://vite.dev/)
-- [React](https://react.dev/)
 - [MetingJS](https://github.com/metowolf/MetingJS)
 - 在线 Meting API 源：`api.injahow.cn`、`meting.furwolf.com`、`meting.api.418121.xyz`、`meting.jinghuashang.cn`
-- [music-metadata](https://github.com/Borewit/music-metadata)

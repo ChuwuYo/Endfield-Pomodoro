@@ -203,12 +203,5 @@ Issues and pull requests are welcome. Please follow the existing code style (see
 
 ## Acknowledgments
 
-- [Gemini](https://gemini.google.com/) - initial UI code generation, polish, and docs
-- [TailwindCSS](https://tailwindcss.com/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [pnpm](https://pnpm.io/)
-- [Vite](https://vite.dev/)
-- [React](https://react.dev/)
 - [MetingJS](https://github.com/metowolf/MetingJS)
 - Online Meting API sources: `api.injahow.cn`, `meting.furwolf.com`, `meting.api.418121.xyz`, and `meting.jinghuashang.cn`
-- [music-metadata](https://github.com/Borewit/music-metadata)
