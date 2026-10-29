@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           # 跟随 Node.js 24 LTS 的最新补丁版本
-          node-version: 24
+          node-version: 26
           cache: pnpm
 
       - name: Install dependencies
