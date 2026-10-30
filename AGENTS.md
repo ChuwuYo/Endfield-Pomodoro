@@ -43,8 +43,7 @@
   (imports private css + re-exports), background/foreground components (keep
   existing export names), and `<preset>.css` scoped under
   `html[data-theme="<PRESET>"]`, exported from `src/components/themes/index.ts`.
-  `src/index.css` stays generic; unmigrated effects (`NeonGrid`, `MatrixRain`)
-  remain in `BackgroundEffects.tsx`.
+  `src/index.css` stays generic.
 - Fonts are self-hosted via `@fontsource/*`; never reintroduce a third-party font
   stylesheet. Adding a language means adding its family to `src/utils/cjkFont.ts`.
 - Keep `vite.config.ts` precache lean: exclude large dead assets (`globIgnores`) and
