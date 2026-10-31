@@ -24,13 +24,12 @@ export const NeonGrid = () => (
                 }}
             ></div>
             <div
-                className="absolute left-0 right-0 bottom-0"
+                className="neon-grid-scroll absolute left-0 right-0 bottom-0"
                 style={{
                     top: "-40px",
                     backgroundImage:
                         "linear-gradient(0deg, var(--color-primary) 1px, transparent 1px)",
                     backgroundSize: "40px 40px",
-                    animation: "neon-grid-scroll 1.5s linear infinite",
                 }}
             ></div>
             <div
@@ -46,43 +45,3 @@ export const NeonGrid = () => (
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-theme-primary/20 blur-[100px] pointer-events-none"></div>
     </>
 );
-
-const generateMatrixColumns = () => {
-    const random1 = Array.from({ length: 40 }, () => Math.random());
-    const random2 = Array.from({ length: 40 }, () => Math.random());
-    const charRandoms = Array.from({ length: 40 }, () =>
-        Array.from({ length: 25 }, () => Math.random()),
-    );
-
-    return Array.from({ length: 40 }).map((_, i) => ({
-        id: i,
-        left: i * 2.5,
-        delay: -random1[i] * 5,
-        duration: 2 + random2[i] * 3,
-        chars: charRandoms[i]
-            .map((r) => String.fromCharCode(0x30a0 + r * 96))
-            .join("\n"),
-    }));
-};
-
-const matrixColumns = generateMatrixColumns();
-
-export const MatrixRain = () => {
-    return (
-        <div className="absolute inset-0 overflow-hidden opacity-20 font-ui-mono text-ui-micro leading-ui-grid text-theme-primary select-none pointer-events-none break-all">
-            {matrixColumns.map((col) => (
-                <div
-                    key={col.id}
-                    className="absolute top-0 w-4 text-center animate-[rain_linear_infinite]"
-                    style={{
-                        left: `${col.left}%`,
-                        animationDuration: `${col.duration}s`,
-                        animationDelay: `${col.delay}s`,
-                    }}
-                >
-                    {col.chars}
-                </div>
-            ))}
-        </div>
-    );
-};
