@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/react-v19-61dafb.svg)
-![TypeScript](https://img.shields.io/badge/typescript-v6-3178c6.svg)
+![TypeScript](https://img.shields.io/badge/typescript-v7-3178c6.svg)
 ![Vite](https://img.shields.io/badge/vite-v8-646cff.svg)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-v4-38bdf8.svg)
 ![Remixicon](https://img.shields.io/badge/remixicon-v4-3178c6.svg)
@@ -72,7 +72,7 @@
 
 ### Prerequisites
 
-- Node.js >= 22.22.2 (CI uses Node.js 24 LTS)
+- Node.js >= 22.22.2 (CI uses Node.js 26 LTS)
 - pnpm (recommended), or npm / yarn
 
 ### Setup
