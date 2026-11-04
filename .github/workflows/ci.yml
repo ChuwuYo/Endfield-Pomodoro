@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,8 +27,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          # 跟随 Node.js 24 LTS 的最新补丁版本
-          node-version: 24
+          # 跟随 Node.js 26 LTS 的最新补丁版本
+          node-version: 26
           cache: pnpm
 
       - name: Install dependencies
