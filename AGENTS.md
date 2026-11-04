@@ -48,6 +48,9 @@
   stylesheet. Adding a language means adding its family to `src/utils/cjkFont.ts`.
 - Keep `vite.config.ts` precache lean: exclude large dead assets (`globIgnores`) and
   watch `assets.precacheKB` in `pnpm bench`.
+- `tsc` is TypeScript 7 (`@typescript/native`). The `typescript` package is aliased
+  to `@typescript/typescript6` because typescript-eslint needs the TS 6 API; drop
+  the alias once typescript-eslint supports TS 7.
 - Do not introduce unrelated refactors in feature/fix tasks.
 
 ## Done Criteria
