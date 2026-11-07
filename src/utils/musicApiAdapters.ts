@@ -98,7 +98,7 @@ const parseMetingResponse = (data: unknown): MusicTrack[] => {
             url: upgradeToHttps(url),
             cover: upgradeToHttps(asText(item.pic) || asText(item.cover)),
             lrc: upgradeToHttps(asText(item.lrc)),
-            theme: asText(item.theme) || undefined,
+            theme: typeof item.theme === "string" ? item.theme : undefined,
         };
     });
 };
