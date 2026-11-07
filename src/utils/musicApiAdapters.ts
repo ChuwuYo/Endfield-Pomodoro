@@ -72,19 +72,35 @@ export const upgradeToHttps = (url: string): string => {
     }
 };
 
+const asText = (value: unknown): string =>
+    typeof value === "string" ? value : "";
+
+const asId = (value: unknown): string =>
+    typeof value === "number" && Number.isFinite(value)
+        ? String(value)
+        : asText(value);
+
 const parseMetingResponse = (data: unknown): MusicTrack[] => {
     if (!Array.isArray(data) || data.length === 0) {
         throw new EmptyPlaylistError();
     }
-    return data.map((item: Record<string, string>) => ({
-        id: item.id || item.song_id || trackIdFromUrl(item.url),
-        name: item.name || item.title || "Unknown Track",
-        artist: item.artist || item.author || "Unknown Artist",
-        url: upgradeToHttps(item.url || ""),
-        cover: upgradeToHttps(item.pic || item.cover || ""),
-        lrc: upgradeToHttps(item.lrc || ""),
-        theme: item.theme,
-    }));
+    return data.map((raw: unknown) => {
+        const item: Record<string, unknown> =
+            raw !== null && typeof raw === "object"
+                ? (raw as Record<string, unknown>)
+                : {};
+        const url = asText(item.url);
+        return {
+            id: asId(item.id) || asId(item.song_id) || trackIdFromUrl(url),
+            name: asText(item.name) || asText(item.title) || "Unknown Track",
+            artist:
+                asText(item.artist) || asText(item.author) || "Unknown Artist",
+            url: upgradeToHttps(url),
+            cover: upgradeToHttps(asText(item.pic) || asText(item.cover)),
+            lrc: upgradeToHttps(asText(item.lrc)),
+            theme: typeof item.theme === "string" ? item.theme : undefined,
+        };
+    });
 };
 
 const createMetingAdapter = (
